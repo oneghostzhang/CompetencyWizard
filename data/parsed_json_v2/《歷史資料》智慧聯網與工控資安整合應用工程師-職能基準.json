@@ -1,0 +1,617 @@
+{
+  "metadata": {
+    "code": "SET2519-001v3",
+    "name": "《歷史資料》智慧聯網與工控資安整合應用工程師",
+    "update_date": "2024/12/31",
+    "version": "V3",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\《歷史資料》智慧聯網與工控資安整合應用工程師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "科學、技術、工程、數學／工程及技術",
+    "category_code": "SET",
+    "occupation": "機械工程師電子工程師資料庫及網路專業人員其他軟體、應用程式開發人員及分析師電腦網路及系統技術員",
+    "occupation_code": "21442152252025193513",
+    "industry": [
+      "製造業／電子零組件製造業",
+      "製造業／電腦、電子產品及光學製品製造業",
+      "製造業／電力設備及配備製造業",
+      "製造業／機械設備製造業",
+      "製造業／汽車及其零件製造業",
+      "製造業／產業用機械設備維修及安裝業"
+    ],
+    "industry_code": [
+      "C26",
+      "C27",
+      "C28",
+      "C29",
+      "C30",
+      "C3400"
+    ],
+    "job_description": "在智慧製造領域中，規劃與選用符合資訊運用、傳遞安全的機器聯網解決方案、評估設備資料存取方式、建置與測試機器聯網通訊及連線傳輸感測器訊號、整合機器聯網應用與強化機器聯網系統，實現設備單機、整線、整廠、跨廠區連線，持續進行改進，以支持跨領域服務，並評估資安系統架構的整合、規劃及建置。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T2評估設備資料存取方式",
+      "task_id": "T2.2",
+      "task_name": "評估資料存取資訊安全",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K13",
+        "K14",
+        "K15",
+        "K16"
+      ],
+      "skills": [
+        "S07",
+        "S09",
+        "S10"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T3建置並測試機器聯網通訊及連線傳輸感測器訊號",
+      "task_id": "T3.1",
+      "task_name": "建置機器聯網通訊",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K14",
+        "K20",
+        "K21"
+      ],
+      "skills": [
+        "S15",
+        "S16"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T5精進並優化機器聯網系統",
+      "task_id": "T5.1",
+      "task_name": "精進機器聯網系統",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K10",
+        "K22",
+        "K31",
+        "K32"
+      ],
+      "skills": [
+        "S21",
+        "S22"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T6落實工控資安",
+      "task_id": "T6.1",
+      "task_name": "工控資安風險管理",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K26",
+        "K33",
+        "K34",
+        "K35",
+        "K10",
+        "K16",
+        "K20",
+        "K21"
+      ],
+      "skills": [
+        "S02",
+        "S07",
+        "S21",
+        "S03",
+        "S20"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T6落實工控資安",
+      "task_id": "T6.3",
+      "task_name": "工控資安營運管理",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K16"
+      ],
+      "skills": [
+        "S01",
+        "S23",
+        "S24"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T6落實工控資安",
+      "task_id": "T6.4",
+      "task_name": "資安跨域整合",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K36",
+        "K37"
+      ],
+      "skills": [
+        "S25",
+        "S26",
+        "S27"
+      ],
+      "level": 0
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "機台功能及特性之基本知識",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "設備控制器相關知識",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "製造聯網整合技術",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "智慧感測系統",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "工廠管理實務與應用",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "智慧製造概論",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "工業物聯網概論",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "智慧型控制系統應用",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "設備聯網平台及介面技術",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "人機介面",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "軟體資訊安全架構",
+      "category": "知識"
+    },
+    {
+      "code": "K12",
+      "name": "資料擷取與控制",
+      "category": "知識"
+    },
+    {
+      "code": "K13",
+      "name": "機器聯網資訊安全對策（EX:",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "網路基礎知識與管理",
+      "category": "知識"
+    },
+    {
+      "code": "K15",
+      "name": "軟體開發資訊安全架構（軟",
+      "category": "知識"
+    },
+    {
+      "code": "K16",
+      "name": "國際法規與規範",
+      "category": "知識"
+    },
+    {
+      "code": "K17",
+      "name": "資料結構與演算法基礎",
+      "category": "知識"
+    },
+    {
+      "code": "K18",
+      "name": "資料庫基礎概念",
+      "category": "知識"
+    },
+    {
+      "code": "K19",
+      "name": "儲存平台環境知識",
+      "category": "知識"
+    },
+    {
+      "code": "K20",
+      "name": "工業通訊標準（如 OPC",
+      "category": "知識"
+    },
+    {
+      "code": "K21",
+      "name": "機器間通訊（Machine-to-",
+      "category": "知識"
+    },
+    {
+      "code": "K22",
+      "name": "開源軟體應用基礎（Open",
+      "category": "知識"
+    },
+    {
+      "code": "K23",
+      "name": "辨識與感測技術基礎",
+      "category": "知識"
+    },
+    {
+      "code": "K24",
+      "name": "APP開發/應用技術",
+      "category": "知識"
+    },
+    {
+      "code": "K25",
+      "name": "雲端運用技術",
+      "category": "知識"
+    },
+    {
+      "code": "K26",
+      "name": "使用者身分驗證（多因驗",
+      "category": "知識"
+    },
+    {
+      "code": "K27",
+      "name": "智慧製造應用解決方案（含",
+      "category": "知識"
+    },
+    {
+      "code": "K28",
+      "name": "異質資料庫整合概念（結構",
+      "category": "知識"
+    },
+    {
+      "code": "K29",
+      "name": "標準資訊模型架構與軟體整",
+      "category": "知識"
+    },
+    {
+      "code": "K30",
+      "name": "跨應用軟體資料交換格式",
+      "category": "知識"
+    },
+    {
+      "code": "K31",
+      "name": "程式設計基礎（如 C、C#、",
+      "category": "知識"
+    },
+    {
+      "code": "K32",
+      "name": "Error code架構",
+      "category": "知識"
+    },
+    {
+      "code": "K33",
+      "name": "資產識別與分類",
+      "category": "知識"
+    },
+    {
+      "code": "K34",
+      "name": "風險評估與優先排序",
+      "category": "知識"
+    },
+    {
+      "code": "K35",
+      "name": "資訊安全與防護概念",
+      "category": "知識"
+    },
+    {
+      "code": "K36",
+      "name": "ICS/SCADA安全概論",
+      "category": "知識"
+    },
+    {
+      "code": "K37",
+      "name": "智慧讀表應用安全",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "跨部門/對外溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "歸納分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "設備聯網平台及介面技術整",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "成本分析",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "智慧製造應用解決方案應用",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "跨領域系統整合能力",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "資訊安全概念",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "資料擷取、分享、儲存與控制應用",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "應用層系統資訊安全評估與導入",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "資訊交換應用技術",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "資料結構設計",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "資料庫管理應用",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "儲存平台建置與管理",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "網路管理應用",
+      "category": "技能"
+    },
+    {
+      "code": "S15",
+      "name": "實體層/通訊層/應用層系統",
+      "category": "技能"
+    },
+    {
+      "code": "S16",
+      "name": "機器聯網應用技術",
+      "category": "技能"
+    },
+    {
+      "code": "S17",
+      "name": "IOT輸出入裝置安裝與設定",
+      "category": "技能"
+    },
+    {
+      "code": "S18",
+      "name": "感測器整合於設備的應用",
+      "category": "技能"
+    },
+    {
+      "code": "S19",
+      "name": "製造聯網整合技術應用",
+      "category": "技能"
+    },
+    {
+      "code": "S20",
+      "name": "資訊可視化與預警技術應用",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "操作及應用手冊撰寫",
+      "category": "技能"
+    },
+    {
+      "code": "S22",
+      "name": "問題排除與系統維護規劃",
+      "category": "技能"
+    },
+    {
+      "code": "S23",
+      "name": "工控系統安全設計能力",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "技術文件解讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S25",
+      "name": "多因驗證",
+      "category": "技能"
+    },
+    {
+      "code": "S26",
+      "name": "團隊合作",
+      "category": "技能"
+    },
+    {
+      "code": "S27",
+      "name": "資訊科技應用能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：評估設備資料存取方式\n代碼：SET2519-001v3\n版本：V3\n職類別：科學、技術、工程、數學／工程及技術（代碼：SET）\n職業別：機械工程師電子工程師資料庫及網路專業人員其他軟體、應用程式開發人員及分析師電腦網路及系統技術員（代碼：21442152252025193513）\n行業別：製造業／電子零組件製造業; 製造業／電腦、電子產品及光學製品製造業; 製造業／電力設備及配備製造業; 製造業／機械設備製造業; 製造業／汽車及其零件製造業; 製造業／產業用機械設備維修及安裝業（代碼：C26; C27; C28; C29; C30; C3400）\n基準級別：4\n工作描述：在智慧製造領域中，規劃與選用符合資訊運用、傳遞安全的機器聯網解決方案、評估設備資料存取方式、建置與測試機器聯網通訊及連線傳輸感測器訊號、整合機器聯網應用與強化機器聯網系統，實現設備單機、整線、整廠、跨廠區連線，持續進行改進，以支持跨領域服務，並評估資安系統架構的整合、規劃及建置。\n建議條件：\n更新日期：2024/12/31",
+      "metadata": {
+        "code": "SET2519-001v3",
+        "name": "評估設備資料存取方式",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2評估設備資料存取方式\n任務編號：T2.2\n任務名稱：評估資料存取資訊安全\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（4項）：\n- 機器聯網資訊安全對策（EX:\n- 網路基礎知識與管理\n- 軟體開發資訊安全架構（軟\n- 國際法規與規範\n\n所需技能（3項）：\n- 資訊安全概念\n- 應用層系統資訊安全評估與導入\n- 資訊交換應用技術",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "評估資料存取資訊安全",
+        "main_responsibility": "T2評估設備資料存取方式",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3建置並測試機器聯網通訊及連線傳輸感測器訊號\n任務編號：T3.1\n任務名稱：建置機器聯網通訊\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（3項）：\n- 網路基礎知識與管理\n- 工業通訊標準（如 OPC\n- 機器間通訊（Machine-to-\n\n所需技能（2項）：\n- 實體層/通訊層/應用層系統\n- 機器聯網應用技術",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "建置機器聯網通訊",
+        "main_responsibility": "T3建置並測試機器聯網通訊及連線傳輸感測器訊號",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.1",
+      "type": "工作任務",
+      "content": "主要職責：T5精進並優化機器聯網系統\n任務編號：T5.1\n任務名稱：精進機器聯網系統\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（4項）：\n- 人機介面\n- 開源軟體應用基礎（Open\n- 程式設計基礎（如 C、C#、\n- Error code架構\n\n所需技能（2項）：\n- 操作及應用手冊撰寫\n- 問題排除與系統維護規劃",
+      "metadata": {
+        "task_id": "T5.1",
+        "task_name": "精進機器聯網系統",
+        "main_responsibility": "T5精進並優化機器聯網系統",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.1",
+      "type": "工作任務",
+      "content": "主要職責：T6落實工控資安\n任務編號：T6.1\n任務名稱：工控資安風險管理\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（8項）：\n- 使用者身分驗證（多因驗\n- 資產識別與分類\n- 風險評估與優先排序\n- 資訊安全與防護概念\n- 人機介面\n- 國際法規與規範\n- 工業通訊標準（如 OPC\n- 機器間通訊（Machine-to-\n\n所需技能（5項）：\n- 歸納分析能力\n- 資訊安全概念\n- 操作及應用手冊撰寫\n- 設備聯網平台及介面技術整\n- 資訊可視化與預警技術應用",
+      "metadata": {
+        "task_id": "T6.1",
+        "task_name": "工控資安風險管理",
+        "main_responsibility": "T6落實工控資安",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.3",
+      "type": "工作任務",
+      "content": "主要職責：T6落實工控資安\n任務編號：T6.3\n任務名稱：工控資安營運管理\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（1項）：\n- 國際法規與規範\n\n所需技能（3項）：\n- 跨部門/對外溝通能力\n- 工控系統安全設計能力\n- 技術文件解讀能力",
+      "metadata": {
+        "task_id": "T6.3",
+        "task_name": "工控資安營運管理",
+        "main_responsibility": "T6落實工控資安",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.4",
+      "type": "工作任務",
+      "content": "主要職責：T6落實工控資安\n任務編號：T6.4\n任務名稱：資安跨域整合\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（2項）：\n- ICS/SCADA安全概論\n- 智慧讀表應用安全\n\n所需技能（3項）：\n- 多因驗證\n- 團隊合作\n- 資訊科技應用能力",
+      "metadata": {
+        "task_id": "T6.4",
+        "task_name": "資安跨域整合",
+        "main_responsibility": "T6落實工控資安",
+        "code": "SET2519-001v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T2評估設備資料存取方式\n\n需具備知識（4項）：\n- K13: 機器聯網資訊安全對策（EX:\n- K14: 網路基礎知識與管理\n- K15: 軟體開發資訊安全架構（軟\n- K16: 國際法規與規範\n\n需具備技能（3項）：\n- S07: 資訊安全概念\n- S09: 應用層系統資訊安全評估與導入\n- S10: 資訊交換應用技術",
+      "metadata": {
+        "main_responsibility": "T2評估設備資料存取方式",
+        "code": "SET2519-001v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T3建置並測試機器聯網通訊及連線傳輸感測器訊號\n\n需具備知識（3項）：\n- K14: 網路基礎知識與管理\n- K20: 工業通訊標準（如 OPC\n- K21: 機器間通訊（Machine-to-\n\n需具備技能（2項）：\n- S15: 實體層/通訊層/應用層系統\n- S16: 機器聯網應用技術",
+      "metadata": {
+        "main_responsibility": "T3建置並測試機器聯網通訊及連線傳輸感測器訊號",
+        "code": "SET2519-001v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T5精進並優化機器聯網系統\n\n需具備知識（4項）：\n- K10: 人機介面\n- K22: 開源軟體應用基礎（Open\n- K31: 程式設計基礎（如 C、C#、\n- K32: Error code架構\n\n需具備技能（2項）：\n- S21: 操作及應用手冊撰寫\n- S22: 問題排除與系統維護規劃",
+      "metadata": {
+        "main_responsibility": "T5精進並優化機器聯網系統",
+        "code": "SET2519-001v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T6落實工控資安\n\n需具備知識（10項）：\n- K10: 人機介面\n- K16: 國際法規與規範\n- K20: 工業通訊標準（如 OPC\n- K21: 機器間通訊（Machine-to-\n- K26: 使用者身分驗證（多因驗\n- K33: 資產識別與分類\n- K34: 風險評估與優先排序\n- K35: 資訊安全與防護概念\n- K36: ICS/SCADA安全概論\n- K37: 智慧讀表應用安全\n\n需具備技能（11項）：\n- S01: 跨部門/對外溝通能力\n- S02: 歸納分析能力\n- S03: 設備聯網平台及介面技術整\n- S07: 資訊安全概念\n- S20: 資訊可視化與預警技術應用\n- S21: 操作及應用手冊撰寫\n- S23: 工控系統安全設計能力\n- S24: 技術文件解讀能力\n- S25: 多因驗證\n- S26: 團隊合作\n- S27: 資訊科技應用能力",
+      "metadata": {
+        "main_responsibility": "T6落實工控資安",
+        "code": "SET2519-001v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【評估設備資料存取方式職能基準摘要】\n\n一、基本資訊\n- 職能代碼：SET2519-001v3\n- 職類別：科學、技術、工程、數學／工程及技術\n- 職業別：機械工程師電子工程師資料庫及網路專業人員其他軟體、應用程式開發人員及分析師電腦網路及系統技術員\n- 基準級別：4\n\n二、工作描述\n在智慧製造領域中，規劃與選用符合資訊運用、傳遞安全的機器聯網解決方案、評估設備資料存取方式、建置與測試機器聯網通訊及連線傳輸感測器訊號、整合機器聯網應用與強化機器聯網系統，實現設備單機、整線、整廠、跨廠區連線，持續進行改進，以支持跨領域服務，並評估資安系統架構的整合、規劃及建置。\n\n三、主要職責與任務（6項）\n- T2.2 評估資料存取資訊安全\n- T3.1 建置機器聯網通訊\n- T5.1 精進機器聯網系統\n- T6.1 工控資安風險管理\n- T6.3 工控資安營運管理\n- T6.4 資安跨域整合\n\n四、職能要求\n- 知識項目：37項\n- 技能項目：27項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "SET2519-001v3",
+        "name": "評估設備資料存取方式",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

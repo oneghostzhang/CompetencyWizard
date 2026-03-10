@@ -1,0 +1,359 @@
+{
+  "metadata": {
+    "code": "BLM2412-002v4",
+    "name": "信用卡機構─風險管理人員",
+    "update_date": "2023/01/06",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\信用卡機構─風險管理人員-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "企業經營管理／運籌管理",
+    "category_code": "BLM",
+    "occupation": "金融及保險服務經理人員",
+    "occupation_code": "2412",
+    "industry": [
+      "金融及保險業／金融服務業（信用卡發卡機構）"
+    ],
+    "industry_code": [
+      "K6499"
+    ],
+    "job_description": "有效規劃、監督與執行信用卡機構風險管理政策及事務，以促進公司策略目標之達成。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1擬訂風險管理政策",
+      "task_id": "T1.1",
+      "task_name": "掌握風險管理政策之訂定與執行成果",
+      "output": "風險管理政策、風險管理政策執行成果",
+      "behaviors": [
+        "評估資產組合依照風險管理政策與風險評估作業之執行狀況。",
+        "提升風險管理成效。"
+      ],
+      "knowledge": [
+        "K03",
+        "K04",
+        "K10"
+      ],
+      "skills": [
+        "S03",
+        "S11",
+        "S18",
+        "S25"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T2提升風險管理技術",
+      "task_id": "T2.1",
+      "task_name": "提供風險管理作業人員技術支援",
+      "output": "風險管理技術需求文件",
+      "behaviors": [
+        "確認風險管理技術符合內部管理及外部監管的需求程度。"
+      ],
+      "knowledge": [
+        "K03",
+        "K04",
+        "K10",
+        "K14"
+      ],
+      "skills": [
+        "S07",
+        "S13",
+        "S14",
+        "S24",
+        "S26"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T2提升風險管理技術",
+      "task_id": "T2.2",
+      "task_name": "對風險模型進行有效性之評估與回溯測試",
+      "output": "風險模型評估測試報告",
+      "behaviors": [
+        "保持風險模型有效性。"
+      ],
+      "knowledge": [
+        "K03",
+        "K04",
+        "K10",
+        "K14"
+      ],
+      "skills": [
+        "S10",
+        "S13",
+        "S14",
+        "S24",
+        "S26"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3執行風險管理程序",
+      "task_id": "T3.1",
+      "task_name": "信用卡商品風險管理日常報表之監控與分析",
+      "output": "風險管理日常報表",
+      "behaviors": [
+        "定期衡量、監控個別資產類別風險及限額。"
+      ],
+      "knowledge": [
+        "K01",
+        "K04",
+        "K05",
+        "K10",
+        "K14"
+      ],
+      "skills": [
+        "S10",
+        "S12",
+        "S18",
+        "S26"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3執行風險管理程序",
+      "task_id": "T3.2",
+      "task_name": "確切了解各業務單位之風險限額及使用狀況",
+      "output": "各項業務風險限額使用狀況表",
+      "behaviors": [
+        "分析公司整體風險變動狀況，落實執行風險超限之處理原則。"
+      ],
+      "knowledge": [
+        "K04",
+        "K05",
+        "K10"
+      ],
+      "skills": [
+        "S12",
+        "S14",
+        "S18",
+        "S20"
+      ],
+      "level": 4
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K03",
+      "name": "經濟",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "金融市場",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "風險管理",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "法律/法規",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "統計",
+      "category": "知識"
+    },
+    {
+      "code": "K01",
+      "name": "會計",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S03",
+      "name": "策略性思考",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "規劃與組織能力",
+      "category": "技能"
+    },
+    {
+      "code": "S18",
+      "name": "溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S25",
+      "name": "績效管理",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "問題分析",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "資訊科技應用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "品質導向",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "問題解決",
+      "category": "技能"
+    },
+    {
+      "code": "S26",
+      "name": "量化分析技術",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "分析與解讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S20",
+      "name": "說服能力",
+      "category": "技能"
+    },
+    {
+      "code": "S30",
+      "name": "決斷力",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "時間管理",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：擬訂風險管理政策\n代碼：BLM2412-002v4\n版本：V4\n職類別：企業經營管理／運籌管理（代碼：BLM）\n職業別：金融及保險服務經理人員（代碼：2412）\n行業別：金融及保險業／金融服務業（信用卡發卡機構）（代碼：K6499）\n基準級別：4\n工作描述：有效規劃、監督與執行信用卡機構風險管理政策及事務，以促進公司策略目標之達成。\n建議條件：\n更新日期：2023/01/06",
+      "metadata": {
+        "code": "BLM2412-002v4",
+        "name": "擬訂風險管理政策",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1擬訂風險管理政策\n任務編號：T1.1\n任務名稱：掌握風險管理政策之訂定與執行成果\n職能級別：4\n工作產出：風險管理政策、風險管理政策執行成果\n\n行為指標：\n- 評估資產組合依照風險管理政策與風險評估作業之執行狀況。\n- 提升風險管理成效。\n\n所需知識（3項）：\n- 經濟\n- 金融市場\n- 風險管理\n\n所需技能（4項）：\n- 策略性思考\n- 規劃與組織能力\n- 溝通能力\n- 績效管理",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "掌握風險管理政策之訂定與執行成果",
+        "main_responsibility": "T1擬訂風險管理政策",
+        "code": "BLM2412-002v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2提升風險管理技術\n任務編號：T2.1\n任務名稱：提供風險管理作業人員技術支援\n職能級別：4\n工作產出：風險管理技術需求文件\n\n行為指標：\n- 確認風險管理技術符合內部管理及外部監管的需求程度。\n\n所需知識（4項）：\n- 經濟\n- 金融市場\n- 風險管理\n- 統計\n\n所需技能（5項）：\n- 品質導向\n- 問題分析\n- 問題解決\n- 資訊科技應用能力\n- 量化分析技術",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "提供風險管理作業人員技術支援",
+        "main_responsibility": "T2提升風險管理技術",
+        "code": "BLM2412-002v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2提升風險管理技術\n任務編號：T2.2\n任務名稱：對風險模型進行有效性之評估與回溯測試\n職能級別：4\n工作產出：風險模型評估測試報告\n\n行為指標：\n- 保持風險模型有效性。\n\n所需知識（4項）：\n- 經濟\n- 金融市場\n- 風險管理\n- 統計\n\n所需技能（5項）：\n- 分析與解讀能力\n- 問題分析\n- 問題解決\n- 資訊科技應用能力\n- 量化分析技術",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "對風險模型進行有效性之評估與回溯測試",
+        "main_responsibility": "T2提升風險管理技術",
+        "code": "BLM2412-002v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3執行風險管理程序\n任務編號：T3.1\n任務名稱：信用卡商品風險管理日常報表之監控與分析\n職能級別：4\n工作產出：風險管理日常報表\n\n行為指標：\n- 定期衡量、監控個別資產類別風險及限額。\n\n所需知識（5項）：\n- 會計\n- 金融市場\n- 法律/法規\n- 風險管理\n- 統計\n\n所需技能（4項）：\n- 分析與解讀能力\n- 時間管理\n- 溝通能力\n- 量化分析技術",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "信用卡商品風險管理日常報表之監控與分析",
+        "main_responsibility": "T3執行風險管理程序",
+        "code": "BLM2412-002v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3執行風險管理程序\n任務編號：T3.2\n任務名稱：確切了解各業務單位之風險限額及使用狀況\n職能級別：4\n工作產出：各項業務風險限額使用狀況表\n\n行為指標：\n- 分析公司整體風險變動狀況，落實執行風險超限之處理原則。\n\n所需知識（3項）：\n- 金融市場\n- 法律/法規\n- 風險管理\n\n所需技能（4項）：\n- 時間管理\n- 問題解決\n- 溝通能力\n- 說服能力",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "確切了解各業務單位之風險限額及使用狀況",
+        "main_responsibility": "T3執行風險管理程序",
+        "code": "BLM2412-002v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1擬訂風險管理政策\n\n需具備知識（3項）：\n- K03: 經濟\n- K04: 金融市場\n- K10: 風險管理\n\n需具備技能（4項）：\n- S03: 策略性思考\n- S11: 規劃與組織能力\n- S18: 溝通能力\n- S25: 績效管理",
+      "metadata": {
+        "main_responsibility": "T1擬訂風險管理政策",
+        "code": "BLM2412-002v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2提升風險管理技術\n\n需具備知識（4項）：\n- K03: 經濟\n- K04: 金融市場\n- K10: 風險管理\n- K14: 統計\n\n需具備技能（6項）：\n- S07: 品質導向\n- S10: 分析與解讀能力\n- S13: 問題分析\n- S14: 問題解決\n- S24: 資訊科技應用能力\n- S26: 量化分析技術",
+      "metadata": {
+        "main_responsibility": "T2提升風險管理技術",
+        "code": "BLM2412-002v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3執行風險管理程序\n\n需具備知識（5項）：\n- K01: 會計\n- K04: 金融市場\n- K05: 法律/法規\n- K10: 風險管理\n- K14: 統計\n\n需具備技能（6項）：\n- S10: 分析與解讀能力\n- S12: 時間管理\n- S14: 問題解決\n- S18: 溝通能力\n- S20: 說服能力\n- S26: 量化分析技術",
+      "metadata": {
+        "main_responsibility": "T3執行風險管理程序",
+        "code": "BLM2412-002v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【擬訂風險管理政策職能基準摘要】\n\n一、基本資訊\n- 職能代碼：BLM2412-002v4\n- 職類別：企業經營管理／運籌管理\n- 職業別：金融及保險服務經理人員\n- 基準級別：4\n\n二、工作描述\n有效規劃、監督與執行信用卡機構風險管理政策及事務，以促進公司策略目標之達成。\n\n三、主要職責與任務（5項）\n- T1.1 掌握風險管理政策之訂定與執行成果\n- T2.1 提供風險管理作業人員技術支援\n- T2.2 對風險模型進行有效性之評估與回溯測試\n- T3.1 信用卡商品風險管理日常報表之監控與分析\n- T3.2 確切了解各業務單位之風險限額及使用狀況\n\n四、職能要求\n- 知識項目：6項\n- 技能項目：13項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "BLM2412-002v4",
+        "name": "擬訂風險管理政策",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

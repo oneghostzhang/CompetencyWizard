@@ -1,0 +1,342 @@
+{
+  "metadata": {
+    "code": "AVA7317-001v4",
+    "name": "工藝產業竹工藝師",
+    "update_date": "2023/07/24",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\工藝產業竹工藝師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "藝文與影音傳播／視覺藝術",
+    "category_code": "AVA",
+    "occupation": "木、竹、藤及有關材質手工藝工作人員",
+    "occupation_code": "7317",
+    "industry": [
+      "藝術、娛樂及休閒服務業／創作及藝術表演業"
+    ],
+    "industry_code": [
+      "R9010"
+    ],
+    "job_description": "熟悉竹材特性，善用手與機器加工技術，瞭解竹藝市場環境與趨勢，運用創意構想，設計、製作、生產竹製品，建立銷售通路。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1構想設計產品",
+      "task_id": "T1.1",
+      "task_name": "掌握市場趨勢",
+      "output": "市場調查資料",
+      "behaviors": [
+        "能夠掌握目標市場流行趨勢或者結合文化特色與流行趨勢。"
+      ],
+      "knowledge": [
+        "K00",
+        "K30",
+        "K32"
+      ],
+      "skills": [
+        "S30"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T1構想設計產品",
+      "task_id": "T1.2",
+      "task_name": "溝通",
+      "output": "客",
+      "behaviors": [
+        "能夠快速與確實掌握客戶（含潛力客戶）"
+      ],
+      "knowledge": [
+        "K00",
+        "K30",
+        "K32"
+      ],
+      "skills": [
+        "S30"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3規畫與監督量產",
+      "task_id": "T3.1",
+      "task_name": "規畫量產實施",
+      "output": "量產規畫書",
+      "behaviors": [
+        "能夠採取效率高的量產方式。"
+      ],
+      "knowledge": [
+        "K31"
+      ],
+      "skills": [
+        "S33"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T3規畫與監督量產",
+      "task_id": "T3.2",
+      "task_name": "監督機具、模具維護管理與安全",
+      "output": "管理辦法",
+      "behaviors": [
+        "能夠採購最合適操作、安全可靠且符合預算的機器與工具，保持機具最佳狀態。"
+      ],
+      "knowledge": [
+        "K30"
+      ],
+      "skills": [
+        "S32",
+        "S33"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3規畫與監督量產",
+      "task_id": "T3.3",
+      "task_name": "監督排程",
+      "output": "生產排程表",
+      "behaviors": [
+        "能夠準時交給客戶品質達到期望的產品。"
+      ],
+      "knowledge": [
+        "K00",
+        "K32"
+      ],
+      "skills": [
+        "S33"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T4銷售產品",
+      "task_id": "T4.1",
+      "task_name": "參加展售與競賽",
+      "output": "宣傳資料、展品包裝",
+      "behaviors": [
+        "能夠設計吸引人的包裝或令人感動的故事。"
+      ],
+      "knowledge": [
+        "K32"
+      ],
+      "skills": [
+        "S30",
+        "S34"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T4銷售產品",
+      "task_id": "T4.2",
+      "task_name": "建立行銷通路",
+      "output": "合約",
+      "behaviors": [
+        "能夠與優良通路合作。"
+      ],
+      "knowledge": [
+        "K32"
+      ],
+      "skills": [
+        "S34"
+      ],
+      "level": 4
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K00",
+      "name": "4工藝產業發展脈絡",
+      "category": "知識"
+    },
+    {
+      "code": "K30",
+      "name": "1地方文化特色與資源",
+      "category": "知識"
+    },
+    {
+      "code": "K32",
+      "name": "7竹工藝產業與市場概況",
+      "category": "知識"
+    },
+    {
+      "code": "K31",
+      "name": "0材質美學",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S30",
+      "name": "1觀察分析",
+      "category": "技能"
+    },
+    {
+      "code": "S31",
+      "name": "9建構三視圖或3D模擬繪圖",
+      "category": "技能"
+    },
+    {
+      "code": "S32",
+      "name": "3塗裝技術",
+      "category": "技能"
+    },
+    {
+      "code": "S33",
+      "name": "0制定竹篾尺寸規格",
+      "category": "技能"
+    },
+    {
+      "code": "S34",
+      "name": "0品質檢核",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：構想設計產品\n代碼：AVA7317-001v4\n版本：V4\n職類別：藝文與影音傳播／視覺藝術（代碼：AVA）\n職業別：木、竹、藤及有關材質手工藝工作人員（代碼：7317）\n行業別：藝術、娛樂及休閒服務業／創作及藝術表演業（代碼：R9010）\n基準級別：4\n工作描述：熟悉竹材特性，善用手與機器加工技術，瞭解竹藝市場環境與趨勢，運用創意構想，設計、製作、生產竹製品，建立銷售通路。\n建議條件：\n更新日期：2023/07/24",
+      "metadata": {
+        "code": "AVA7317-001v4",
+        "name": "構想設計產品",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1構想設計產品\n任務編號：T1.1\n任務名稱：掌握市場趨勢\n職能級別：4\n工作產出：市場調查資料\n\n行為指標：\n- 能夠掌握目標市場流行趨勢或者結合文化特色與流行趨勢。\n\n所需知識（3項）：\n- 4工藝產業發展脈絡\n- 1地方文化特色與資源\n- 7竹工藝產業與市場概況\n\n所需技能（1項）：\n- 1觀察分析",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "掌握市場趨勢",
+        "main_responsibility": "T1構想設計產品",
+        "code": "AVA7317-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1構想設計產品\n任務編號：T1.2\n任務名稱：溝通\n職能級別：4\n工作產出：客\n\n行為指標：\n- 能夠快速與確實掌握客戶（含潛力客戶）\n\n所需知識（3項）：\n- 4工藝產業發展脈絡\n- 1地方文化特色與資源\n- 7竹工藝產業與市場概況\n\n所需技能（1項）：\n- 1觀察分析",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "溝通",
+        "main_responsibility": "T1構想設計產品",
+        "code": "AVA7317-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3規畫與監督量產\n任務編號：T3.1\n任務名稱：規畫量產實施\n職能級別：5\n工作產出：量產規畫書\n\n行為指標：\n- 能夠採取效率高的量產方式。\n\n所需知識（1項）：\n- 0材質美學\n\n所需技能（1項）：\n- 0制定竹篾尺寸規格",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "規畫量產實施",
+        "main_responsibility": "T3規畫與監督量產",
+        "code": "AVA7317-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3規畫與監督量產\n任務編號：T3.2\n任務名稱：監督機具、模具維護管理與安全\n職能級別：4\n工作產出：管理辦法\n\n行為指標：\n- 能夠採購最合適操作、安全可靠且符合預算的機器與工具，保持機具最佳狀態。\n\n所需知識（1項）：\n- 1地方文化特色與資源\n\n所需技能（2項）：\n- 3塗裝技術\n- 0制定竹篾尺寸規格",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "監督機具、模具維護管理與安全",
+        "main_responsibility": "T3規畫與監督量產",
+        "code": "AVA7317-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.3",
+      "type": "工作任務",
+      "content": "主要職責：T3規畫與監督量產\n任務編號：T3.3\n任務名稱：監督排程\n職能級別：3\n工作產出：生產排程表\n\n行為指標：\n- 能夠準時交給客戶品質達到期望的產品。\n\n所需知識（2項）：\n- 4工藝產業發展脈絡\n- 7竹工藝產業與市場概況\n\n所需技能（1項）：\n- 0制定竹篾尺寸規格",
+      "metadata": {
+        "task_id": "T3.3",
+        "task_name": "監督排程",
+        "main_responsibility": "T3規畫與監督量產",
+        "code": "AVA7317-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4銷售產品\n任務編號：T4.1\n任務名稱：參加展售與競賽\n職能級別：5\n工作產出：宣傳資料、展品包裝\n\n行為指標：\n- 能夠設計吸引人的包裝或令人感動的故事。\n\n所需知識（1項）：\n- 7竹工藝產業與市場概況\n\n所需技能（2項）：\n- 1觀察分析\n- 0品質檢核",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "參加展售與競賽",
+        "main_responsibility": "T4銷售產品",
+        "code": "AVA7317-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4銷售產品\n任務編號：T4.2\n任務名稱：建立行銷通路\n職能級別：4\n工作產出：合約\n\n行為指標：\n- 能夠與優良通路合作。\n\n所需知識（1項）：\n- 7竹工藝產業與市場概況\n\n所需技能（1項）：\n- 0品質檢核",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "建立行銷通路",
+        "main_responsibility": "T4銷售產品",
+        "code": "AVA7317-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1構想設計產品\n\n需具備知識（3項）：\n- K00: 4工藝產業發展脈絡\n- K30: 1地方文化特色與資源\n- K32: 7竹工藝產業與市場概況\n\n需具備技能（1項）：\n- S30: 1觀察分析",
+      "metadata": {
+        "main_responsibility": "T1構想設計產品",
+        "code": "AVA7317-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T3規畫與監督量產\n\n需具備知識（4項）：\n- K00: 4工藝產業發展脈絡\n- K30: 1地方文化特色與資源\n- K31: 0材質美學\n- K32: 7竹工藝產業與市場概況\n\n需具備技能（2項）：\n- S32: 3塗裝技術\n- S33: 0制定竹篾尺寸規格",
+      "metadata": {
+        "main_responsibility": "T3規畫與監督量產",
+        "code": "AVA7317-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T4銷售產品\n\n需具備知識（1項）：\n- K32: 7竹工藝產業與市場概況\n\n需具備技能（2項）：\n- S30: 1觀察分析\n- S34: 0品質檢核",
+      "metadata": {
+        "main_responsibility": "T4銷售產品",
+        "code": "AVA7317-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【構想設計產品職能基準摘要】\n\n一、基本資訊\n- 職能代碼：AVA7317-001v4\n- 職類別：藝文與影音傳播／視覺藝術\n- 職業別：木、竹、藤及有關材質手工藝工作人員\n- 基準級別：4\n\n二、工作描述\n熟悉竹材特性，善用手與機器加工技術，瞭解竹藝市場環境與趨勢，運用創意構想，設計、製作、生產竹製品，建立銷售通路。\n\n三、主要職責與任務（7項）\n- T1.1 掌握市場趨勢\n- T1.2 溝通\n- T3.1 規畫量產實施\n- T3.2 監督機具、模具維護管理與安全\n- T3.3 監督排程\n- T4.1 參加展售與競賽\n- T4.2 建立行銷通路\n\n四、職能要求\n- 知識項目：4項\n- 技能項目：5項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "AVA7317-001v4",
+        "name": "構想設計產品",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

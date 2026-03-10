@@ -1,0 +1,500 @@
+{
+  "metadata": {
+    "code": "KRM2421-003v3",
+    "name": "綜合零售業物聯網應用企劃師",
+    "update_date": "2025/05/02",
+    "version": "V3",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\綜合零售業物聯網應用企劃師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "行銷與銷售／零售與通路管理",
+    "category_code": "KRM",
+    "occupation": "組織及政策管理專業人員",
+    "occupation_code": "2421",
+    "industry": [
+      "批發及零售業／綜合商品零售業"
+    ],
+    "industry_code": [
+      "G471"
+    ],
+    "job_description": "瞭解物聯網系統架構內容與應用趨勢，並依據綜合零售業之產業需求，規劃物聯網應用模式與導入策略，進而執行與評估物聯網企劃專案之成效。",
+    "level": 3,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1熟悉產業屬性",
+      "task_id": "T1.1",
+      "task_name": "熟悉產業屬性",
+      "output": "產業屬性分析",
+      "behaviors": [
+        "能充份瞭解產業屬性、產品或服務性質。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T2瞭解物聯網標準與應用趨勢",
+      "task_id": "T2.1",
+      "task_name": "蒐集國內外同業授用之技術/應用規格及國家現行法令規章或加入硬體認證（如：NCC、CE或UL等）",
+      "output": "物聯網標準與法令知識報告",
+      "behaviors": [
+        "能夠比較不同物聯網應用與所採用之標準差異或認證的需求，及相關法令的規範。"
+      ],
+      "knowledge": [
+        "K04",
+        "K05",
+        "K06",
+        "K07"
+      ],
+      "skills": [
+        "S01",
+        "S04",
+        "S05"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T3物聯網專案需求分析",
+      "task_id": "T3.1",
+      "task_name": "點出場域的痛點",
+      "output": "痛點分析報告",
+      "behaviors": [
+        "能找出消費者與業者在場域體驗或營運上的痛點。"
+      ],
+      "knowledge": [
+        "K08",
+        "K09",
+        "K10"
+      ],
+      "skills": [
+        "S03",
+        "S06",
+        "S07"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3物聯網專案需求分析",
+      "task_id": "T3.2",
+      "task_name": "分析痛點對應的需求方案",
+      "output": "需求方案報告",
+      "behaviors": [
+        "能調研與分析痛點對應的需求方案。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T4企劃物聯網專案",
+      "task_id": "T4.1",
+      "task_name": "規劃合適的物聯網解決方案",
+      "output": "系統導入成本效益分析",
+      "behaviors": [
+        "能將新技術、產品、市場、物聯網標準規範、企業痛點等資訊，提出合適的物聯網解決方案。"
+      ],
+      "knowledge": [
+        "K03",
+        "K05",
+        "K11"
+      ],
+      "skills": [
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T4企劃物聯網專案",
+      "task_id": "T4.2",
+      "task_name": "物聯網應用服",
+      "output": "物聯網應用服務情境",
+      "behaviors": [
+        "依據方案設計提出創新服務流程，並提出系統故障緊急應變措施。"
+      ],
+      "knowledge": [
+        "K03",
+        "K12"
+      ],
+      "skills": [
+        "S07",
+        "S10"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T5專案執行、檢討與檢討",
+      "task_id": "T5.1",
+      "task_name": "參與專案之執行",
+      "output": "進行專案工作分解結構（WBS）",
+      "behaviors": [
+        "能更深入參與專案企劃之目標與規劃確實執行專案工作，有效掌控品質，並適時依據狀況檢討或因應。"
+      ],
+      "knowledge": [
+        "K03",
+        "K11",
+        "K15"
+      ],
+      "skills": [
+        "S11",
+        "S12",
+        "S13",
+        "S14"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T5專案執行、檢討與檢討",
+      "task_id": "T5.2",
+      "task_name": "參與專案之檢討與優化",
+      "output": "參與成果報告與改善建議",
+      "behaviors": [
+        "能依據企劃之執行情形，提出檢討報告。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "市場研究原則與實務",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "質化與量化分析知識",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "報告撰寫知識",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "物聯網系統基本架構",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "物聯網相關基本規格與技術（如RFID、Wifi、攝影、紅外線、Beacon、壓力線、溫度…）",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "商務流整合知識（如API串接）",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "對硬體認證知識",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "物聯網發展趨勢",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "物聯網實務案例",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "系統整合知識",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "專案管理知識",
+      "category": "知識"
+    },
+    {
+      "code": "K12",
+      "name": "營運模式概念知識",
+      "category": "知識"
+    },
+    {
+      "code": "K13",
+      "name": "商業價值分析知識",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "個資法保護的知識",
+      "category": "知識"
+    },
+    {
+      "code": "K15",
+      "name": "執行面知識",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "資料蒐集能力",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "整理與分析報告技能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "問卷設計與分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "國外資料蒐集或閱讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "瞭解產品基本規格功能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "專案需求與導入效益評估",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "專案撰寫技巧",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "成本效益分析",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "導入風險評估",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "作業流程分析（如用戶體驗）",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "檢討報告撰寫技巧",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "專案管理技能力",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "執行面技能力",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "問題分析技能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：熟悉產業屬性\n代碼：KRM2421-003v3\n版本：V3\n職類別：行銷與銷售／零售與通路管理（代碼：KRM）\n職業別：組織及政策管理專業人員（代碼：2421）\n行業別：批發及零售業／綜合商品零售業（代碼：G471）\n基準級別：3\n工作描述：瞭解物聯網系統架構內容與應用趨勢，並依據綜合零售業之產業需求，規劃物聯網應用模式與導入策略，進而執行與評估物聯網企劃專案之成效。\n建議條件：\n更新日期：2025/05/02",
+      "metadata": {
+        "code": "KRM2421-003v3",
+        "name": "熟悉產業屬性",
+        "level": 3,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1熟悉產業屬性\n任務編號：T1.1\n任務名稱：熟悉產業屬性\n職能級別：3\n工作產出：產業屬性分析\n\n行為指標：\n- 能充份瞭解產業屬性、產品或服務性質。\n\n所需知識（3項）：\n- 市場研究原則與實務\n- 質化與量化分析知識\n- 報告撰寫知識\n\n所需技能（3項）：\n- 資料蒐集能力\n- 整理與分析報告技能力\n- 問卷設計與分析能力",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "熟悉產業屬性",
+        "main_responsibility": "T1熟悉產業屬性",
+        "code": "KRM2421-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2瞭解物聯網標準與應用趨勢\n任務編號：T2.1\n任務名稱：蒐集國內外同業授用之技術/應用規格及國家現行法令規章或加入硬體認證（如：NCC、CE或UL等）\n職能級別：3\n工作產出：物聯網標準與法令知識報告\n\n行為指標：\n- 能夠比較不同物聯網應用與所採用之標準差異或認證的需求，及相關法令的規範。\n\n所需知識（4項）：\n- 物聯網系統基本架構\n- 物聯網相關基本規格與技術（如RFID、Wifi、攝影、紅外線、Beacon、壓力線、溫度…）\n- 商務流整合知識（如API串接）\n- 對硬體認證知識\n\n所需技能（3項）：\n- 資料蒐集能力\n- 國外資料蒐集或閱讀能力\n- 瞭解產品基本規格功能力",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "蒐集國內外同業授用之技術/應用規格及國家現行法令規章或加入硬體認證（如：NCC、CE或UL等）",
+        "main_responsibility": "T2瞭解物聯網標準與應用趨勢",
+        "code": "KRM2421-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3物聯網專案需求分析\n任務編號：T3.1\n任務名稱：點出場域的痛點\n職能級別：4\n工作產出：痛點分析報告\n\n行為指標：\n- 能找出消費者與業者在場域體驗或營運上的痛點。\n\n所需知識（3項）：\n- 物聯網發展趨勢\n- 物聯網實務案例\n- 系統整合知識\n\n所需技能（3項）：\n- 問卷設計與分析能力\n- 專案需求與導入效益評估\n- 專案撰寫技巧",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "點出場域的痛點",
+        "main_responsibility": "T3物聯網專案需求分析",
+        "code": "KRM2421-003v3",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3物聯網專案需求分析\n任務編號：T3.2\n任務名稱：分析痛點對應的需求方案\n職能級別：0\n工作產出：需求方案報告\n\n行為指標：\n- 能調研與分析痛點對應的需求方案。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "分析痛點對應的需求方案",
+        "main_responsibility": "T3物聯網專案需求分析",
+        "code": "KRM2421-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4企劃物聯網專案\n任務編號：T4.1\n任務名稱：規劃合適的物聯網解決方案\n職能級別：4\n工作產出：系統導入成本效益分析\n\n行為指標：\n- 能將新技術、產品、市場、物聯網標準規範、企業痛點等資訊，提出合適的物聯網解決方案。\n\n所需知識（3項）：\n- 報告撰寫知識\n- 物聯網相關基本規格與技術（如RFID、Wifi、攝影、紅外線、Beacon、壓力線、溫度…）\n- 專案管理知識\n\n所需技能（3項）：\n- 專案撰寫技巧\n- 成本效益分析\n- 導入風險評估",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "規劃合適的物聯網解決方案",
+        "main_responsibility": "T4企劃物聯網專案",
+        "code": "KRM2421-003v3",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4企劃物聯網專案\n任務編號：T4.2\n任務名稱：物聯網應用服\n職能級別：4\n工作產出：物聯網應用服務情境\n\n行為指標：\n- 依據方案設計提出創新服務流程，並提出系統故障緊急應變措施。\n\n所需知識（2項）：\n- 報告撰寫知識\n- 營運模式概念知識\n\n所需技能（2項）：\n- 專案撰寫技巧\n- 作業流程分析（如用戶體驗）",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "物聯網應用服",
+        "main_responsibility": "T4企劃物聯網專案",
+        "code": "KRM2421-003v3",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.1",
+      "type": "工作任務",
+      "content": "主要職責：T5專案執行、檢討與檢討\n任務編號：T5.1\n任務名稱：參與專案之執行\n職能級別：4\n工作產出：進行專案工作分解結構（WBS）\n\n行為指標：\n- 能更深入參與專案企劃之目標與規劃確實執行專案工作，有效掌控品質，並適時依據狀況檢討或因應。\n\n所需知識（3項）：\n- 報告撰寫知識\n- 專案管理知識\n- 執行面知識\n\n所需技能（4項）：\n- 檢討報告撰寫技巧\n- 專案管理技能力\n- 執行面技能力\n- 問題分析技能力",
+      "metadata": {
+        "task_id": "T5.1",
+        "task_name": "參與專案之執行",
+        "main_responsibility": "T5專案執行、檢討與檢討",
+        "code": "KRM2421-003v3",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.2",
+      "type": "工作任務",
+      "content": "主要職責：T5專案執行、檢討與檢討\n任務編號：T5.2\n任務名稱：參與專案之檢討與優化\n職能級別：0\n工作產出：參與成果報告與改善建議\n\n行為指標：\n- 能依據企劃之執行情形，提出檢討報告。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T5.2",
+        "task_name": "參與專案之檢討與優化",
+        "main_responsibility": "T5專案執行、檢討與檢討",
+        "code": "KRM2421-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1熟悉產業屬性\n\n需具備知識（3項）：\n- K01: 市場研究原則與實務\n- K02: 質化與量化分析知識\n- K03: 報告撰寫知識\n\n需具備技能（3項）：\n- S01: 資料蒐集能力\n- S02: 整理與分析報告技能力\n- S03: 問卷設計與分析能力",
+      "metadata": {
+        "main_responsibility": "T1熟悉產業屬性",
+        "code": "KRM2421-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2瞭解物聯網標準與應用趨勢\n\n需具備知識（4項）：\n- K04: 物聯網系統基本架構\n- K05: 物聯網相關基本規格與技術（如RFID、Wifi、攝影、紅外線、Beacon、壓力線、溫度…）\n- K06: 商務流整合知識（如API串接）\n- K07: 對硬體認證知識\n\n需具備技能（3項）：\n- S01: 資料蒐集能力\n- S04: 國外資料蒐集或閱讀能力\n- S05: 瞭解產品基本規格功能力",
+      "metadata": {
+        "main_responsibility": "T2瞭解物聯網標準與應用趨勢",
+        "code": "KRM2421-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3物聯網專案需求分析\n\n需具備知識（3項）：\n- K08: 物聯網發展趨勢\n- K09: 物聯網實務案例\n- K10: 系統整合知識\n\n需具備技能（3項）：\n- S03: 問卷設計與分析能力\n- S06: 專案需求與導入效益評估\n- S07: 專案撰寫技巧",
+      "metadata": {
+        "main_responsibility": "T3物聯網專案需求分析",
+        "code": "KRM2421-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T4企劃物聯網專案\n\n需具備知識（4項）：\n- K03: 報告撰寫知識\n- K05: 物聯網相關基本規格與技術（如RFID、Wifi、攝影、紅外線、Beacon、壓力線、溫度…）\n- K11: 專案管理知識\n- K12: 營運模式概念知識\n\n需具備技能（4項）：\n- S07: 專案撰寫技巧\n- S08: 成本效益分析\n- S09: 導入風險評估\n- S10: 作業流程分析（如用戶體驗）",
+      "metadata": {
+        "main_responsibility": "T4企劃物聯網專案",
+        "code": "KRM2421-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_5",
+      "type": "知識技能",
+      "content": "職責領域：T5專案執行、檢討與檢討\n\n需具備知識（3項）：\n- K03: 報告撰寫知識\n- K11: 專案管理知識\n- K15: 執行面知識\n\n需具備技能（4項）：\n- S11: 檢討報告撰寫技巧\n- S12: 專案管理技能力\n- S13: 執行面技能力\n- S14: 問題分析技能力",
+      "metadata": {
+        "main_responsibility": "T5專案執行、檢討與檢討",
+        "code": "KRM2421-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【熟悉產業屬性職能基準摘要】\n\n一、基本資訊\n- 職能代碼：KRM2421-003v3\n- 職類別：行銷與銷售／零售與通路管理\n- 職業別：組織及政策管理專業人員\n- 基準級別：3\n\n二、工作描述\n瞭解物聯網系統架構內容與應用趨勢，並依據綜合零售業之產業需求，規劃物聯網應用模式與導入策略，進而執行與評估物聯網企劃專案之成效。\n\n三、主要職責與任務（8項）\n- T1.1 熟悉產業屬性\n- T2.1 蒐集國內外同業授用之技術/應用規格及國家現行法令規章或加入硬體認證（如：NCC、CE或UL等）\n- T3.1 點出場域的痛點\n- T3.2 分析痛點對應的需求方案\n- T4.1 規劃合適的物聯網解決方案\n- T4.2 物聯網應用服\n- T5.1 參與專案之執行\n- T5.2 參與專案之檢討與優化\n\n四、職能要求\n- 知識項目：15項\n- 技能項目：14項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "KRM2421-003v3",
+        "name": "熟悉產業屬性",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

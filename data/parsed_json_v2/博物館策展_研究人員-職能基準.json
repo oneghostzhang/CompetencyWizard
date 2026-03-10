@@ -1,0 +1,488 @@
+{
+  "metadata": {
+    "code": "BLM2621-001v1",
+    "name": "博物館策展_研究人員",
+    "update_date": "",
+    "version": "V1",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\博物館策展_研究人員-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "企業經營管理／運籌管理",
+    "category_code": "BLM",
+    "occupation": "檔案及文物管理專業人員",
+    "occupation_code": "2621",
+    "industry": [
+      "藝術、娛樂及休閒服務業／博物館、歷史遺址及其他類似機構"
+    ],
+    "industry_code": [
+      "R9103"
+    ],
+    "job_description": "於博物館及類似機構中，進行物質文化研究，策劃及推出展覽，必要時協助典藏管理及教育活動。",
+    "level": 6,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T2典藏",
+      "task_id": "T2.1",
+      "task_name": "典藏規劃",
+      "output": "蒐藏政策",
+      "behaviors": [
+        "審視現有館藏整體質量概況，如冗件或待加強之處。",
+        "擘劃未來館藏發展方向。"
+      ],
+      "knowledge": [
+        "K06",
+        "K07"
+      ],
+      "skills": [
+        "S03",
+        "S05",
+        "S10",
+        "S11",
+        "S13"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T2典藏",
+      "task_id": "T2.2",
+      "task_name": "典藏徵集",
+      "output": "藏品取得要點（文物購藏要點、受理文物捐贈要點）、蒐藏審議會設置要點、蒐藏品註銷與處置作業要點",
+      "behaviors": [
+        "評估文物重要性及與館藏的相關性，建議徵集或註銷。",
+        "熟悉各種文物徵集、註銷方法及相關程序，如捐贈、田野採集、轉移等，建立人際關係網。",
+        "依相關法律及博物館倫理行事，如文物權源的合法性判斷等。"
+      ],
+      "knowledge": [
+        "K06",
+        "K07",
+        "K08",
+        "K09",
+        "K10"
+      ],
+      "skills": [
+        "S01",
+        "S05",
+        "S18"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T3研究",
+      "task_id": "T3.1",
+      "task_name": "學術研究",
+      "output": "期刊論文/圖錄論文/專書",
+      "behaviors": [
+        "進行與博物館典藏相關領域的深度研究。",
+        "掌握學術發展趨勢及博物館界議題。"
+      ],
+      "knowledge": [
+        "K01",
+        "K05",
+        "K06",
+        "K13"
+      ],
+      "skills": [
+        "S10",
+        "S13",
+        "S16",
+        "S22",
+        "S23",
+        "S24"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T3研究",
+      "task_id": "T3.2",
+      "task_name": "文物研究",
+      "output": "蒐藏品分級作業要點、文物登錄資料",
+      "behaviors": [
+        "分析並撰寫文物名稱、材質、分類、來源、 分布或生態、用途、社會及文化含義等。"
+      ],
+      "knowledge": [
+        "K01",
+        "K05",
+        "K06",
+        "K14"
+      ],
+      "skills": [
+        "S04",
+        "S23",
+        "S24"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T4溝通",
+      "task_id": "T4.1",
+      "task_name": "教育",
+      "output": "演講、上課、帶實習生及導覽員",
+      "behaviors": [
+        "協助實施推廣教育活動。"
+      ],
+      "knowledge": [
+        "K01",
+        "K13",
+        "K17"
+      ],
+      "skills": [
+        "S18"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T4溝通",
+      "task_id": "T4.2",
+      "task_name": "外展與推廣",
+      "output": "參與社區（社群）活動、行銷宣傳計畫、補助申請表",
+      "behaviors": [
+        "參與館舍對外推廣，如社區（社群）交流、宣傳等。",
+        "協助申請機構外的補助。"
+      ],
+      "knowledge": [
+        "K05",
+        "K18",
+        "K19",
+        "K20"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S06",
+        "S18"
+      ],
+      "level": 5
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "博物館與當代思潮",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "展覽簡史",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "策展方法與策略",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "展示評量與觀眾研究",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "文化政策",
+      "category": "知識"
+    },
+    {
+      "code": "K15",
+      "name": "博物館詮釋",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "典藏相關學科如歷史、藝術史、自然史等進階專題",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "博物館學",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "博物館法",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "文化資產保存法",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "博物館倫理",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "博物館蒐藏管理",
+      "category": "知識"
+    },
+    {
+      "code": "K12",
+      "name": "博物館登錄",
+      "category": "知識"
+    },
+    {
+      "code": "K16",
+      "name": "博物館數位典藏",
+      "category": "知識"
+    },
+    {
+      "code": "K13",
+      "name": "全球化與區域研究",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "物質文化",
+      "category": "知識"
+    },
+    {
+      "code": "K17",
+      "name": "博物館教育實務",
+      "category": "知識"
+    },
+    {
+      "code": "K18",
+      "name": "藝術行銷",
+      "category": "知識"
+    },
+    {
+      "code": "K19",
+      "name": "博物館營運管理",
+      "category": "知識"
+    },
+    {
+      "code": "K20",
+      "name": "非營利組織永續經營",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S07",
+      "name": "品質導向",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "成果導向",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "規劃與組織能力",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "時間管理",
+      "category": "技能"
+    },
+    {
+      "code": "S15",
+      "name": "團隊合作",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "策略性思考",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "價值判斷",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "分析與解讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "問題分析",
+      "category": "技能"
+    },
+    {
+      "code": "S01",
+      "name": "人脈拓展",
+      "category": "技能"
+    },
+    {
+      "code": "S18",
+      "name": "溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "資訊科技應用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S16",
+      "name": "創新能力",
+      "category": "技能"
+    },
+    {
+      "code": "S22",
+      "name": "閱讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S23",
+      "name": "文書撰寫能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "有效連結",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "外部環境認知與評估",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "影響力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：典藏\n代碼：BLM2621-001v1\n版本：V1\n職類別：企業經營管理／運籌管理（代碼：BLM）\n職業別：檔案及文物管理專業人員（代碼：2621）\n行業別：藝術、娛樂及休閒服務業／博物館、歷史遺址及其他類似機構（代碼：R9103）\n基準級別：6\n工作描述：於博物館及類似機構中，進行物質文化研究，策劃及推出展覽，必要時協助典藏管理及教育活動。\n建議條件：\n更新日期：",
+      "metadata": {
+        "code": "BLM2621-001v1",
+        "name": "典藏",
+        "level": 6,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2典藏\n任務編號：T2.1\n任務名稱：典藏規劃\n職能級別：6\n工作產出：蒐藏政策\n\n行為指標：\n- 審視現有館藏整體質量概況，如冗件或待加強之處。\n- 擘劃未來館藏發展方向。\n\n所需知識（2項）：\n- 典藏相關學科如歷史、藝術史、自然史等進階專題\n- 博物館學\n\n所需技能（5項）：\n- 策略性思考\n- 價值判斷\n- 分析與解讀能力\n- 規劃與組織能力\n- 問題分析",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "典藏規劃",
+        "main_responsibility": "T2典藏",
+        "code": "BLM2621-001v1",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2典藏\n任務編號：T2.2\n任務名稱：典藏徵集\n職能級別：6\n工作產出：藏品取得要點（文物購藏要點、受理文物捐贈要點）、蒐藏審議會設置要點、蒐藏品註銷與處置作業要點\n\n行為指標：\n- 評估文物重要性及與館藏的相關性，建議徵集或註銷。\n- 熟悉各種文物徵集、註銷方法及相關程序，如捐贈、田野採集、轉移等，建立人際關係網。\n- 依相關法律及博物館倫理行事，如文物權源的合法性判斷等。\n\n所需知識（5項）：\n- 典藏相關學科如歷史、藝術史、自然史等進階專題\n- 博物館學\n- 博物館法\n- 文化資產保存法\n- 博物館倫理\n\n所需技能（3項）：\n- 人脈拓展\n- 價值判斷\n- 溝通能力",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "典藏徵集",
+        "main_responsibility": "T2典藏",
+        "code": "BLM2621-001v1",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3研究\n任務編號：T3.1\n任務名稱：學術研究\n職能級別：6\n工作產出：期刊論文/圖錄論文/專書\n\n行為指標：\n- 進行與博物館典藏相關領域的深度研究。\n- 掌握學術發展趨勢及博物館界議題。\n\n所需知識（4項）：\n- 博物館與當代思潮\n- 文化政策\n- 典藏相關學科如歷史、藝術史、自然史等進階專題\n- 全球化與區域研究\n\n所需技能（6項）：\n- 分析與解讀能力\n- 問題分析\n- 創新能力\n- 閱讀能力\n- 文書撰寫能力\n- 資訊科技應用能力",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "學術研究",
+        "main_responsibility": "T3研究",
+        "code": "BLM2621-001v1",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3研究\n任務編號：T3.2\n任務名稱：文物研究\n職能級別：6\n工作產出：蒐藏品分級作業要點、文物登錄資料\n\n行為指標：\n- 分析並撰寫文物名稱、材質、分類、來源、 分布或生態、用途、社會及文化含義等。\n\n所需知識（4項）：\n- 博物館與當代思潮\n- 文化政策\n- 典藏相關學科如歷史、藝術史、自然史等進階專題\n- 物質文化\n\n所需技能（3項）：\n- 有效連結\n- 文書撰寫能力\n- 資訊科技應用能力",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "文物研究",
+        "main_responsibility": "T3研究",
+        "code": "BLM2621-001v1",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4溝通\n任務編號：T4.1\n任務名稱：教育\n職能級別：6\n工作產出：演講、上課、帶實習生及導覽員\n\n行為指標：\n- 協助實施推廣教育活動。\n\n所需知識（3項）：\n- 博物館與當代思潮\n- 全球化與區域研究\n- 博物館教育實務\n\n所需技能（1項）：\n- 溝通能力",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "教育",
+        "main_responsibility": "T4溝通",
+        "code": "BLM2621-001v1",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4溝通\n任務編號：T4.2\n任務名稱：外展與推廣\n職能級別：5\n工作產出：參與社區（社群）活動、行銷宣傳計畫、補助申請表\n\n行為指標：\n- 參與館舍對外推廣，如社區（社群）交流、宣傳等。\n- 協助申請機構外的補助。\n\n所需知識（4項）：\n- 文化政策\n- 藝術行銷\n- 博物館營運管理\n- 非營利組織永續經營\n\n所需技能（4項）：\n- 人脈拓展\n- 外部環境認知與評估\n- 影響力\n- 溝通能力",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "外展與推廣",
+        "main_responsibility": "T4溝通",
+        "code": "BLM2621-001v1",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T2典藏\n\n需具備知識（5項）：\n- K06: 典藏相關學科如歷史、藝術史、自然史等進階專題\n- K07: 博物館學\n- K08: 博物館法\n- K09: 文化資產保存法\n- K10: 博物館倫理\n\n需具備技能（7項）：\n- S01: 人脈拓展\n- S03: 策略性思考\n- S05: 價值判斷\n- S10: 分析與解讀能力\n- S11: 規劃與組織能力\n- S13: 問題分析\n- S18: 溝通能力",
+      "metadata": {
+        "main_responsibility": "T2典藏",
+        "code": "BLM2621-001v1",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T3研究\n\n需具備知識（5項）：\n- K01: 博物館與當代思潮\n- K05: 文化政策\n- K06: 典藏相關學科如歷史、藝術史、自然史等進階專題\n- K13: 全球化與區域研究\n- K14: 物質文化\n\n需具備技能（7項）：\n- S04: 有效連結\n- S10: 分析與解讀能力\n- S13: 問題分析\n- S16: 創新能力\n- S22: 閱讀能力\n- S23: 文書撰寫能力\n- S24: 資訊科技應用能力",
+      "metadata": {
+        "main_responsibility": "T3研究",
+        "code": "BLM2621-001v1",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T4溝通\n\n需具備知識（7項）：\n- K01: 博物館與當代思潮\n- K05: 文化政策\n- K13: 全球化與區域研究\n- K17: 博物館教育實務\n- K18: 藝術行銷\n- K19: 博物館營運管理\n- K20: 非營利組織永續經營\n\n需具備技能（4項）：\n- S01: 人脈拓展\n- S02: 外部環境認知與評估\n- S06: 影響力\n- S18: 溝通能力",
+      "metadata": {
+        "main_responsibility": "T4溝通",
+        "code": "BLM2621-001v1",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【典藏職能基準摘要】\n\n一、基本資訊\n- 職能代碼：BLM2621-001v1\n- 職類別：企業經營管理／運籌管理\n- 職業別：檔案及文物管理專業人員\n- 基準級別：6\n\n二、工作描述\n於博物館及類似機構中，進行物質文化研究，策劃及推出展覽，必要時協助典藏管理及教育活動。\n\n三、主要職責與任務（6項）\n- T2.1 典藏規劃\n- T2.2 典藏徵集\n- T3.1 學術研究\n- T3.2 文物研究\n- T4.1 教育\n- T4.2 外展與推廣\n\n四、職能要求\n- 知識項目：20項\n- 技能項目：18項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "BLM2621-001v1",
+        "name": "典藏",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

@@ -1,0 +1,622 @@
+{
+  "metadata": {
+    "code": "IDC2172-001v4",
+    "name": "行動應用企劃師",
+    "update_date": "2025/12/22",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\行動應用企劃師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "資訊科技／數位內容與傳播",
+    "category_code": "IDC",
+    "occupation": "平面及多媒體設計師",
+    "occupation_code": "2172",
+    "industry": [
+      "出版影音及資通訊業／電腦程式設計、諮詢及",
+      "相關服務業"
+    ],
+    "industry_code": [
+      "J62"
+    ],
+    "job_description": "了解並分析使用者需求，進行行動應用規格、功能及內容設計，並參與專案執行。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1市場研究",
+      "task_id": "T1.1",
+      "task_name": "市場調查",
+      "output": "市場調查報告",
+      "behaviors": [],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03",
+        "K04",
+        "K24",
+        "K28"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S28"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T1市場研究",
+      "task_id": "T1.2",
+      "task_name": "使用者調查",
+      "output": "使用者調查報告",
+      "behaviors": [
+        "利用多種指標分析使用者輪廓來定位使用者。",
+        "針對目標群族進行使用者需求分析。",
+        "定義使用者於行動應用的使用情境。"
+      ],
+      "knowledge": [
+        "K05"
+      ],
+      "skills": [
+        "S05",
+        "S06",
+        "S07",
+        "S08"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T1市場研究",
+      "task_id": "T1.3",
+      "task_name": "應用發佈策略規劃",
+      "output": "應用發佈策略",
+      "behaviors": [],
+      "knowledge": [
+        "K06"
+      ],
+      "skills": [
+        "S09",
+        "S10"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2行動應用企劃案撰寫",
+      "task_id": "T2.1",
+      "task_name": "概念企劃",
+      "output": "概念企劃書",
+      "behaviors": [],
+      "knowledge": [
+        "K12",
+        "K13"
+      ],
+      "skills": [
+        "S14",
+        "S15"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2行動應用企劃案撰寫",
+      "task_id": "T2.2",
+      "task_name": "使用者情境與分析",
+      "output": "使用者分析報告",
+      "behaviors": [],
+      "knowledge": [
+        "K14",
+        "K15",
+        "K16"
+      ],
+      "skills": [
+        "S07",
+        "S15",
+        "S16",
+        "S17"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2行動應用企劃案撰寫",
+      "task_id": "T2.3",
+      "task_name": "功能定義",
+      "output": "功能架構圖",
+      "behaviors": [],
+      "knowledge": [
+        "K16",
+        "K17",
+        "K18"
+      ],
+      "skills": [
+        "S15",
+        "S18",
+        "S19"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2行動應用企劃案撰寫",
+      "task_id": "T2.4",
+      "task_name": "流程圖製作",
+      "output": "操作流程圖",
+      "behaviors": [],
+      "knowledge": [
+        "K16",
+        "K19",
+        "K20"
+      ],
+      "skills": [
+        "S20",
+        "S21",
+        "S22"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T4行動應用維運及調校",
+      "task_id": "T4.1",
+      "task_name": "維運數據監控分析",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K09",
+        "K25",
+        "K26",
+        "K27"
+      ],
+      "skills": [
+        "S01",
+        "S26",
+        "S27",
+        "S07"
+      ],
+      "level": 0
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "市調進行方法",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "市場趨勢研究",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "產品生命週期分析",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "行動應用開發相關軟硬體技",
+      "category": "知識"
+    },
+    {
+      "code": "K24",
+      "name": "SWOT分析／五力分析",
+      "category": "知識"
+    },
+    {
+      "code": "K28",
+      "name": "AI應用素養",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "使用者行為研究",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "iOS、Android 及其他主流平台開發規範概念",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "基本行銷學",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "數位行銷概念",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "統計概念",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "社群經營知識",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "基本廣告知識",
+      "category": "知識"
+    },
+    {
+      "code": "K12",
+      "name": "企劃邏輯及架構方法",
+      "category": "知識"
+    },
+    {
+      "code": "K13",
+      "name": "企劃案撰寫規格",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "情境預測法",
+      "category": "知識"
+    },
+    {
+      "code": "K15",
+      "name": "使用者需求分析",
+      "category": "知識"
+    },
+    {
+      "code": "K16",
+      "name": "基礎UI／UX設計知識",
+      "category": "知識"
+    },
+    {
+      "code": "K17",
+      "name": "可行性評估",
+      "category": "知識"
+    },
+    {
+      "code": "K18",
+      "name": "行動應用框架設計概念",
+      "category": "知識"
+    },
+    {
+      "code": "K19",
+      "name": "互動設計概念",
+      "category": "知識"
+    },
+    {
+      "code": "K20",
+      "name": "行動應用介面流程設計概念",
+      "category": "知識"
+    },
+    {
+      "code": "K21",
+      "name": "專案管理知識",
+      "category": "知識"
+    },
+    {
+      "code": "K22",
+      "name": "軟體開發流程概念",
+      "category": "知識"
+    },
+    {
+      "code": "K23",
+      "name": "功能驗證方法論",
+      "category": "知識"
+    },
+    {
+      "code": "K25",
+      "name": "數據監控分析軟體操作",
+      "category": "知識"
+    },
+    {
+      "code": "K26",
+      "name": "版本規劃控制概念",
+      "category": "知識"
+    },
+    {
+      "code": "K27",
+      "name": "使用者回饋收集與分析",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "資料蒐集與分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "消費者行為分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "市場機會分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "競業與產業分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S28",
+      "name": "AI工具應用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "擬定研究／測試目標能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "研究引導規劃能力",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "使用者行為分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "最小可行性產品規劃能力",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "規格文件理解能力",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "發佈類別策略分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "行銷策略判斷與分析",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "品牌識別或產品個性鮮明度",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "應用行銷分析工具能力",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "提案簡報技巧",
+      "category": "技能"
+    },
+    {
+      "code": "S15",
+      "name": "文案撰寫能力",
+      "category": "技能"
+    },
+    {
+      "code": "S16",
+      "name": "需求分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S17",
+      "name": "目標客群分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S18",
+      "name": "設計規格制訂能力",
+      "category": "技能"
+    },
+    {
+      "code": "S19",
+      "name": "功能地圖設計能力",
+      "category": "技能"
+    },
+    {
+      "code": "S20",
+      "name": "流程圖繪製軟體操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "操作流程邏輯規劃能力",
+      "category": "技能"
+    },
+    {
+      "code": "S22",
+      "name": "元件階層關係設計能力",
+      "category": "技能"
+    },
+    {
+      "code": "S23",
+      "name": "基本 Wireframe 繪製工具操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "整合與溝通協調能力",
+      "category": "技能"
+    },
+    {
+      "code": "S25",
+      "name": "UI元件解析度與尺寸設定能力",
+      "category": "技能"
+    },
+    {
+      "code": "S26",
+      "name": "報告分析判讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S27",
+      "name": "數據分析工具操作能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：市場研究\n代碼：IDC2172-001v4\n版本：V4\n職類別：資訊科技／數位內容與傳播（代碼：IDC）\n職業別：平面及多媒體設計師（代碼：2172）\n行業別：出版影音及資通訊業／電腦程式設計、諮詢及; 相關服務業（代碼：J62）\n基準級別：4\n工作描述：了解並分析使用者需求，進行行動應用規格、功能及內容設計，並參與專案執行。\n建議條件：\n更新日期：2025/12/22",
+      "metadata": {
+        "code": "IDC2172-001v4",
+        "name": "市場研究",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1市場研究\n任務編號：T1.1\n任務名稱：市場調查\n職能級別：0\n工作產出：市場調查報告\n\n行為指標：\n無\n\n所需知識（6項）：\n- 市調進行方法\n- 市場趨勢研究\n- 產品生命週期分析\n- 行動應用開發相關軟硬體技\n- SWOT分析／五力分析\n- AI應用素養\n\n所需技能（5項）：\n- 資料蒐集與分析能力\n- 消費者行為分析能力\n- 市場機會分析能力\n- 競業與產業分析能力\n- AI工具應用能力",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "市場調查",
+        "main_responsibility": "T1市場研究",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1市場研究\n任務編號：T1.2\n任務名稱：使用者調查\n職能級別：0\n工作產出：使用者調查報告\n\n行為指標：\n- 利用多種指標分析使用者輪廓來定位使用者。\n- 針對目標群族進行使用者需求分析。\n- 定義使用者於行動應用的使用情境。\n\n所需知識（1項）：\n- 使用者行為研究\n\n所需技能（4項）：\n- 擬定研究／測試目標能力\n- 研究引導規劃能力\n- 使用者行為分析能力\n- 最小可行性產品規劃能力",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "使用者調查",
+        "main_responsibility": "T1市場研究",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.3",
+      "type": "工作任務",
+      "content": "主要職責：T1市場研究\n任務編號：T1.3\n任務名稱：應用發佈策略規劃\n職能級別：0\n工作產出：應用發佈策略\n\n行為指標：\n無\n\n所需知識（1項）：\n- iOS、Android 及其他主流平台開發規範概念\n\n所需技能（2項）：\n- 規格文件理解能力\n- 發佈類別策略分析能力",
+      "metadata": {
+        "task_id": "T1.3",
+        "task_name": "應用發佈策略規劃",
+        "main_responsibility": "T1市場研究",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2行動應用企劃案撰寫\n任務編號：T2.1\n任務名稱：概念企劃\n職能級別：0\n工作產出：概念企劃書\n\n行為指標：\n無\n\n所需知識（2項）：\n- 企劃邏輯及架構方法\n- 企劃案撰寫規格\n\n所需技能（2項）：\n- 提案簡報技巧\n- 文案撰寫能力",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "概念企劃",
+        "main_responsibility": "T2行動應用企劃案撰寫",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2行動應用企劃案撰寫\n任務編號：T2.2\n任務名稱：使用者情境與分析\n職能級別：0\n工作產出：使用者分析報告\n\n行為指標：\n無\n\n所需知識（3項）：\n- 情境預測法\n- 使用者需求分析\n- 基礎UI／UX設計知識\n\n所需技能（4項）：\n- 使用者行為分析能力\n- 文案撰寫能力\n- 需求分析能力\n- 目標客群分析能力",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "使用者情境與分析",
+        "main_responsibility": "T2行動應用企劃案撰寫",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.3",
+      "type": "工作任務",
+      "content": "主要職責：T2行動應用企劃案撰寫\n任務編號：T2.3\n任務名稱：功能定義\n職能級別：0\n工作產出：功能架構圖\n\n行為指標：\n無\n\n所需知識（3項）：\n- 基礎UI／UX設計知識\n- 可行性評估\n- 行動應用框架設計概念\n\n所需技能（3項）：\n- 文案撰寫能力\n- 設計規格制訂能力\n- 功能地圖設計能力",
+      "metadata": {
+        "task_id": "T2.3",
+        "task_name": "功能定義",
+        "main_responsibility": "T2行動應用企劃案撰寫",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.4",
+      "type": "工作任務",
+      "content": "主要職責：T2行動應用企劃案撰寫\n任務編號：T2.4\n任務名稱：流程圖製作\n職能級別：0\n工作產出：操作流程圖\n\n行為指標：\n無\n\n所需知識（3項）：\n- 基礎UI／UX設計知識\n- 互動設計概念\n- 行動應用介面流程設計概念\n\n所需技能（3項）：\n- 流程圖繪製軟體操作能力\n- 操作流程邏輯規劃能力\n- 元件階層關係設計能力",
+      "metadata": {
+        "task_id": "T2.4",
+        "task_name": "流程圖製作",
+        "main_responsibility": "T2行動應用企劃案撰寫",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4行動應用維運及調校\n任務編號：T4.1\n任務名稱：維運數據監控分析\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（4項）：\n- 統計概念\n- 數據監控分析軟體操作\n- 版本規劃控制概念\n- 使用者回饋收集與分析\n\n所需技能（4項）：\n- 資料蒐集與分析能力\n- 報告分析判讀能力\n- 數據分析工具操作能力\n- 使用者行為分析能力",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "維運數據監控分析",
+        "main_responsibility": "T4行動應用維運及調校",
+        "code": "IDC2172-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1市場研究\n\n需具備知識（8項）：\n- K01: 市調進行方法\n- K02: 市場趨勢研究\n- K03: 產品生命週期分析\n- K04: 行動應用開發相關軟硬體技\n- K05: 使用者行為研究\n- K06: iOS、Android 及其他主流平台開發規範概念\n- K24: SWOT分析／五力分析\n- K28: AI應用素養\n\n需具備技能（11項）：\n- S01: 資料蒐集與分析能力\n- S02: 消費者行為分析能力\n- S03: 市場機會分析能力\n- S04: 競業與產業分析能力\n- S05: 擬定研究／測試目標能力\n- S06: 研究引導規劃能力\n- S07: 使用者行為分析能力\n- S08: 最小可行性產品規劃能力\n- S09: 規格文件理解能力\n- S10: 發佈類別策略分析能力\n- S28: AI工具應用能力",
+      "metadata": {
+        "main_responsibility": "T1市場研究",
+        "code": "IDC2172-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2行動應用企劃案撰寫\n\n需具備知識（9項）：\n- K12: 企劃邏輯及架構方法\n- K13: 企劃案撰寫規格\n- K14: 情境預測法\n- K15: 使用者需求分析\n- K16: 基礎UI／UX設計知識\n- K17: 可行性評估\n- K18: 行動應用框架設計概念\n- K19: 互動設計概念\n- K20: 行動應用介面流程設計概念\n\n需具備技能（10項）：\n- S07: 使用者行為分析能力\n- S14: 提案簡報技巧\n- S15: 文案撰寫能力\n- S16: 需求分析能力\n- S17: 目標客群分析能力\n- S18: 設計規格制訂能力\n- S19: 功能地圖設計能力\n- S20: 流程圖繪製軟體操作能力\n- S21: 操作流程邏輯規劃能力\n- S22: 元件階層關係設計能力",
+      "metadata": {
+        "main_responsibility": "T2行動應用企劃案撰寫",
+        "code": "IDC2172-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T4行動應用維運及調校\n\n需具備知識（4項）：\n- K09: 統計概念\n- K25: 數據監控分析軟體操作\n- K26: 版本規劃控制概念\n- K27: 使用者回饋收集與分析\n\n需具備技能（4項）：\n- S01: 資料蒐集與分析能力\n- S07: 使用者行為分析能力\n- S26: 報告分析判讀能力\n- S27: 數據分析工具操作能力",
+      "metadata": {
+        "main_responsibility": "T4行動應用維運及調校",
+        "code": "IDC2172-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【市場研究職能基準摘要】\n\n一、基本資訊\n- 職能代碼：IDC2172-001v4\n- 職類別：資訊科技／數位內容與傳播\n- 職業別：平面及多媒體設計師\n- 基準級別：4\n\n二、工作描述\n了解並分析使用者需求，進行行動應用規格、功能及內容設計，並參與專案執行。\n\n三、主要職責與任務（8項）\n- T1.1 市場調查\n- T1.2 使用者調查\n- T1.3 應用發佈策略規劃\n- T2.1 概念企劃\n- T2.2 使用者情境與分析\n- T2.3 功能定義\n- T2.4 流程圖製作\n- T4.1 維運數據監控分析\n\n四、職能要求\n- 知識項目：28項\n- 技能項目：28項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "IDC2172-001v4",
+        "name": "市場研究",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

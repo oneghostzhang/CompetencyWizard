@@ -1,0 +1,502 @@
+{
+  "metadata": {
+    "code": "AVA1221-001v4",
+    "name": "工藝產業行銷經紀",
+    "update_date": "2023/07/24",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\工藝產業行銷經紀-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "藝文與影音傳播／視覺藝術",
+    "category_code": "AVA",
+    "occupation": "行銷及有關經理人員",
+    "occupation_code": "1221",
+    "industry": [
+      "藝術、娛樂及休閒服務業／創作及藝術表演業"
+    ],
+    "industry_code": [
+      "R9010"
+    ],
+    "job_description": "評估與創造產品（被經紀對象）價值，進一步談判取得授權，媒合介接開發產品，規劃及行銷推廣，進而建立通路並經營顧客關係。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1蒐集市場情報資訊及分析產業趨勢",
+      "task_id": "T1.1",
+      "task_name": "掌握市場情報與分析趨勢",
+      "output": "產業市場評估分析報告",
+      "behaviors": [
+        "熟悉並瞭解工藝產業市場，並具備評析產業動態與開創未來發展趨勢之能力。"
+      ],
+      "knowledge": [
+        "K60",
+        "K00"
+      ],
+      "skills": [
+        "S03",
+        "S60"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T2授權與財務規劃",
+      "task_id": "T2.1",
+      "task_name": "品牌授權",
+      "output": "品牌授權合約",
+      "behaviors": [
+        "洽談品牌授與被使用、交易之權利義務範疇並簽訂合約。"
+      ],
+      "knowledge": [
+        "K60"
+      ],
+      "skills": [
+        "S60",
+        "S61"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T2授權與財務規劃",
+      "task_id": "T2.2",
+      "task_name": "產品授權",
+      "output": "產品授權合約",
+      "behaviors": [
+        "洽談產品（作品）授與被使用、銷售之權利義務範疇並簽訂合約。"
+      ],
+      "knowledge": [
+        "K60"
+      ],
+      "skills": [
+        "S61",
+        "S60"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T2授權與財務規劃",
+      "task_id": "T2.3",
+      "task_name": "經紀合約",
+      "output": "經紀合約",
+      "behaviors": [
+        "洽談與被經紀人間之合作項目、工作職掌、排除參與等權利義務範疇並簽訂合約。"
+      ],
+      "knowledge": [
+        "K61",
+        "K60"
+      ],
+      "skills": [
+        "S61",
+        "S60"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T3產品開發與資源整合",
+      "task_id": "T3.1",
+      "task_name": "媒合與合作（異業/異質/異技）",
+      "output": "可行性分析提案、合作說明書與合約（備忘錄）",
+      "behaviors": [
+        "協助建立異業合作關係並建構跨域整合之價值網絡，創造產業創新價值。"
+      ],
+      "knowledge": [
+        "K61",
+        "K00"
+      ],
+      "skills": [
+        "S01",
+        "S16",
+        "S61"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T4行銷與推廣",
+      "task_id": "T4.1",
+      "task_name": "行銷策略擬定",
+      "output": "行銷策略規劃書、品牌/產品識別系統",
+      "behaviors": [
+        "行銷策略規劃書。",
+        "品牌/產品識別系統。"
+      ],
+      "knowledge": [
+        "K61",
+        "K62",
+        "K00",
+        "K60"
+      ],
+      "skills": [
+        "S62"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T4行銷與推廣",
+      "task_id": "T4.2",
+      "task_name": "公共",
+      "output": "行、公關活動",
+      "behaviors": [
+        "掌握媒體公關資源與屬性，強化被經紀對"
+      ],
+      "knowledge": [
+        "K62"
+      ],
+      "skills": [
+        "S01",
+        "S62"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T4行銷與推廣",
+      "task_id": "T4.3",
+      "task_name": "參與展覽與活動策劃",
+      "output": "展覽（活動）規劃書",
+      "behaviors": [
+        "能夠評選合適展覽活動，確實傳達被經紀對象訊息理念。"
+      ],
+      "knowledge": [
+        "K62",
+        "K63"
+      ],
+      "skills": [
+        "S15",
+        "S63"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T5市場拓展",
+      "task_id": "T5.1",
+      "task_name": "評估與拓展通路",
+      "output": "商圈分析報告、通路布局與規劃報告、銷售合約、動線規劃圖、陳列規劃圖",
+      "behaviors": [
+        "能夠評估並開拓新銷售管道，增加產品曝光率，提升市佔與銷售。"
+      ],
+      "knowledge": [
+        "K63"
+      ],
+      "skills": [
+        "S63",
+        "S64"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T5市場拓展",
+      "task_id": "T5.2",
+      "task_name": "銷售",
+      "output": "銷售報告",
+      "behaviors": [
+        "確實傳達產品資訊，促成購買行為，維持忠誠度。"
+      ],
+      "knowledge": [
+        "K63",
+        "K62",
+        "K64"
+      ],
+      "skills": [
+        "S08",
+        "S64"
+      ],
+      "level": 3
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K60",
+      "name": "1工藝設計趨勢",
+      "category": "知識"
+    },
+    {
+      "code": "K00",
+      "name": "4工藝產業發展脈絡",
+      "category": "知識"
+    },
+    {
+      "code": "K61",
+      "name": "0經紀範疇",
+      "category": "知識"
+    },
+    {
+      "code": "K62",
+      "name": "0消費市場分析",
+      "category": "知識"
+    },
+    {
+      "code": "K63",
+      "name": "0展場規劃概念",
+      "category": "知識"
+    },
+    {
+      "code": "K64",
+      "name": "0銷售話術",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S03",
+      "name": "外部意識",
+      "category": "技能"
+    },
+    {
+      "code": "S60",
+      "name": "1產業資訊蒐集",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "顧客導向",
+      "category": "技能"
+    },
+    {
+      "code": "S61",
+      "name": "0風險評估",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "表達說服",
+      "category": "技能"
+    },
+    {
+      "code": "S01",
+      "name": "人脈建立",
+      "category": "技能"
+    },
+    {
+      "code": "S16",
+      "name": "溝通",
+      "category": "技能"
+    },
+    {
+      "code": "S62",
+      "name": "0生產規劃",
+      "category": "技能"
+    },
+    {
+      "code": "S15",
+      "name": "策略性思考",
+      "category": "技能"
+    },
+    {
+      "code": "S63",
+      "name": "0蒐集與分析展覽資訊",
+      "category": "技能"
+    },
+    {
+      "code": "S64",
+      "name": "0營銷策略制定",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：蒐集市場情報資訊及分\n代碼：AVA1221-001v4\n版本：V4\n職類別：藝文與影音傳播／視覺藝術（代碼：AVA）\n職業別：行銷及有關經理人員（代碼：1221）\n行業別：藝術、娛樂及休閒服務業／創作及藝術表演業（代碼：R9010）\n基準級別：4\n工作描述：評估與創造產品（被經紀對象）價值，進一步談判取得授權，媒合介接開發產品，規劃及行銷推廣，進而建立通路並經營顧客關係。\n建議條件：\n更新日期：2023/07/24",
+      "metadata": {
+        "code": "AVA1221-001v4",
+        "name": "蒐集市場情報資訊及分",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1蒐集市場情報資訊及分析產業趨勢\n任務編號：T1.1\n任務名稱：掌握市場情報與分析趨勢\n職能級別：5\n工作產出：產業市場評估分析報告\n\n行為指標：\n- 熟悉並瞭解工藝產業市場，並具備評析產業動態與開創未來發展趨勢之能力。\n\n所需知識（2項）：\n- 1工藝設計趨勢\n- 4工藝產業發展脈絡\n\n所需技能（2項）：\n- 外部意識\n- 1產業資訊蒐集",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "掌握市場情報與分析趨勢",
+        "main_responsibility": "T1蒐集市場情報資訊及分析產業趨勢",
+        "code": "AVA1221-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2授權與財務規劃\n任務編號：T2.1\n任務名稱：品牌授權\n職能級別：6\n工作產出：品牌授權合約\n\n行為指標：\n- 洽談品牌授與被使用、交易之權利義務範疇並簽訂合約。\n\n所需知識（1項）：\n- 1工藝設計趨勢\n\n所需技能（2項）：\n- 1產業資訊蒐集\n- 0風險評估",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "品牌授權",
+        "main_responsibility": "T2授權與財務規劃",
+        "code": "AVA1221-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2授權與財務規劃\n任務編號：T2.2\n任務名稱：產品授權\n職能級別：5\n工作產出：產品授權合約\n\n行為指標：\n- 洽談產品（作品）授與被使用、銷售之權利義務範疇並簽訂合約。\n\n所需知識（1項）：\n- 1工藝設計趨勢\n\n所需技能（2項）：\n- 0風險評估\n- 1產業資訊蒐集",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "產品授權",
+        "main_responsibility": "T2授權與財務規劃",
+        "code": "AVA1221-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.3",
+      "type": "工作任務",
+      "content": "主要職責：T2授權與財務規劃\n任務編號：T2.3\n任務名稱：經紀合約\n職能級別：5\n工作產出：經紀合約\n\n行為指標：\n- 洽談與被經紀人間之合作項目、工作職掌、排除參與等權利義務範疇並簽訂合約。\n\n所需知識（2項）：\n- 0經紀範疇\n- 1工藝設計趨勢\n\n所需技能（2項）：\n- 0風險評估\n- 1產業資訊蒐集",
+      "metadata": {
+        "task_id": "T2.3",
+        "task_name": "經紀合約",
+        "main_responsibility": "T2授權與財務規劃",
+        "code": "AVA1221-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3產品開發與資源整合\n任務編號：T3.1\n任務名稱：媒合與合作（異業/異質/異技）\n職能級別：4\n工作產出：可行性分析提案、合作說明書與合約（備忘錄）\n\n行為指標：\n- 協助建立異業合作關係並建構跨域整合之價值網絡，創造產業創新價值。\n\n所需知識（2項）：\n- 0經紀範疇\n- 4工藝產業發展脈絡\n\n所需技能（3項）：\n- 人脈建立\n- 溝通\n- 0風險評估",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "媒合與合作（異業/異質/異技）",
+        "main_responsibility": "T3產品開發與資源整合",
+        "code": "AVA1221-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4行銷與推廣\n任務編號：T4.1\n任務名稱：行銷策略擬定\n職能級別：4\n工作產出：行銷策略規劃書、品牌/產品識別系統\n\n行為指標：\n- 行銷策略規劃書。\n- 品牌/產品識別系統。\n\n所需知識（4項）：\n- 0經紀範疇\n- 0消費市場分析\n- 4工藝產業發展脈絡\n- 1工藝設計趨勢\n\n所需技能（1項）：\n- 0生產規劃",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "行銷策略擬定",
+        "main_responsibility": "T4行銷與推廣",
+        "code": "AVA1221-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4行銷與推廣\n任務編號：T4.2\n任務名稱：公共\n職能級別：3\n工作產出：行、公關活動\n\n行為指標：\n- 掌握媒體公關資源與屬性，強化被經紀對\n\n所需知識（1項）：\n- 0消費市場分析\n\n所需技能（2項）：\n- 人脈建立\n- 0生產規劃",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "公共",
+        "main_responsibility": "T4行銷與推廣",
+        "code": "AVA1221-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.3",
+      "type": "工作任務",
+      "content": "主要職責：T4行銷與推廣\n任務編號：T4.3\n任務名稱：參與展覽與活動策劃\n職能級別：4\n工作產出：展覽（活動）規劃書\n\n行為指標：\n- 能夠評選合適展覽活動，確實傳達被經紀對象訊息理念。\n\n所需知識（2項）：\n- 0消費市場分析\n- 0展場規劃概念\n\n所需技能（2項）：\n- 策略性思考\n- 0蒐集與分析展覽資訊",
+      "metadata": {
+        "task_id": "T4.3",
+        "task_name": "參與展覽與活動策劃",
+        "main_responsibility": "T4行銷與推廣",
+        "code": "AVA1221-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.1",
+      "type": "工作任務",
+      "content": "主要職責：T5市場拓展\n任務編號：T5.1\n任務名稱：評估與拓展通路\n職能級別：4\n工作產出：商圈分析報告、通路布局與規劃報告、銷售合約、動線規劃圖、陳列規劃圖\n\n行為指標：\n- 能夠評估並開拓新銷售管道，增加產品曝光率，提升市佔與銷售。\n\n所需知識（1項）：\n- 0展場規劃概念\n\n所需技能（2項）：\n- 0蒐集與分析展覽資訊\n- 0營銷策略制定",
+      "metadata": {
+        "task_id": "T5.1",
+        "task_name": "評估與拓展通路",
+        "main_responsibility": "T5市場拓展",
+        "code": "AVA1221-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.2",
+      "type": "工作任務",
+      "content": "主要職責：T5市場拓展\n任務編號：T5.2\n任務名稱：銷售\n職能級別：3\n工作產出：銷售報告\n\n行為指標：\n- 確實傳達產品資訊，促成購買行為，維持忠誠度。\n\n所需知識（3項）：\n- 0展場規劃概念\n- 0消費市場分析\n- 0銷售話術\n\n所需技能（2項）：\n- 表達說服\n- 0營銷策略制定",
+      "metadata": {
+        "task_id": "T5.2",
+        "task_name": "銷售",
+        "main_responsibility": "T5市場拓展",
+        "code": "AVA1221-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1蒐集市場情報資訊及分析產業趨勢\n\n需具備知識（2項）：\n- K00: 4工藝產業發展脈絡\n- K60: 1工藝設計趨勢\n\n需具備技能（2項）：\n- S03: 外部意識\n- S60: 1產業資訊蒐集",
+      "metadata": {
+        "main_responsibility": "T1蒐集市場情報資訊及分析產業趨勢",
+        "code": "AVA1221-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2授權與財務規劃\n\n需具備知識（2項）：\n- K60: 1工藝設計趨勢\n- K61: 0經紀範疇\n\n需具備技能（2項）：\n- S60: 1產業資訊蒐集\n- S61: 0風險評估",
+      "metadata": {
+        "main_responsibility": "T2授權與財務規劃",
+        "code": "AVA1221-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3產品開發與資源整合\n\n需具備知識（2項）：\n- K00: 4工藝產業發展脈絡\n- K61: 0經紀範疇\n\n需具備技能（3項）：\n- S01: 人脈建立\n- S16: 溝通\n- S61: 0風險評估",
+      "metadata": {
+        "main_responsibility": "T3產品開發與資源整合",
+        "code": "AVA1221-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T4行銷與推廣\n\n需具備知識（5項）：\n- K00: 4工藝產業發展脈絡\n- K60: 1工藝設計趨勢\n- K61: 0經紀範疇\n- K62: 0消費市場分析\n- K63: 0展場規劃概念\n\n需具備技能（4項）：\n- S01: 人脈建立\n- S15: 策略性思考\n- S62: 0生產規劃\n- S63: 0蒐集與分析展覽資訊",
+      "metadata": {
+        "main_responsibility": "T4行銷與推廣",
+        "code": "AVA1221-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_5",
+      "type": "知識技能",
+      "content": "職責領域：T5市場拓展\n\n需具備知識（3項）：\n- K62: 0消費市場分析\n- K63: 0展場規劃概念\n- K64: 0銷售話術\n\n需具備技能（3項）：\n- S08: 表達說服\n- S63: 0蒐集與分析展覽資訊\n- S64: 0營銷策略制定",
+      "metadata": {
+        "main_responsibility": "T5市場拓展",
+        "code": "AVA1221-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【蒐集市場情報資訊及分職能基準摘要】\n\n一、基本資訊\n- 職能代碼：AVA1221-001v4\n- 職類別：藝文與影音傳播／視覺藝術\n- 職業別：行銷及有關經理人員\n- 基準級別：4\n\n二、工作描述\n評估與創造產品（被經紀對象）價值，進一步談判取得授權，媒合介接開發產品，規劃及行銷推廣，進而建立通路並經營顧客關係。\n\n三、主要職責與任務（10項）\n- T1.1 掌握市場情報與分析趨勢\n- T2.1 品牌授權\n- T2.2 產品授權\n- T2.3 經紀合約\n- T3.1 媒合與合作（異業/異質/異技）\n- T4.1 行銷策略擬定\n- T4.2 公共\n- T4.3 參與展覽與活動策劃\n- T5.1 評估與拓展通路\n- T5.2 銷售\n\n四、職能要求\n- 知識項目：6項\n- 技能項目：11項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "AVA1221-001v4",
+        "name": "蒐集市場情報資訊及分",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

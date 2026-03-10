@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 向量索引快取（可重建，不入版控）
+_index_cache/
+
+# 原始資料（體積大）
+data/raw_pdf/
+
+# 輸出檔案
+*.xlsx
+outputs/

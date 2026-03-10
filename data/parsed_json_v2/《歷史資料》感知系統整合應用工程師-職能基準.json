@@ -1,0 +1,503 @@
+{
+  "metadata": {
+    "code": "SET2152-004v2",
+    "name": "《歷史資料》感知系統整合應用工程師",
+    "update_date": "2022/12/30",
+    "version": "V2",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\《歷史資料》感知系統整合應用工程師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "科學、技術、工程、數學／工程及技術",
+    "category_code": "SET",
+    "occupation": "科學及工程專業人員機械工程師",
+    "occupation_code": "212144",
+    "industry": [
+      "製造業／機械設備製造業",
+      "製造業／產業用機械設備維修及安裝業"
+    ],
+    "industry_code": [
+      "C29",
+      "C3400"
+    ],
+    "job_description": "在智慧製造領域中，整合配置符合智慧應用的感測系統，透過處理調節信號轉換成適當傳輸、量測及儲存信號，將訊息傳輸到平台進行儲存（如控制器、本地或雲端伺服器、雲端平台…..等），蒐集目標正確資料，以供後續應用或分析之用。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1瞭解應用需求",
+      "task_id": "T1.1",
+      "task_name": "瞭解使用者端的應用需求",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03",
+        "K04",
+        "K05"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2整合配置感測系統",
+      "task_id": "T2.1",
+      "task_name": "整合評選合適感測器",
+      "output": "感測器清單",
+      "behaviors": [],
+      "knowledge": [
+        "K04",
+        "K08",
+        "K09",
+        "K10",
+        "K11"
+      ],
+      "skills": [
+        "S04",
+        "S06",
+        "S10"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T3處理信號調節",
+      "task_id": "T3.1",
+      "task_name": "調節信號",
+      "output": "標準信號格式",
+      "behaviors": [],
+      "knowledge": [
+        "K04",
+        "K12",
+        "K13",
+        "K14",
+        "K15"
+      ],
+      "skills": [
+        "S13",
+        "S14",
+        "S27",
+        "S28"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T4整合通訊介面及儲存",
+      "task_id": "T4.1",
+      "task_name": "處理通訊介面",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K19",
+        "K20",
+        "K21"
+      ],
+      "skills": [
+        "S21",
+        "S22",
+        "S23",
+        "S24"
+      ],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T4整合通訊介面及儲存",
+      "task_id": "T4.2",
+      "task_name": "儲存資料",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K19",
+        "K21",
+        "K22",
+        "K23"
+      ],
+      "skills": [
+        "S25"
+      ],
+      "level": 0
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "感測器原理基本概念",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "智慧應用發展產業趨勢",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "感測器發展概況與趨勢",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "感測器原理及特性",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "最新感測元件及材料資訊",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "機電整合",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "感測器安裝設計知識",
+      "category": "知識"
+    },
+    {
+      "code": "K24",
+      "name": "多感測器同步擷取技術與資料融合",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "最新感測器產業資訊",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "感測融合概念",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "邊緣運算概念",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "AI概念",
+      "category": "知識"
+    },
+    {
+      "code": "K12",
+      "name": "信號調節技術",
+      "category": "知識"
+    },
+    {
+      "code": "K13",
+      "name": "資料擷取基本概念",
+      "category": "知識"
+    },
+    {
+      "code": "K14",
+      "name": "程式語言",
+      "category": "知識"
+    },
+    {
+      "code": "K15",
+      "name": "通訊介面",
+      "category": "知識"
+    },
+    {
+      "code": "K16",
+      "name": "估測理論",
+      "category": "知識"
+    },
+    {
+      "code": "K17",
+      "name": "機率與統計",
+      "category": "知識"
+    },
+    {
+      "code": "K18",
+      "name": "統計製程管制",
+      "category": "知識"
+    },
+    {
+      "code": "K19",
+      "name": "網路通訊",
+      "category": "知識"
+    },
+    {
+      "code": "K20",
+      "name": "工業通訊（如EtherNet…）",
+      "category": "知識"
+    },
+    {
+      "code": "K21",
+      "name": "資訊安全",
+      "category": "知識"
+    },
+    {
+      "code": "K22",
+      "name": "感測器聯網技術",
+      "category": "知識"
+    },
+    {
+      "code": "K23",
+      "name": "雲端技術",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "感測器介面電路設計",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "跨部門/對外溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "資料收集及分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "感測器評估與應用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "需求規格書撰寫能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "成本分析",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "提案能力",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "機電整合能力",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "感測器安裝設計能力",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "感測器規格分析能力（含精度）",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "雜訊干擾防範處理",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "感測器性能測試",
+      "category": "技能"
+    },
+    {
+      "code": "S26",
+      "name": "訊號量測結果判讀",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "程式語言設計（如C/C++、",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "類比數位轉換",
+      "category": "技能"
+    },
+    {
+      "code": "S27",
+      "name": "信號濾波（filtering）",
+      "category": "技能"
+    },
+    {
+      "code": "S28",
+      "name": "信號放大",
+      "category": "技能"
+    },
+    {
+      "code": "S18",
+      "name": "量度儀表操作及校正",
+      "category": "技能"
+    },
+    {
+      "code": "S19",
+      "name": "統計製程管制應用（如",
+      "category": "技能"
+    },
+    {
+      "code": "S20",
+      "name": "邊緣運算應用",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "雙向信號傳輸",
+      "category": "技能"
+    },
+    {
+      "code": "S22",
+      "name": "I2C通訊介面",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "通用非同步接收發送",
+      "category": "技能"
+    },
+    {
+      "code": "S25",
+      "name": "感測器聯網輸出入裝置安裝",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：瞭解應用需求\n代碼：SET2152-004v2\n版本：V2\n職類別：科學、技術、工程、數學／工程及技術（代碼：SET）\n職業別：科學及工程專業人員機械工程師（代碼：212144）\n行業別：製造業／機械設備製造業; 製造業／產業用機械設備維修及安裝業（代碼：C29; C3400）\n基準級別：4\n工作描述：在智慧製造領域中，整合配置符合智慧應用的感測系統，透過處理調節信號轉換成適當傳輸、量測及儲存信號，將訊息傳輸到平台進行儲存（如控制器、本地或雲端伺服器、雲端平台…..等），蒐集目標正確資料，以供後續應用或分析之用。\n建議條件：\n更新日期：2022/12/30",
+      "metadata": {
+        "code": "SET2152-004v2",
+        "name": "瞭解應用需求",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1瞭解應用需求\n任務編號：T1.1\n任務名稱：瞭解使用者端的應用需求\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（5項）：\n- 感測器原理基本概念\n- 智慧應用發展產業趨勢\n- 感測器發展概況與趨勢\n- 感測器原理及特性\n- 最新感測元件及材料資訊\n\n所需技能（5項）：\n- 感測器介面電路設計\n- 跨部門/對外溝通能力\n- 資料收集及分析能力\n- 感測器評估與應用能力\n- 需求規格書撰寫能力",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "瞭解使用者端的應用需求",
+        "main_responsibility": "T1瞭解應用需求",
+        "code": "SET2152-004v2",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2整合配置感測系統\n任務編號：T2.1\n任務名稱：整合評選合適感測器\n職能級別：0\n工作產出：感測器清單\n\n行為指標：\n無\n\n所需知識（5項）：\n- 感測器原理及特性\n- 最新感測器產業資訊\n- 感測融合概念\n- 邊緣運算概念\n- AI概念\n\n所需技能（3項）：\n- 感測器評估與應用能力\n- 成本分析\n- 感測器規格分析能力（含精度）",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "整合評選合適感測器",
+        "main_responsibility": "T2整合配置感測系統",
+        "code": "SET2152-004v2",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3處理信號調節\n任務編號：T3.1\n任務名稱：調節信號\n職能級別：0\n工作產出：標準信號格式\n\n行為指標：\n無\n\n所需知識（5項）：\n- 感測器原理及特性\n- 信號調節技術\n- 資料擷取基本概念\n- 程式語言\n- 通訊介面\n\n所需技能（4項）：\n- 程式語言設計（如C/C++、\n- 類比數位轉換\n- 信號濾波（filtering）\n- 信號放大",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "調節信號",
+        "main_responsibility": "T3處理信號調節",
+        "code": "SET2152-004v2",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4整合通訊介面及儲存\n任務編號：T4.1\n任務名稱：處理通訊介面\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（3項）：\n- 網路通訊\n- 工業通訊（如EtherNet…）\n- 資訊安全\n\n所需技能（4項）：\n- 雙向信號傳輸\n- I2C通訊介面\n- S23\n- 通用非同步接收發送",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "處理通訊介面",
+        "main_responsibility": "T4整合通訊介面及儲存",
+        "code": "SET2152-004v2",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4整合通訊介面及儲存\n任務編號：T4.2\n任務名稱：儲存資料\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（4項）：\n- 網路通訊\n- 資訊安全\n- 感測器聯網技術\n- 雲端技術\n\n所需技能（1項）：\n- 感測器聯網輸出入裝置安裝",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "儲存資料",
+        "main_responsibility": "T4整合通訊介面及儲存",
+        "code": "SET2152-004v2",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1瞭解應用需求\n\n需具備知識（5項）：\n- K01: 感測器原理基本概念\n- K02: 智慧應用發展產業趨勢\n- K03: 感測器發展概況與趨勢\n- K04: 感測器原理及特性\n- K05: 最新感測元件及材料資訊\n\n需具備技能（5項）：\n- S01: 感測器介面電路設計\n- S02: 跨部門/對外溝通能力\n- S03: 資料收集及分析能力\n- S04: 感測器評估與應用能力\n- S05: 需求規格書撰寫能力",
+      "metadata": {
+        "main_responsibility": "T1瞭解應用需求",
+        "code": "SET2152-004v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2整合配置感測系統\n\n需具備知識（5項）：\n- K04: 感測器原理及特性\n- K08: 最新感測器產業資訊\n- K09: 感測融合概念\n- K10: 邊緣運算概念\n- K11: AI概念\n\n需具備技能（3項）：\n- S04: 感測器評估與應用能力\n- S06: 成本分析\n- S10: 感測器規格分析能力（含精度）",
+      "metadata": {
+        "main_responsibility": "T2整合配置感測系統",
+        "code": "SET2152-004v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3處理信號調節\n\n需具備知識（5項）：\n- K04: 感測器原理及特性\n- K12: 信號調節技術\n- K13: 資料擷取基本概念\n- K14: 程式語言\n- K15: 通訊介面\n\n需具備技能（4項）：\n- S13: 程式語言設計（如C/C++、\n- S14: 類比數位轉換\n- S27: 信號濾波（filtering）\n- S28: 信號放大",
+      "metadata": {
+        "main_responsibility": "T3處理信號調節",
+        "code": "SET2152-004v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T4整合通訊介面及儲存\n\n需具備知識（5項）：\n- K19: 網路通訊\n- K20: 工業通訊（如EtherNet…）\n- K21: 資訊安全\n- K22: 感測器聯網技術\n- K23: 雲端技術\n\n需具備技能（5項）：\n- S21: 雙向信號傳輸\n- S22: I2C通訊介面\n- S23: \n- S24: 通用非同步接收發送\n- S25: 感測器聯網輸出入裝置安裝",
+      "metadata": {
+        "main_responsibility": "T4整合通訊介面及儲存",
+        "code": "SET2152-004v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【瞭解應用需求職能基準摘要】\n\n一、基本資訊\n- 職能代碼：SET2152-004v2\n- 職類別：科學、技術、工程、數學／工程及技術\n- 職業別：科學及工程專業人員機械工程師\n- 基準級別：4\n\n二、工作描述\n在智慧製造領域中，整合配置符合智慧應用的感測系統，透過處理調節信號轉換成適當傳輸、量測及儲存信號，將訊息傳輸到平台進行儲存（如控制器、本地或雲端伺服器、雲端平台…..等），蒐集目標正確資料，以供後續應用或分析之用。\n\n三、主要職責與任務（5項）\n- T1.1 瞭解使用者端的應用需求\n- T2.1 整合評選合適感測器\n- T3.1 調節信號\n- T4.1 處理通訊介面\n- T4.2 儲存資料\n\n四、職能要求\n- 知識項目：24項\n- 技能項目：24項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "SET2152-004v2",
+        "name": "瞭解應用需求",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

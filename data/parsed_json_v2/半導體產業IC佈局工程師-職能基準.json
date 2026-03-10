@@ -1,0 +1,200 @@
+{
+  "metadata": {
+    "code": "SET2152-001v4",
+    "name": "半導體產業IC佈局工程師",
+    "update_date": "2023/12/31",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\半導體產業IC佈局工程師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "科學、技術、工程、數學／工程及技術",
+    "category_code": "SET",
+    "occupation": "電子工程師",
+    "occupation_code": "2152",
+    "industry": [
+      "製造業／電子零組件製造業（俗稱「半導體產業」）"
+    ],
+    "industry_code": [
+      "C2611"
+    ],
+    "job_description": "1. 依據邏輯設計圖轉換邏輯閘為電晶體。2. 使用EDA工具在IC晶片上配置電晶體位置。3. 使用EDA工具在IC晶片上以金屬導線連接電晶體。4. 使用EDA工具轉換邏輯設計圖所對應的多層光罩圖形。5. 模擬驗證電晶體位置與繞線功能正確性。6. 時脈分析特定工作頻率下佈局與繞線是否正確運作。7. 維護光罩圖形智慧財產權。8. 協助建置與管理IC設計軟體。9. 依時程進度完成專案計畫。10. 配合設計任務需求落實協同工作。11. 協助部門規劃執行教育訓練。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1IC佈局",
+      "task_id": "T1.1",
+      "task_name": "依功能需求了解IC功能、工作頻率、操作速度、介面規格、消耗功率等基本規格。T1.2 瞭解晶片製程熟悉製程參數與Design Rule。T1.3 制定平面配置電路架構。T1.4 使用EDA工具（SoCEncounter、Astro等）設計配置IC晶片上電晶體位置。T1.5 使用EDA工具（SoCEncounter、Astro等）設計IC晶片上金屬導線連接電晶體。T1.6 模擬驗證電晶體位置與繞線功能正確性。T1.7 時脈分析特定工作頻率下佈局與繞線是否正確運作。T1.8 驗證光罩圖形符合製程規格（DRC驗證）。T1.9 使用EDA工具（Assura、Calibre等）驗證晶片上所有電晶體位置與連線",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03",
+        "K04",
+        "K05",
+        "K06",
+        "K07",
+        "K08",
+        "K09",
+        "K10"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08"
+      ],
+      "level": 4
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "積體電路知識",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "製程知識",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "電子電路設計應用",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "IC設計規格知識",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "IC佈局設計知識",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "數位邏輯分析",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "訊號完整性概念",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "VLSI知識",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "ESD、EMC知識",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "鎖相迴路知識",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "IC設計軟體使用與管理",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "自動化佈局技術",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "H",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "IC後佈局模擬分析技術",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "類比電路佈局設計技術（ Vertuoso、Leo, …）",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "類比IC設計技術（ADP、Laker..）",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "EDA佈局技術（",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "DRC/LV",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：IC佈局\n代碼：SET2152-001v4\n版本：V4\n職類別：科學、技術、工程、數學／工程及技術（代碼：SET）\n職業別：電子工程師（代碼：2152）\n行業別：製造業／電子零組件製造業（俗稱「半導體產業」）（代碼：C2611）\n基準級別：4\n工作描述：1. 依據邏輯設計圖轉換邏輯閘為電晶體。2. 使用EDA工具在IC晶片上配置電晶體位置。3. 使用EDA工具在IC晶片上以金屬導線連接電晶體。4. 使用EDA工具轉換邏輯設計圖所對應的多層光罩圖形。5. 模擬驗證電晶體位置與繞線功能正確性。6. 時脈分析特定工作頻率下佈局與繞線是否正確運作。7. 維護光罩圖形智慧財產權。8. 協助建置與管理IC設計軟體。9. 依時程進度完成專案計畫。10. 配合設計任務需求落實協同工作。11. 協助部門規劃執行教育訓練。\n建議條件：\n更新日期：2023/12/31",
+      "metadata": {
+        "code": "SET2152-001v4",
+        "name": "IC佈局",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1IC佈局\n任務編號：T1.1\n任務名稱：依功能需求了解IC功能、工作頻率、操作速度、介面規格、消耗功率等基本規格。T1.2 瞭解晶片製程熟悉製程參數與Design Rule。T1.3 制定平面配置電路架構。T1.4 使用EDA工具（SoCEncounter、Astro等）設計配置IC晶片上電晶體位置。T1.5 使用EDA工具（SoCEncounter、Astro等）設計IC晶片上金屬導線連接電晶體。T1.6 模擬驗證電晶體位置與繞線功能正確性。T1.7 時脈分析特定工作頻率下佈局與繞線是否正確運作。T1.8 驗證光罩圖形符合製程規格（DRC驗證）。T1.9 使用EDA工具（Assura、Calibre等）驗證晶片上所有電晶體位置與連線\n職能級別：4\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（10項）：\n- 積體電路知識\n- 製程知識\n- 電子電路設計應用\n- IC設計規格知識\n- IC佈局設計知識\n- 數位邏輯分析\n- 訊號完整性概念\n- VLSI知識\n- ESD、EMC知識\n- 鎖相迴路知識\n\n所需技能（8項）：\n- IC設計軟體使用與管理\n- 自動化佈局技術\n- H\n- IC後佈局模擬分析技術\n- 類比電路佈局設計技術（ Vertuoso、Leo, …）\n- 類比IC設計技術（ADP、Laker..）\n- EDA佈局技術（\n- DRC/LV",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "依功能需求了解IC功能、工作頻率、操作速度、介面規格、消耗功率等基本規格。T1.2 瞭解晶片製程熟悉製程參數與Design Rule。T1.3 制定平面配置電路架構。T1.4 使用EDA工具（SoCEncounter、Astro等）設計配置IC晶片上電晶體位置。T1.5 使用EDA工具（SoCEncounter、Astro等）設計IC晶片上金屬導線連接電晶體。T1.6 模擬驗證電晶體位置與繞線功能正確性。T1.7 時脈分析特定工作頻率下佈局與繞線是否正確運作。T1.8 驗證光罩圖形符合製程規格（DRC驗證）。T1.9 使用EDA工具（Assura、Calibre等）驗證晶片上所有電晶體位置與連線",
+        "main_responsibility": "T1IC佈局",
+        "code": "SET2152-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1IC佈局\n\n需具備知識（10項）：\n- K01: 積體電路知識\n- K02: 製程知識\n- K03: 電子電路設計應用\n- K04: IC設計規格知識\n- K05: IC佈局設計知識\n- K06: 數位邏輯分析\n- K07: 訊號完整性概念\n- K08: VLSI知識\n- K09: ESD、EMC知識\n- K10: 鎖相迴路知識\n\n需具備技能（8項）：\n- S01: IC設計軟體使用與管理\n- S02: 自動化佈局技術\n- S03: H\n- S04: IC後佈局模擬分析技術\n- S05: 類比電路佈局設計技術（ Vertuoso、Leo, …）\n- S06: 類比IC設計技術（ADP、Laker..）\n- S07: EDA佈局技術（\n- S08: DRC/LV",
+      "metadata": {
+        "main_responsibility": "T1IC佈局",
+        "code": "SET2152-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【IC佈局職能基準摘要】\n\n一、基本資訊\n- 職能代碼：SET2152-001v4\n- 職類別：科學、技術、工程、數學／工程及技術\n- 職業別：電子工程師\n- 基準級別：4\n\n二、工作描述\n1. 依據邏輯設計圖轉換邏輯閘為電晶體。2. 使用EDA工具在IC晶片上配置電晶體位置。3. 使用EDA工具在IC晶片上以金屬導線連接電晶體。4. 使用EDA工具轉換邏輯設計圖所對應的多層光罩圖形。5. 模擬驗證電晶體位置與繞線功能正確性。6. 時脈分析特定工作頻率下佈局與繞線是否正確運作。7. 維護光罩圖形智慧財產權。8. 協助建置與管理IC設計軟體。9. 依時程進度完成專案計畫。10. 配合設計任務需求落實協同工作。11. 協助部門規劃執行教育訓練。\n\n三、主要職責與任務（1項）\n- T1.1 依功能需求了解IC功能、工作頻率、操作速度、介面規格、消耗功率等基本規格。T1.2 瞭解晶片製程熟悉製程參數與Design Rule。T1.3 制定平面配置電路架構。T1.4 使用EDA工具（SoCEncounter、Astro等）設計配置IC晶片上電晶體位置。T1.5 使用EDA工具（SoCEncounter、Astro等）設計IC晶片上金屬導線連接電晶體。T1.6 模擬驗證電晶體位置與繞線功能正確性。T1.7 時脈分析特定工作頻率下佈局與繞線是否正確運作。T1.8 驗證光罩圖形符合製程規格（DRC驗證）。T1.9 使用EDA工具（Assura、Calibre等）驗證晶片上所有電晶體位置與連線\n\n四、職能要求\n- 知識項目：10項\n- 技能項目：8項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "SET2152-001v4",
+        "name": "IC佈局",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

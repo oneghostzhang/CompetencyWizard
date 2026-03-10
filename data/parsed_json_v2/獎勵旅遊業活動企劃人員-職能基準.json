@@ -1,0 +1,699 @@
+{
+  "metadata": {
+    "code": "TTM4221-003v3",
+    "name": "獎勵旅遊業活動企劃人員",
+    "update_date": "2023/12/29",
+    "version": "V3",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\獎勵旅遊業活動企劃人員-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "休閒與觀光旅遊／旅遊管理",
+    "category_code": "TTM",
+    "occupation": "旅遊諮詢及有關事務人員",
+    "occupation_code": "4221",
+    "industry": [
+      "支援服務業／旅行及相關服務業"
+    ],
+    "industry_code": [
+      "N7900"
+    ],
+    "job_description": "協助主管蒐集產業與客戶資料，與團隊討論設計適合客戶的活動內容，推動永續會展之活動目標，並於旅遊過程中協助主管確保活動順利執行。",
+    "level": 3,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1資料蒐集",
+      "task_id": "T1.1",
+      "task_name": "蒐集市場相關資訊",
+      "output": "獎勵旅遊市場相關資訊",
+      "behaviors": [
+        "依據主管指示，蒐集年度重點推廣與補助獎勵旅遊方案及市場相關資訊。",
+        "掌握各地方政府或機構、團體可提供辦理獎勵旅遊活動之資源。",
+        "蒐集競爭同業情報，研析其競爭優",
+        "了解各地公共衛生與安全狀況。"
+      ],
+      "knowledge": [
+        "K01",
+        "K03",
+        "K21",
+        "K23",
+        "K35",
+        "K45",
+        "K48",
+        "K54",
+        "K57",
+        "K60",
+        "K63",
+        "K65",
+        "K66",
+        "K73"
+      ],
+      "skills": [
+        "S02",
+        "S03",
+        "S04",
+        "S06",
+        "S13",
+        "S23",
+        "S28",
+        "S35",
+        "S41",
+        "S44",
+        "S45"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T1資料蒐集",
+      "task_id": "T1.2",
+      "task_name": "蒐集目標客群資料",
+      "output": "獎勵旅遊目標客群報告",
+      "behaviors": [
+        "協助蒐集獎勵旅遊目標客群資訊，以利業務部同仁能更加瞭解顧客屬性，爭取客源。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T1資料蒐集",
+      "task_id": "T1.3",
+      "task_name": "蒐集相關表演團體資訊",
+      "output": "表演團體資訊",
+      "behaviors": [
+        "依據主管指示，蒐集並整理適合的表演團體的相關資訊。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T1資料蒐集",
+      "task_id": "T1.4",
+      "task_name": "蒐集旅遊相關資訊",
+      "output": "景點資訊",
+      "behaviors": [
+        "依據主管指示，蒐集景點的相關資料與文化故事，提供設計體驗活動所需。",
+        "依據主管指示，蒐集景點伴手禮與當地生活文物。",
+        "與主管一起進行景點開發勘查。",
+        "與主管一同考察地方公共衛生、生態平衡、社會與經濟構面之永續循環與發展狀況。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T2現場活動規劃",
+      "task_id": "T2.1",
+      "task_name": "設計活動",
+      "output": "活動規劃",
+      "behaviors": [
+        "由資深人員帶領，了解客戶需求。",
+        "與團隊討論，提出符合客戶需求的活動行程。"
+      ],
+      "knowledge": [
+        "K03",
+        "K08",
+        "K05",
+        "K18",
+        "K29",
+        "K60",
+        "K66",
+        "K73"
+      ],
+      "skills": [
+        "S02",
+        "S04",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "S10",
+        "S11",
+        "S21",
+        "S26",
+        "S33",
+        "S35"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T2現場活動規劃",
+      "task_id": "T2.2",
+      "task_name": "製作簡報",
+      "output": "提案簡報",
+      "behaviors": [
+        "依據主管指示，協助業務設計提案簡報。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T3現場活動執行",
+      "task_id": "T3.1",
+      "task_name": "場地布置",
+      "output": "場地布置規劃圖",
+      "behaviors": [
+        "於舉辦活動前，與團隊成員一起布置活動現場。"
+      ],
+      "knowledge": [
+        "K32",
+        "K42",
+        "K58",
+        "K60",
+        "K66",
+        "K71",
+        "K73"
+      ],
+      "skills": [
+        "S04",
+        "S06",
+        "S10",
+        "S11",
+        "S19",
+        "S20",
+        "S26",
+        "S27",
+        "S45",
+        "S46"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T3現場活動執行",
+      "task_id": "T3.2",
+      "task_name": "安排表演團體",
+      "output": "表演團體預約表",
+      "behaviors": [
+        "確定接案後，接受主管的指派，負責受指派的活動，如：訂房、車、餐、景點與現場導覽等。",
+        "按照與客戶討論方向，向表演團體確認現場表演。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T3現場活動執行",
+      "task_id": "T3.3",
+      "task_name": "現場場控",
+      "output": "活動流程表",
+      "behaviors": [
+        "於活動進行中，於自己負責的部分進行控制。",
+        "落實現場公共衛生與安全工作。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T4結算",
+      "task_id": "T4.1",
+      "task_name": "整理客訴",
+      "output": "客訴處理紀錄表",
+      "behaviors": [
+        "針對顧客抱怨內容進行記錄，並請主管處理。"
+      ],
+      "knowledge": [
+        "K05",
+        "K08",
+        "K09",
+        "K41",
+        "K71"
+      ],
+      "skills": [
+        "S06",
+        "S07",
+        "S49"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T4結算",
+      "task_id": "T4.2",
+      "task_name": "結帳",
+      "output": "請款單",
+      "behaviors": [
+        "向公司會計請款，匯款給合作的相關廠商(如：表演團體、飯店、旅遊景點、物流協力商、禮品商)。"
+      ],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "會展概論",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "創意思考",
+      "category": "知識"
+    },
+    {
+      "code": "K21",
+      "name": "產業趨勢分析",
+      "category": "知識"
+    },
+    {
+      "code": "K23",
+      "name": "國際視野",
+      "category": "知識"
+    },
+    {
+      "code": "K35",
+      "name": "顧客關係管理",
+      "category": "知識"
+    },
+    {
+      "code": "K45",
+      "name": "國際會展趨勢",
+      "category": "知識"
+    },
+    {
+      "code": "K48",
+      "name": "國際商務禮儀",
+      "category": "知識"
+    },
+    {
+      "code": "K54",
+      "name": "各國文化特色",
+      "category": "知識"
+    },
+    {
+      "code": "K57",
+      "name": "市場趨勢分析",
+      "category": "知識"
+    },
+    {
+      "code": "K60",
+      "name": "公共安全",
+      "category": "知識"
+    },
+    {
+      "code": "K63",
+      "name": "城市行銷",
+      "category": "知識"
+    },
+    {
+      "code": "K65",
+      "name": "歐盟一般資料保護規則(GDPR)相關規定",
+      "category": "知識"
+    },
+    {
+      "code": "K66",
+      "name": "永續會展",
+      "category": "知識"
+    },
+    {
+      "code": "K73",
+      "name": "公共衛生",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "商業套裝軟體",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "溝通協調與人際關係",
+      "category": "知識"
+    },
+    {
+      "code": "K18",
+      "name": "活動企劃",
+      "category": "知識"
+    },
+    {
+      "code": "K29",
+      "name": "簡報企劃與表達技巧",
+      "category": "知識"
+    },
+    {
+      "code": "K32",
+      "name": "危機處理",
+      "category": "知識"
+    },
+    {
+      "code": "K42",
+      "name": "活動現場管理",
+      "category": "知識"
+    },
+    {
+      "code": "K58",
+      "name": "風險管理",
+      "category": "知識"
+    },
+    {
+      "code": "K71",
+      "name": "活動管理",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "財務管理",
+      "category": "知識"
+    },
+    {
+      "code": "K41",
+      "name": "客服實務",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S02",
+      "name": "創新導向",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "資料彙整能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "合作協調能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "溝通",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "外在環境感知力",
+      "category": "技能"
+    },
+    {
+      "code": "S23",
+      "name": "有效連結",
+      "category": "技能"
+    },
+    {
+      "code": "S28",
+      "name": "趨勢分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S35",
+      "name": "彈性思考",
+      "category": "技能"
+    },
+    {
+      "code": "S41",
+      "name": "數據解讀能力",
+      "category": "技能"
+    },
+    {
+      "code": "S44",
+      "name": "資訊蒐集能力",
+      "category": "技能"
+    },
+    {
+      "code": "S45",
+      "name": "安全意識",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "文書處理能力",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "詞彙編撰能力",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "創意",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "品質導向",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "時間管理",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "正確傾聽",
+      "category": "技能"
+    },
+    {
+      "code": "S26",
+      "name": "成果導向",
+      "category": "技能"
+    },
+    {
+      "code": "S33",
+      "name": "提案與簡報技巧",
+      "category": "技能"
+    },
+    {
+      "code": "S19",
+      "name": "問題解決",
+      "category": "技能"
+    },
+    {
+      "code": "S20",
+      "name": "緊急應變能力",
+      "category": "技能"
+    },
+    {
+      "code": "S27",
+      "name": "顧客導向",
+      "category": "技能"
+    },
+    {
+      "code": "S46",
+      "name": "團隊合作",
+      "category": "技能"
+    },
+    {
+      "code": "S49",
+      "name": "請款作業能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：資料蒐集\n代碼：TTM4221-003v3\n版本：V3\n職類別：休閒與觀光旅遊／旅遊管理（代碼：TTM）\n職業別：旅遊諮詢及有關事務人員（代碼：4221）\n行業別：支援服務業／旅行及相關服務業（代碼：N7900）\n基準級別：3\n工作描述：協助主管蒐集產業與客戶資料，與團隊討論設計適合客戶的活動內容，推動永續會展之活動目標，並於旅遊過程中協助主管確保活動順利執行。\n建議條件：\n更新日期：2023/12/29",
+      "metadata": {
+        "code": "TTM4221-003v3",
+        "name": "資料蒐集",
+        "level": 3,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1資料蒐集\n任務編號：T1.1\n任務名稱：蒐集市場相關資訊\n職能級別：3\n工作產出：獎勵旅遊市場相關資訊\n\n行為指標：\n- 依據主管指示，蒐集年度重點推廣與補助獎勵旅遊方案及市場相關資訊。\n- 掌握各地方政府或機構、團體可提供辦理獎勵旅遊活動之資源。\n- 蒐集競爭同業情報，研析其競爭優\n- 了解各地公共衛生與安全狀況。\n\n所需知識（14項）：\n- 會展概論\n- 創意思考\n- 產業趨勢分析\n- 國際視野\n- 顧客關係管理\n- 國際會展趨勢\n- 國際商務禮儀\n- 各國文化特色\n- 市場趨勢分析\n- 公共安全\n- 城市行銷\n- 歐盟一般資料保護規則(GDPR)相關規定\n- 永續會展\n- 公共衛生\n\n所需技能（11項）：\n- 創新導向\n- 資料彙整能力\n- 合作協調能力\n- 溝通\n- 外在環境感知力\n- 有效連結\n- 趨勢分析能力\n- 彈性思考\n- 數據解讀能力\n- 資訊蒐集能力\n- 安全意識",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "蒐集市場相關資訊",
+        "main_responsibility": "T1資料蒐集",
+        "code": "TTM4221-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1資料蒐集\n任務編號：T1.2\n任務名稱：蒐集目標客群資料\n職能級別：0\n工作產出：獎勵旅遊目標客群報告\n\n行為指標：\n- 協助蒐集獎勵旅遊目標客群資訊，以利業務部同仁能更加瞭解顧客屬性，爭取客源。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "蒐集目標客群資料",
+        "main_responsibility": "T1資料蒐集",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.3",
+      "type": "工作任務",
+      "content": "主要職責：T1資料蒐集\n任務編號：T1.3\n任務名稱：蒐集相關表演團體資訊\n職能級別：0\n工作產出：表演團體資訊\n\n行為指標：\n- 依據主管指示，蒐集並整理適合的表演團體的相關資訊。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T1.3",
+        "task_name": "蒐集相關表演團體資訊",
+        "main_responsibility": "T1資料蒐集",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.4",
+      "type": "工作任務",
+      "content": "主要職責：T1資料蒐集\n任務編號：T1.4\n任務名稱：蒐集旅遊相關資訊\n職能級別：0\n工作產出：景點資訊\n\n行為指標：\n- 依據主管指示，蒐集景點的相關資料與文化故事，提供設計體驗活動所需。\n- 依據主管指示，蒐集景點伴手禮與當地生活文物。\n- 與主管一起進行景點開發勘查。\n- 與主管一同考察地方公共衛生、生態平衡、社會與經濟構面之永續循環與發展狀況。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T1.4",
+        "task_name": "蒐集旅遊相關資訊",
+        "main_responsibility": "T1資料蒐集",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2現場活動規劃\n任務編號：T2.1\n任務名稱：設計活動\n職能級別：3\n工作產出：活動規劃\n\n行為指標：\n- 由資深人員帶領，了解客戶需求。\n- 與團隊討論，提出符合客戶需求的活動行程。\n\n所需知識（8項）：\n- 創意思考\n- 商業套裝軟體\n- 溝通協調與人際關係\n- 活動企劃\n- 簡報企劃與表達技巧\n- 公共安全\n- 永續會展\n- 公共衛生\n\n所需技能（12項）：\n- 創新導向\n- 合作協調能力\n- 溝通\n- 文書處理能力\n- 詞彙編撰能力\n- 創意\n- 品質導向\n- 時間管理\n- 正確傾聽\n- 成果導向\n- 提案與簡報技巧\n- 彈性思考",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "設計活動",
+        "main_responsibility": "T2現場活動規劃",
+        "code": "TTM4221-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2現場活動規劃\n任務編號：T2.2\n任務名稱：製作簡報\n職能級別：0\n工作產出：提案簡報\n\n行為指標：\n- 依據主管指示，協助業務設計提案簡報。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "製作簡報",
+        "main_responsibility": "T2現場活動規劃",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3現場活動執行\n任務編號：T3.1\n任務名稱：場地布置\n職能級別：3\n工作產出：場地布置規劃圖\n\n行為指標：\n- 於舉辦活動前，與團隊成員一起布置活動現場。\n\n所需知識（7項）：\n- 危機處理\n- 活動現場管理\n- 風險管理\n- 公共安全\n- 永續會展\n- 活動管理\n- 公共衛生\n\n所需技能（10項）：\n- 合作協調能力\n- 溝通\n- 品質導向\n- 時間管理\n- 問題解決\n- 緊急應變能力\n- 成果導向\n- 顧客導向\n- 安全意識\n- 團隊合作",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "場地布置",
+        "main_responsibility": "T3現場活動執行",
+        "code": "TTM4221-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3現場活動執行\n任務編號：T3.2\n任務名稱：安排表演團體\n職能級別：0\n工作產出：表演團體預約表\n\n行為指標：\n- 確定接案後，接受主管的指派，負責受指派的活動，如：訂房、車、餐、景點與現場導覽等。\n- 按照與客戶討論方向，向表演團體確認現場表演。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "安排表演團體",
+        "main_responsibility": "T3現場活動執行",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.3",
+      "type": "工作任務",
+      "content": "主要職責：T3現場活動執行\n任務編號：T3.3\n任務名稱：現場場控\n職能級別：0\n工作產出：活動流程表\n\n行為指標：\n- 於活動進行中，於自己負責的部分進行控制。\n- 落實現場公共衛生與安全工作。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T3.3",
+        "task_name": "現場場控",
+        "main_responsibility": "T3現場活動執行",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4結算\n任務編號：T4.1\n任務名稱：整理客訴\n職能級別：3\n工作產出：客訴處理紀錄表\n\n行為指標：\n- 針對顧客抱怨內容進行記錄，並請主管處理。\n\n所需知識（5項）：\n- 溝通協調與人際關係\n- 商業套裝軟體\n- 財務管理\n- 客服實務\n- 活動管理\n\n所需技能（3項）：\n- 溝通\n- 文書處理能力\n- 請款作業能力",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "整理客訴",
+        "main_responsibility": "T4結算",
+        "code": "TTM4221-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4結算\n任務編號：T4.2\n任務名稱：結帳\n職能級別：0\n工作產出：請款單\n\n行為指標：\n- 向公司會計請款，匯款給合作的相關廠商(如：表演團體、飯店、旅遊景點、物流協力商、禮品商)。\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "結帳",
+        "main_responsibility": "T4結算",
+        "code": "TTM4221-003v3",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1資料蒐集\n\n需具備知識（14項）：\n- K01: 會展概論\n- K03: 創意思考\n- K21: 產業趨勢分析\n- K23: 國際視野\n- K35: 顧客關係管理\n- K45: 國際會展趨勢\n- K48: 國際商務禮儀\n- K54: 各國文化特色\n- K57: 市場趨勢分析\n- K60: 公共安全\n- K63: 城市行銷\n- K65: 歐盟一般資料保護規則(GDPR)相關規定\n- K66: 永續會展\n- K73: 公共衛生\n\n需具備技能（11項）：\n- S02: 創新導向\n- S03: 資料彙整能力\n- S04: 合作協調能力\n- S06: 溝通\n- S13: 外在環境感知力\n- S23: 有效連結\n- S28: 趨勢分析能力\n- S35: 彈性思考\n- S41: 數據解讀能力\n- S44: 資訊蒐集能力\n- S45: 安全意識",
+      "metadata": {
+        "main_responsibility": "T1資料蒐集",
+        "code": "TTM4221-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2現場活動規劃\n\n需具備知識（8項）：\n- K03: 創意思考\n- K05: 溝通協調與人際關係\n- K08: 商業套裝軟體\n- K18: 活動企劃\n- K29: 簡報企劃與表達技巧\n- K60: 公共安全\n- K66: 永續會展\n- K73: 公共衛生\n\n需具備技能（12項）：\n- S02: 創新導向\n- S04: 合作協調能力\n- S06: 溝通\n- S07: 文書處理能力\n- S08: 詞彙編撰能力\n- S09: 創意\n- S10: 品質導向\n- S11: 時間管理\n- S21: 正確傾聽\n- S26: 成果導向\n- S33: 提案與簡報技巧\n- S35: 彈性思考",
+      "metadata": {
+        "main_responsibility": "T2現場活動規劃",
+        "code": "TTM4221-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3現場活動執行\n\n需具備知識（7項）：\n- K32: 危機處理\n- K42: 活動現場管理\n- K58: 風險管理\n- K60: 公共安全\n- K66: 永續會展\n- K71: 活動管理\n- K73: 公共衛生\n\n需具備技能（10項）：\n- S04: 合作協調能力\n- S06: 溝通\n- S10: 品質導向\n- S11: 時間管理\n- S19: 問題解決\n- S20: 緊急應變能力\n- S26: 成果導向\n- S27: 顧客導向\n- S45: 安全意識\n- S46: 團隊合作",
+      "metadata": {
+        "main_responsibility": "T3現場活動執行",
+        "code": "TTM4221-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T4結算\n\n需具備知識（5項）：\n- K05: 溝通協調與人際關係\n- K08: 商業套裝軟體\n- K09: 財務管理\n- K41: 客服實務\n- K71: 活動管理\n\n需具備技能（3項）：\n- S06: 溝通\n- S07: 文書處理能力\n- S49: 請款作業能力",
+      "metadata": {
+        "main_responsibility": "T4結算",
+        "code": "TTM4221-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【資料蒐集職能基準摘要】\n\n一、基本資訊\n- 職能代碼：TTM4221-003v3\n- 職類別：休閒與觀光旅遊／旅遊管理\n- 職業別：旅遊諮詢及有關事務人員\n- 基準級別：3\n\n二、工作描述\n協助主管蒐集產業與客戶資料，與團隊討論設計適合客戶的活動內容，推動永續會展之活動目標，並於旅遊過程中協助主管確保活動順利執行。\n\n三、主要職責與任務（11項）\n- T1.1 蒐集市場相關資訊\n- T1.2 蒐集目標客群資料\n- T1.3 蒐集相關表演團體資訊\n- T1.4 蒐集旅遊相關資訊\n- T2.1 設計活動\n- T2.2 製作簡報\n- T3.1 場地布置\n- T3.2 安排表演團體\n- T3.3 現場場控\n- T4.1 整理客訴\n- T4.2 結帳\n\n四、職能要求\n- 知識項目：24項\n- 技能項目：24項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "TTM4221-003v3",
+        "name": "資料蒐集",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

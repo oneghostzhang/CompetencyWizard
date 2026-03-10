@@ -1,0 +1,748 @@
+{
+  "metadata": {
+    "code": "AVA7313-001v4",
+    "name": "工藝產業首飾金工工藝師",
+    "update_date": "2023/07/24",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\工藝產業首飾金工工藝師-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "藝文與影音傳播／視覺藝術",
+    "category_code": "AVA",
+    "occupation": "珠寶及貴金屬製作人員",
+    "occupation_code": "7313",
+    "industry": [
+      "藝術、娛樂及休閒服務業／創作及藝術表演業"
+    ],
+    "industry_code": [
+      "R9010"
+    ],
+    "job_description": "針對客戶需求設計首飾金工的相關產品，並且選擇最適當的製作工序予以生產，或者自行設計開發生產新商品，並且透過市場行銷，為公司創造利潤。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1產品開發設計",
+      "task_id": "T1.1",
+      "task_name": "與客戶溝通設計想法及需求",
+      "output": "合約",
+      "behaviors": [
+        "能夠快速、確實了解客戶對產品的需求並予以建議。"
+      ],
+      "knowledge": [
+        "K20",
+        "K00"
+      ],
+      "skills": [
+        "S20"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T1產品開發設計",
+      "task_id": "T1.2",
+      "task_name": "發想及繪製商品設計圖",
+      "output": "設計圖",
+      "behaviors": [
+        "發展出合宜的產品構想並且能繪製出精準傳達構想的設計圖。"
+      ],
+      "knowledge": [
+        "K20"
+      ],
+      "skills": [
+        "S20"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T2材料評估與選用",
+      "task_id": "T2.1",
+      "task_name": "原物料特性的了解與選用",
+      "output": "撰寫原物料檢核表",
+      "behaviors": [
+        "能夠在符合客戶的要求下選定合適的金屬及其他媒材，製作最佳的商品。",
+        "能夠依照出貨數量，隨時檢測控管原物料的庫存量，並且提報購買。"
+      ],
+      "knowledge": [
+        "K20",
+        "K21"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3金屬成",
+      "task_id": "T3.1",
+      "task_name": "取",
+      "output": "原、原材料截取商品製作、原材料截取發包廠商名單",
+      "behaviors": [
+        "能夠符合設計，將金屬截取成適合的造"
+      ],
+      "knowledge": [
+        "K21"
+      ],
+      "skills": [
+        "S21"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T3金屬成",
+      "task_id": "T3.2",
+      "task_name": "塑性加工成形：利用金屬的可塑性或延展性，將金屬彎折、扭轉、鍛敲成所需造形。",
+      "output": "塑性加工成形樣品製作、塑性加工成形商品製作、塑性加工成形發包廠",
+      "behaviors": [
+        "能夠以適當的工具及工法，將金屬塑性加工成形，以符合設計圖。"
+      ],
+      "knowledge": [
+        "K21"
+      ],
+      "skills": [
+        "S21"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3金屬成",
+      "task_id": "T3.3",
+      "task_name": "組焊成形：透過對金屬加熱，藉由焊材，將金屬工件焊在一起，或透過冷接，製作成所需造形",
+      "output": "組焊成形樣品製作、組焊成形商品製作、組焊成形發包廠商名單",
+      "behaviors": [
+        "能夠以熱焊或冷接的方式，使金屬組構在一起。"
+      ],
+      "knowledge": [
+        "K22"
+      ],
+      "skills": [
+        "S21"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3金屬成",
+      "task_id": "T3.4",
+      "task_name": "蠟雕及脫蠟鑄造成形：先將軟蠟或硬蠟製作成所需造形，再以脫蠟鑄造方式將",
+      "output": "蠟雕及脫蠟鑄造成形樣品製作、蠟雕及脫蠟鑄造成形商品製作、蠟",
+      "behaviors": [
+        "能夠以蠟表現設計圖的立體美感。",
+        "能夠將蠟模發包給正確廠商，以脫蠟鑄造的方式轉換成金屬造形。"
+      ],
+      "knowledge": [
+        "K22"
+      ],
+      "skills": [
+        "S21"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T4金屬表面質感處",
+      "task_id": "T4.1",
+      "task_name": "表面基礎加工",
+      "output": "表面基礎加、表面基礎加工商品製作、表面基礎加工發包廠商名單",
+      "behaviors": [
+        "能夠使用正確工序，產生設計需要的表面質感。"
+      ],
+      "knowledge": [
+        "K22"
+      ],
+      "skills": [
+        "S22"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T4金屬表面質感處",
+      "task_id": "T4.2",
+      "task_name": "金屬表面裝飾：以琺瑯、化學染色、電鍍、陽極處理、腐蝕、燄燒質感、噴砂，以及其他增加",
+      "output": "金屬表面裝飾樣品製作、金屬表面裝飾商品製作、金屬表面裝飾發包廠",
+      "behaviors": [
+        "能夠依據設計需要，選用符合設計表現的表面裝飾技法。"
+      ],
+      "knowledge": [
+        "K22"
+      ],
+      "skills": [
+        "S22"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T5寶石鑲嵌",
+      "task_id": "T5.1",
+      "task_name": "規劃不同寶石的鑲嵌製作程序。",
+      "output": "寶石鑲嵌設計程序圖",
+      "behaviors": [
+        "能夠依照寶石特性選擇合適的鑲嵌製作程序。"
+      ],
+      "knowledge": [
+        "K21",
+        "K22"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T6規畫與監督量產過程",
+      "task_id": "T6.1",
+      "task_name": "規畫量產製造程序及方式",
+      "output": "量產規畫書",
+      "behaviors": [
+        "能夠採取有效率且品質高的生產方式。"
+      ],
+      "knowledge": [
+        "K22"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T6規畫與監督量產過程",
+      "task_id": "T6.2",
+      "task_name": "協力生產廠商的評估及洽談",
+      "output": "量產廠商合作合約書",
+      "behaviors": [
+        "能與廠商保持密切關係，並且依產品需求選擇最適當的廠商。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S20",
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T6規畫與監督量產過程",
+      "task_id": "T6.3",
+      "task_name": "批量製造",
+      "output": "量產產品",
+      "behaviors": [
+        "能夠選擇最適合的方式製造商品。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T6規畫與監督量產過程",
+      "task_id": "T6.4",
+      "task_name": "品質管理",
+      "output": "生產管理相關檢核表",
+      "behaviors": [
+        "能夠準時將符合客戶期望的商品交貨給客戶。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T6規畫與監督量產過程",
+      "task_id": "T6.4",
+      "task_name": ".1產品製作時程掌握",
+      "output": null,
+      "behaviors": [],
+      "knowledge": [],
+      "skills": [],
+      "level": 0
+    },
+    {
+      "main_responsibility": "T7機具採買及維護",
+      "task_id": "T7.1",
+      "task_name": "採買適合工作製程的工具及機械",
+      "output": "工具採買表單",
+      "behaviors": [
+        "了解工作相關製程，採買合適的機具，以達最佳製作效率。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S23"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+      "task_id": "T8.1",
+      "task_name": "品牌的建立",
+      "output": "商品故事撰寫、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單",
+      "behaviors": [
+        "明確的品牌定位。",
+        "商品差異化。",
+        "能夠設定符合公司要求的商品形象故事及文案。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S24"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+      "task_id": "T8.2",
+      "task_name": "建立合適的銷售通路",
+      "output": "商品故事撰寫、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單",
+      "behaviors": [
+        "能有效選擇適合的通路販售商品。"
+      ],
+      "knowledge": [
+        "K23"
+      ],
+      "skills": [
+        "S24",
+        "S20"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+      "task_id": "T8.3",
+      "task_name": "建立目標族群",
+      "output": "商品故事撰、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單",
+      "behaviors": [
+        "能參加展覽、商品展示或比賽，使商品能多元推廣。"
+      ],
+      "knowledge": [
+        "K23",
+        "K24"
+      ],
+      "skills": [
+        "S20",
+        "S24"
+      ],
+      "level": 6
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K20",
+      "name": "1消費者行為",
+      "category": "知識"
+    },
+    {
+      "code": "K00",
+      "name": "3材料特性",
+      "category": "知識"
+    },
+    {
+      "code": "K21",
+      "name": "0市場供需機制",
+      "category": "知識"
+    },
+    {
+      "code": "K22",
+      "name": "0了解不同金屬及焊材的熔點",
+      "category": "知識"
+    },
+    {
+      "code": "K23",
+      "name": "0了解產業界中的供應鏈關係",
+      "category": "知識"
+    },
+    {
+      "code": "K24",
+      "name": "0掌握市場趨勢",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S20",
+      "name": "1溝通",
+      "category": "技能"
+    },
+    {
+      "code": "S21",
+      "name": "0策略性思考",
+      "category": "技能"
+    },
+    {
+      "code": "S23",
+      "name": "0人脈建立",
+      "category": "技能"
+    },
+    {
+      "code": "S22",
+      "name": "0花絲相關製作技法",
+      "category": "技能"
+    },
+    {
+      "code": "S24",
+      "name": "0機具檢查測試的技術",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：產品開發設計\n代碼：AVA7313-001v4\n版本：V4\n職類別：藝文與影音傳播／視覺藝術（代碼：AVA）\n職業別：珠寶及貴金屬製作人員（代碼：7313）\n行業別：藝術、娛樂及休閒服務業／創作及藝術表演業（代碼：R9010）\n基準級別：4\n工作描述：針對客戶需求設計首飾金工的相關產品，並且選擇最適當的製作工序予以生產，或者自行設計開發生產新商品，並且透過市場行銷，為公司創造利潤。\n建議條件：\n更新日期：2023/07/24",
+      "metadata": {
+        "code": "AVA7313-001v4",
+        "name": "產品開發設計",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1產品開發設計\n任務編號：T1.1\n任務名稱：與客戶溝通設計想法及需求\n職能級別：6\n工作產出：合約\n\n行為指標：\n- 能夠快速、確實了解客戶對產品的需求並予以建議。\n\n所需知識（2項）：\n- 1消費者行為\n- 3材料特性\n\n所需技能（1項）：\n- 1溝通",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "與客戶溝通設計想法及需求",
+        "main_responsibility": "T1產品開發設計",
+        "code": "AVA7313-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1產品開發設計\n任務編號：T1.2\n任務名稱：發想及繪製商品設計圖\n職能級別：6\n工作產出：設計圖\n\n行為指標：\n- 發展出合宜的產品構想並且能繪製出精準傳達構想的設計圖。\n\n所需知識（1項）：\n- 1消費者行為\n\n所需技能（1項）：\n- 1溝通",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "發想及繪製商品設計圖",
+        "main_responsibility": "T1產品開發設計",
+        "code": "AVA7313-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2材料評估與選用\n任務編號：T2.1\n任務名稱：原物料特性的了解與選用\n職能級別：4\n工作產出：撰寫原物料檢核表\n\n行為指標：\n- 能夠在符合客戶的要求下選定合適的金屬及其他媒材，製作最佳的商品。\n- 能夠依照出貨數量，隨時檢測控管原物料的庫存量，並且提報購買。\n\n所需知識（2項）：\n- 1消費者行為\n- 0市場供需機制\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "原物料特性的了解與選用",
+        "main_responsibility": "T2材料評估與選用",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3金屬成\n任務編號：T3.1\n任務名稱：取\n職能級別：3\n工作產出：原、原材料截取商品製作、原材料截取發包廠商名單\n\n行為指標：\n- 能夠符合設計，將金屬截取成適合的造\n\n所需知識（1項）：\n- 0市場供需機制\n\n所需技能（1項）：\n- 0策略性思考",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "取",
+        "main_responsibility": "T3金屬成",
+        "code": "AVA7313-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3金屬成\n任務編號：T3.2\n任務名稱：塑性加工成形：利用金屬的可塑性或延展性，將金屬彎折、扭轉、鍛敲成所需造形。\n職能級別：4\n工作產出：塑性加工成形樣品製作、塑性加工成形商品製作、塑性加工成形發包廠\n\n行為指標：\n- 能夠以適當的工具及工法，將金屬塑性加工成形，以符合設計圖。\n\n所需知識（1項）：\n- 0市場供需機制\n\n所需技能（1項）：\n- 0策略性思考",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "塑性加工成形：利用金屬的可塑性或延展性，將金屬彎折、扭轉、鍛敲成所需造形。",
+        "main_responsibility": "T3金屬成",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.3",
+      "type": "工作任務",
+      "content": "主要職責：T3金屬成\n任務編號：T3.3\n任務名稱：組焊成形：透過對金屬加熱，藉由焊材，將金屬工件焊在一起，或透過冷接，製作成所需造形\n職能級別：4\n工作產出：組焊成形樣品製作、組焊成形商品製作、組焊成形發包廠商名單\n\n行為指標：\n- 能夠以熱焊或冷接的方式，使金屬組構在一起。\n\n所需知識（1項）：\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0策略性思考",
+      "metadata": {
+        "task_id": "T3.3",
+        "task_name": "組焊成形：透過對金屬加熱，藉由焊材，將金屬工件焊在一起，或透過冷接，製作成所需造形",
+        "main_responsibility": "T3金屬成",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.4",
+      "type": "工作任務",
+      "content": "主要職責：T3金屬成\n任務編號：T3.4\n任務名稱：蠟雕及脫蠟鑄造成形：先將軟蠟或硬蠟製作成所需造形，再以脫蠟鑄造方式將\n職能級別：3\n工作產出：蠟雕及脫蠟鑄造成形樣品製作、蠟雕及脫蠟鑄造成形商品製作、蠟\n\n行為指標：\n- 能夠以蠟表現設計圖的立體美感。\n- 能夠將蠟模發包給正確廠商，以脫蠟鑄造的方式轉換成金屬造形。\n\n所需知識（1項）：\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0策略性思考",
+      "metadata": {
+        "task_id": "T3.4",
+        "task_name": "蠟雕及脫蠟鑄造成形：先將軟蠟或硬蠟製作成所需造形，再以脫蠟鑄造方式將",
+        "main_responsibility": "T3金屬成",
+        "code": "AVA7313-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4金屬表面質感處\n任務編號：T4.1\n任務名稱：表面基礎加工\n職能級別：4\n工作產出：表面基礎加、表面基礎加工商品製作、表面基礎加工發包廠商名單\n\n行為指標：\n- 能夠使用正確工序，產生設計需要的表面質感。\n\n所需知識（1項）：\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0花絲相關製作技法",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "表面基礎加工",
+        "main_responsibility": "T4金屬表面質感處",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4金屬表面質感處\n任務編號：T4.2\n任務名稱：金屬表面裝飾：以琺瑯、化學染色、電鍍、陽極處理、腐蝕、燄燒質感、噴砂，以及其他增加\n職能級別：4\n工作產出：金屬表面裝飾樣品製作、金屬表面裝飾商品製作、金屬表面裝飾發包廠\n\n行為指標：\n- 能夠依據設計需要，選用符合設計表現的表面裝飾技法。\n\n所需知識（1項）：\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0花絲相關製作技法",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "金屬表面裝飾：以琺瑯、化學染色、電鍍、陽極處理、腐蝕、燄燒質感、噴砂，以及其他增加",
+        "main_responsibility": "T4金屬表面質感處",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T5.1",
+      "type": "工作任務",
+      "content": "主要職責：T5寶石鑲嵌\n任務編號：T5.1\n任務名稱：規劃不同寶石的鑲嵌製作程序。\n職能級別：4\n工作產出：寶石鑲嵌設計程序圖\n\n行為指標：\n- 能夠依照寶石特性選擇合適的鑲嵌製作程序。\n\n所需知識（2項）：\n- 0市場供需機制\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T5.1",
+        "task_name": "規劃不同寶石的鑲嵌製作程序。",
+        "main_responsibility": "T5寶石鑲嵌",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.1",
+      "type": "工作任務",
+      "content": "主要職責：T6規畫與監督量產過程\n任務編號：T6.1\n任務名稱：規畫量產製造程序及方式\n職能級別：4\n工作產出：量產規畫書\n\n行為指標：\n- 能夠採取有效率且品質高的生產方式。\n\n所需知識（1項）：\n- 0了解不同金屬及焊材的熔點\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T6.1",
+        "task_name": "規畫量產製造程序及方式",
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.2",
+      "type": "工作任務",
+      "content": "主要職責：T6規畫與監督量產過程\n任務編號：T6.2\n任務名稱：協力生產廠商的評估及洽談\n職能級別：4\n工作產出：量產廠商合作合約書\n\n行為指標：\n- 能與廠商保持密切關係，並且依產品需求選擇最適當的廠商。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（2項）：\n- 1溝通\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T6.2",
+        "task_name": "協力生產廠商的評估及洽談",
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.3",
+      "type": "工作任務",
+      "content": "主要職責：T6規畫與監督量產過程\n任務編號：T6.3\n任務名稱：批量製造\n職能級別：4\n工作產出：量產產品\n\n行為指標：\n- 能夠選擇最適合的方式製造商品。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T6.3",
+        "task_name": "批量製造",
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.4",
+      "type": "工作任務",
+      "content": "主要職責：T6規畫與監督量產過程\n任務編號：T6.4\n任務名稱：品質管理\n職能級別：4\n工作產出：生產管理相關檢核表\n\n行為指標：\n- 能夠準時將符合客戶期望的商品交貨給客戶。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T6.4",
+        "task_name": "品質管理",
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T6.4",
+      "type": "工作任務",
+      "content": "主要職責：T6規畫與監督量產過程\n任務編號：T6.4\n任務名稱：.1產品製作時程掌握\n職能級別：0\n工作產出：無特定產出\n\n行為指標：\n無\n\n所需知識（0項）：\n無\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T6.4",
+        "task_name": ".1產品製作時程掌握",
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "level": 0,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T7.1",
+      "type": "工作任務",
+      "content": "主要職責：T7機具採買及維護\n任務編號：T7.1\n任務名稱：採買適合工作製程的工具及機械\n職能級別：3\n工作產出：工具採買表單\n\n行為指標：\n- 了解工作相關製程，採買合適的機具，以達最佳製作效率。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（1項）：\n- 0人脈建立",
+      "metadata": {
+        "task_id": "T7.1",
+        "task_name": "採買適合工作製程的工具及機械",
+        "main_responsibility": "T7機具採買及維護",
+        "code": "AVA7313-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T8.1",
+      "type": "工作任務",
+      "content": "主要職責：T8金屬工藝事業經營(適用於微型產業、個人工作坊)\n任務編號：T8.1\n任務名稱：品牌的建立\n職能級別：6\n工作產出：商品故事撰寫、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單\n\n行為指標：\n- 明確的品牌定位。\n- 商品差異化。\n- 能夠設定符合公司要求的商品形象故事及文案。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（1項）：\n- 0機具檢查測試的技術",
+      "metadata": {
+        "task_id": "T8.1",
+        "task_name": "品牌的建立",
+        "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+        "code": "AVA7313-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T8.2",
+      "type": "工作任務",
+      "content": "主要職責：T8金屬工藝事業經營(適用於微型產業、個人工作坊)\n任務編號：T8.2\n任務名稱：建立合適的銷售通路\n職能級別：5\n工作產出：商品故事撰寫、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單\n\n行為指標：\n- 能有效選擇適合的通路販售商品。\n\n所需知識（1項）：\n- 0了解產業界中的供應鏈關係\n\n所需技能（2項）：\n- 0機具檢查測試的技術\n- 1溝通",
+      "metadata": {
+        "task_id": "T8.2",
+        "task_name": "建立合適的銷售通路",
+        "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+        "code": "AVA7313-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T8.3",
+      "type": "工作任務",
+      "content": "主要職責：T8金屬工藝事業經營(適用於微型產業、個人工作坊)\n任務編號：T8.3\n任務名稱：建立目標族群\n職能級別：6\n工作產出：商品故事撰、商品包裝設計、有文宣包裝的展示品、合約書、市場反饋表單\n\n行為指標：\n- 能參加展覽、商品展示或比賽，使商品能多元推廣。\n\n所需知識（2項）：\n- 0了解產業界中的供應鏈關係\n- 0掌握市場趨勢\n\n所需技能（2項）：\n- 1溝通\n- 0機具檢查測試的技術",
+      "metadata": {
+        "task_id": "T8.3",
+        "task_name": "建立目標族群",
+        "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+        "code": "AVA7313-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1產品開發設計\n\n需具備知識（2項）：\n- K00: 3材料特性\n- K20: 1消費者行為\n\n需具備技能（1項）：\n- S20: 1溝通",
+      "metadata": {
+        "main_responsibility": "T1產品開發設計",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2材料評估與選用\n\n需具備知識（2項）：\n- K20: 1消費者行為\n- K21: 0市場供需機制\n\n需具備技能（1項）：\n- S23: 0人脈建立",
+      "metadata": {
+        "main_responsibility": "T2材料評估與選用",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3金屬成\n\n需具備知識（2項）：\n- K21: 0市場供需機制\n- K22: 0了解不同金屬及焊材的熔點\n\n需具備技能（1項）：\n- S21: 0策略性思考",
+      "metadata": {
+        "main_responsibility": "T3金屬成",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_4",
+      "type": "知識技能",
+      "content": "職責領域：T4金屬表面質感處\n\n需具備知識（1項）：\n- K22: 0了解不同金屬及焊材的熔點\n\n需具備技能（1項）：\n- S22: 0花絲相關製作技法",
+      "metadata": {
+        "main_responsibility": "T4金屬表面質感處",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_5",
+      "type": "知識技能",
+      "content": "職責領域：T5寶石鑲嵌\n\n需具備知識（2項）：\n- K21: 0市場供需機制\n- K22: 0了解不同金屬及焊材的熔點\n\n需具備技能（1項）：\n- S23: 0人脈建立",
+      "metadata": {
+        "main_responsibility": "T5寶石鑲嵌",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_6",
+      "type": "知識技能",
+      "content": "職責領域：T6規畫與監督量產過程\n\n需具備知識（2項）：\n- K22: 0了解不同金屬及焊材的熔點\n- K23: 0了解產業界中的供應鏈關係\n\n需具備技能（2項）：\n- S20: 1溝通\n- S23: 0人脈建立",
+      "metadata": {
+        "main_responsibility": "T6規畫與監督量產過程",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_7",
+      "type": "知識技能",
+      "content": "職責領域：T7機具採買及維護\n\n需具備知識（1項）：\n- K23: 0了解產業界中的供應鏈關係\n\n需具備技能（1項）：\n- S23: 0人脈建立",
+      "metadata": {
+        "main_responsibility": "T7機具採買及維護",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_8",
+      "type": "知識技能",
+      "content": "職責領域：T8金屬工藝事業經營(適用於微型產業、個人工作坊)\n\n需具備知識（2項）：\n- K23: 0了解產業界中的供應鏈關係\n- K24: 0掌握市場趨勢\n\n需具備技能（2項）：\n- S20: 1溝通\n- S24: 0機具檢查測試的技術",
+      "metadata": {
+        "main_responsibility": "T8金屬工藝事業經營(適用於微型產業、個人工作坊)",
+        "code": "AVA7313-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【產品開發設計職能基準摘要】\n\n一、基本資訊\n- 職能代碼：AVA7313-001v4\n- 職類別：藝文與影音傳播／視覺藝術\n- 職業別：珠寶及貴金屬製作人員\n- 基準級別：4\n\n二、工作描述\n針對客戶需求設計首飾金工的相關產品，並且選擇最適當的製作工序予以生產，或者自行設計開發生產新商品，並且透過市場行銷，為公司創造利潤。\n\n三、主要職責與任務（19項）\n- T1.1 與客戶溝通設計想法及需求\n- T1.2 發想及繪製商品設計圖\n- T2.1 原物料特性的了解與選用\n- T3.1 取\n- T3.2 塑性加工成形：利用金屬的可塑性或延展性，將金屬彎折、扭轉、鍛敲成所需造形。\n- T3.3 組焊成形：透過對金屬加熱，藉由焊材，將金屬工件焊在一起，或透過冷接，製作成所需造形\n- T3.4 蠟雕及脫蠟鑄造成形：先將軟蠟或硬蠟製作成所需造形，再以脫蠟鑄造方式將\n- T4.1 表面基礎加工\n- T4.2 金屬表面裝飾：以琺瑯、化學染色、電鍍、陽極處理、腐蝕、燄燒質感、噴砂，以及其他增加\n- T5.1 規劃不同寶石的鑲嵌製作程序。\n- T6.1 規畫量產製造程序及方式\n- T6.2 協力生產廠商的評估及洽談\n- T6.3 批量製造\n- T6.4 品質管理\n- T6.4 .1產品製作時程掌握\n- T7.1 採買適合工作製程的工具及機械\n- T8.1 品牌的建立\n- T8.2 建立合適的銷售通路\n- T8.3 建立目標族群\n\n四、職能要求\n- 知識項目：6項\n- 技能項目：5項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "AVA7313-001v4",
+        "name": "產品開發設計",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

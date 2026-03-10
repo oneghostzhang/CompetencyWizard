@@ -1,0 +1,477 @@
+{
+  "metadata": {
+    "code": "PIC3230-003v3",
+    "name": "民俗調理業經絡調理技術員",
+    "update_date": "2024/10/29",
+    "version": "V2",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\民俗調理業經絡調理技術員-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "個人及社會服務／個人照護服務",
+    "category_code": "PIC",
+    "occupation": "",
+    "occupation_code": "",
+    "industry": [
+      "其他服務業／未分類其他服務業（俗稱「民俗調理業」）"
+    ],
+    "industry_code": [
+      "S9690"
+    ],
+    "job_description": "在不涉及醫療行為下，依據經絡理論運用調理手法與器具，對人體體表、肌肉施以物理性刺激之調理行為，以達到紓壓、消除疲勞之服務目的。",
+    "level": 3,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1操作前之準備作業",
+      "task_id": "T1.1",
+      "task_name": "完成服務顧客前自我保健工作",
+      "output": null,
+      "behaviors": [
+        "依據自我保健原則，完成服務顧客前自我保健工作。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03"
+      ],
+      "skills": [],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T1操作前之準備作業",
+      "task_id": "T1.2",
+      "task_name": "完成顧客需求評估",
+      "output": "顧客需求評估表",
+      "behaviors": [
+        "依據顧客口述及初步觀察，進行顧客需求評估，完成評估表。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K04",
+        "K05",
+        "K06"
+      ],
+      "skills": [
+        "S01",
+        "S02"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T1操作前之準備作業",
+      "task_id": "T1.3",
+      "task_name": "完成基本操作計畫",
+      "output": "基本操作作業程序單",
+      "behaviors": [
+        "依據顧客需求，擬訂基本操作計畫，向顧客說明清楚。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K06",
+        "K07"
+      ],
+      "skills": [
+        "S03",
+        "S04"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T2操作過程之調理作業",
+      "task_id": "T2.1",
+      "task_name": "說明調理作業步驟",
+      "output": null,
+      "behaviors": [
+        "引導顧客進行調理，並在過程中分辨顧客語意，達到良好互動之服務品質。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K05",
+        "K06",
+        "K07"
+      ],
+      "skills": [
+        "S04",
+        "S08"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T2操作過程之調理作業",
+      "task_id": "T2.2",
+      "task_name": "執行經絡調理",
+      "output": "經絡調理紀錄表",
+      "behaviors": [
+        "依據操作計畫，執行經絡調理操作。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K04",
+        "K05",
+        "K06",
+        "K07",
+        "K08"
+      ],
+      "skills": [
+        "S09",
+        "S10",
+        "S11",
+        "S12"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T3操作後之服務事項",
+      "task_id": "T3.1",
+      "task_name": "整理用物與場所",
+      "output": "個人與場所清潔整理檢查紀錄",
+      "behaviors": [
+        "依據相關法規及作業流程，進行經絡調理操作後之個人、用物及場所清潔消毒與整理。"
+      ],
+      "knowledge": [
+        "K08",
+        "K09"
+      ],
+      "skills": [
+        "S05",
+        "S06"
+      ],
+      "level": 2
+    },
+    {
+      "main_responsibility": "T3操作後之服務事項",
+      "task_id": "T3.2",
+      "task_name": "對顧客資料及服務內容保密",
+      "output": null,
+      "behaviors": [
+        "遵守個人資料保護法規定及工作倫理守則，保障顧客隱私。"
+      ],
+      "knowledge": [
+        "K07",
+        "K11"
+      ],
+      "skills": [
+        "S08"
+      ],
+      "level": 2
+    },
+    {
+      "main_responsibility": "T3操作後之服務事項",
+      "task_id": "T3.3",
+      "task_name": "蒐集顧客滿意度回饋",
+      "output": "顧客服務後意見調查表",
+      "behaviors": [
+        "依據顧客服務後給予之回饋意見，能提出回應，並記錄整理與檢討。"
+      ],
+      "knowledge": [
+        "K03",
+        "K07"
+      ],
+      "skills": [
+        "S14",
+        "S15"
+      ],
+      "level": 3
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "基礎經絡理論",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "基礎生理與解剖學",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "自我保健知識",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "醫療衛生相關規定",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "服務之目的與範疇",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "禁忌症及部位注意事項",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "工作倫理守則",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "營業衛生、傳染病防治",
+      "category": "知識"
+    },
+    {
+      "code": "K09",
+      "name": "職場服裝儀容",
+      "category": "知識"
+    },
+    {
+      "code": "K10",
+      "name": "消防安全知識",
+      "category": "知識"
+    },
+    {
+      "code": "K11",
+      "name": "個人資料保護法",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "顧客需求評估能力",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "經絡調理評估表運用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "基本操作規劃能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "清潔消毒設備操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "經絡調理器具消毒能力",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "消防設備操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "顧客導向服務能力",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "經絡調理基本手法",
+      "category": "技能"
+    },
+    {
+      "code": "S10",
+      "name": "經絡調理操作手法",
+      "category": "技能"
+    },
+    {
+      "code": "S11",
+      "name": "調理器具操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S12",
+      "name": "全身各部位調理手法",
+      "category": "技能"
+    },
+    {
+      "code": "S13",
+      "name": "應變能力",
+      "category": "技能"
+    },
+    {
+      "code": "S14",
+      "name": "自我保健調理建議",
+      "category": "技能"
+    },
+    {
+      "code": "S15",
+      "name": "問題解決能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：操作前之準備作業\n代碼：PIC3230-003v3\n版本：V2\n職類別：個人及社會服務／個人照護服務（代碼：PIC）\n職業別：（代碼：）\n行業別：其他服務業／未分類其他服務業（俗稱「民俗調理業」）（代碼：S9690）\n基準級別：3\n工作描述：在不涉及醫療行為下，依據經絡理論運用調理手法與器具，對人體體表、肌肉施以物理性刺激之調理行為，以達到紓壓、消除疲勞之服務目的。\n建議條件：\n更新日期：2024/10/29",
+      "metadata": {
+        "code": "PIC3230-003v3",
+        "name": "操作前之準備作業",
+        "level": 3,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1操作前之準備作業\n任務編號：T1.1\n任務名稱：完成服務顧客前自我保健工作\n職能級別：3\n工作產出：無特定產出\n\n行為指標：\n- 依據自我保健原則，完成服務顧客前自我保健工作。\n\n所需知識（3項）：\n- 基礎經絡理論\n- 基礎生理與解剖學\n- 自我保健知識\n\n所需技能（0項）：\n無",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "完成服務顧客前自我保健工作",
+        "main_responsibility": "T1操作前之準備作業",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1操作前之準備作業\n任務編號：T1.2\n任務名稱：完成顧客需求評估\n職能級別：3\n工作產出：顧客需求評估表\n\n行為指標：\n- 依據顧客口述及初步觀察，進行顧客需求評估，完成評估表。\n\n所需知識（5項）：\n- 基礎經絡理論\n- 基礎生理與解剖學\n- 醫療衛生相關規定\n- 服務之目的與範疇\n- 禁忌症及部位注意事項\n\n所需技能（2項）：\n- 顧客需求評估能力\n- 經絡調理評估表運用能力",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "完成顧客需求評估",
+        "main_responsibility": "T1操作前之準備作業",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.3",
+      "type": "工作任務",
+      "content": "主要職責：T1操作前之準備作業\n任務編號：T1.3\n任務名稱：完成基本操作計畫\n職能級別：3\n工作產出：基本操作作業程序單\n\n行為指標：\n- 依據顧客需求，擬訂基本操作計畫，向顧客說明清楚。\n\n所需知識（4項）：\n- 基礎經絡理論\n- 基礎生理與解剖學\n- 禁忌症及部位注意事項\n- 工作倫理守則\n\n所需技能（2項）：\n- 基本操作規劃能力\n- 溝通能力",
+      "metadata": {
+        "task_id": "T1.3",
+        "task_name": "完成基本操作計畫",
+        "main_responsibility": "T1操作前之準備作業",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2操作過程之調理作業\n任務編號：T2.1\n任務名稱：說明調理作業步驟\n職能級別：3\n工作產出：無特定產出\n\n行為指標：\n- 引導顧客進行調理，並在過程中分辨顧客語意，達到良好互動之服務品質。\n\n所需知識（5項）：\n- 基礎經絡理論\n- 基礎生理與解剖學\n- 服務之目的與範疇\n- 禁忌症及部位注意事項\n- 工作倫理守則\n\n所需技能（2項）：\n- 溝通能力\n- 顧客導向服務能力",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "說明調理作業步驟",
+        "main_responsibility": "T2操作過程之調理作業",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2操作過程之調理作業\n任務編號：T2.2\n任務名稱：執行經絡調理\n職能級別：3\n工作產出：經絡調理紀錄表\n\n行為指標：\n- 依據操作計畫，執行經絡調理操作。\n\n所需知識（7項）：\n- 基礎經絡理論\n- 基礎生理與解剖學\n- 醫療衛生相關規定\n- 服務之目的與範疇\n- 禁忌症及部位注意事項\n- 工作倫理守則\n- 營業衛生、傳染病防治\n\n所需技能（4項）：\n- 經絡調理基本手法\n- 經絡調理操作手法\n- 調理器具操作能力\n- 全身各部位調理手法",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "執行經絡調理",
+        "main_responsibility": "T2操作過程之調理作業",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3操作後之服務事項\n任務編號：T3.1\n任務名稱：整理用物與場所\n職能級別：2\n工作產出：個人與場所清潔整理檢查紀錄\n\n行為指標：\n- 依據相關法規及作業流程，進行經絡調理操作後之個人、用物及場所清潔消毒與整理。\n\n所需知識（2項）：\n- 營業衛生、傳染病防治\n- 職場服裝儀容\n\n所需技能（2項）：\n- 清潔消毒設備操作能力\n- 經絡調理器具消毒能力",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "整理用物與場所",
+        "main_responsibility": "T3操作後之服務事項",
+        "code": "PIC3230-003v3",
+        "level": 2,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3操作後之服務事項\n任務編號：T3.2\n任務名稱：對顧客資料及服務內容保密\n職能級別：2\n工作產出：無特定產出\n\n行為指標：\n- 遵守個人資料保護法規定及工作倫理守則，保障顧客隱私。\n\n所需知識（2項）：\n- 工作倫理守則\n- 個人資料保護法\n\n所需技能（1項）：\n- 顧客導向服務能力",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "對顧客資料及服務內容保密",
+        "main_responsibility": "T3操作後之服務事項",
+        "code": "PIC3230-003v3",
+        "level": 2,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.3",
+      "type": "工作任務",
+      "content": "主要職責：T3操作後之服務事項\n任務編號：T3.3\n任務名稱：蒐集顧客滿意度回饋\n職能級別：3\n工作產出：顧客服務後意見調查表\n\n行為指標：\n- 依據顧客服務後給予之回饋意見，能提出回應，並記錄整理與檢討。\n\n所需知識（2項）：\n- 自我保健知識\n- 工作倫理守則\n\n所需技能（2項）：\n- 自我保健調理建議\n- 問題解決能力",
+      "metadata": {
+        "task_id": "T3.3",
+        "task_name": "蒐集顧客滿意度回饋",
+        "main_responsibility": "T3操作後之服務事項",
+        "code": "PIC3230-003v3",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1操作前之準備作業\n\n需具備知識（7項）：\n- K01: 基礎經絡理論\n- K02: 基礎生理與解剖學\n- K03: 自我保健知識\n- K04: 醫療衛生相關規定\n- K05: 服務之目的與範疇\n- K06: 禁忌症及部位注意事項\n- K07: 工作倫理守則\n\n需具備技能（4項）：\n- S01: 顧客需求評估能力\n- S02: 經絡調理評估表運用能力\n- S03: 基本操作規劃能力\n- S04: 溝通能力",
+      "metadata": {
+        "main_responsibility": "T1操作前之準備作業",
+        "code": "PIC3230-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2操作過程之調理作業\n\n需具備知識（7項）：\n- K01: 基礎經絡理論\n- K02: 基礎生理與解剖學\n- K04: 醫療衛生相關規定\n- K05: 服務之目的與範疇\n- K06: 禁忌症及部位注意事項\n- K07: 工作倫理守則\n- K08: 營業衛生、傳染病防治\n\n需具備技能（6項）：\n- S04: 溝通能力\n- S08: 顧客導向服務能力\n- S09: 經絡調理基本手法\n- S10: 經絡調理操作手法\n- S11: 調理器具操作能力\n- S12: 全身各部位調理手法",
+      "metadata": {
+        "main_responsibility": "T2操作過程之調理作業",
+        "code": "PIC3230-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3操作後之服務事項\n\n需具備知識（5項）：\n- K03: 自我保健知識\n- K07: 工作倫理守則\n- K08: 營業衛生、傳染病防治\n- K09: 職場服裝儀容\n- K11: 個人資料保護法\n\n需具備技能（5項）：\n- S05: 清潔消毒設備操作能力\n- S06: 經絡調理器具消毒能力\n- S08: 顧客導向服務能力\n- S14: 自我保健調理建議\n- S15: 問題解決能力",
+      "metadata": {
+        "main_responsibility": "T3操作後之服務事項",
+        "code": "PIC3230-003v3",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【操作前之準備作業職能基準摘要】\n\n一、基本資訊\n- 職能代碼：PIC3230-003v3\n- 職類別：個人及社會服務／個人照護服務\n- 職業別：\n- 基準級別：3\n\n二、工作描述\n在不涉及醫療行為下，依據經絡理論運用調理手法與器具，對人體體表、肌肉施以物理性刺激之調理行為，以達到紓壓、消除疲勞之服務目的。\n\n三、主要職責與任務（8項）\n- T1.1 完成服務顧客前自我保健工作\n- T1.2 完成顧客需求評估\n- T1.3 完成基本操作計畫\n- T2.1 說明調理作業步驟\n- T2.2 執行經絡調理\n- T3.1 整理用物與場所\n- T3.2 對顧客資料及服務內容保密\n- T3.3 蒐集顧客滿意度回饋\n\n四、職能要求\n- 知識項目：11項\n- 技能項目：15項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "PIC3230-003v3",
+        "name": "操作前之準備作業",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

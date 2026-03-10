@@ -1,0 +1,259 @@
+{
+  "metadata": {
+    "code": "ATC3521-001v4",
+    "name": "影視產業剪輯人才",
+    "update_date": "2023/12/06",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\影視產業剪輯人才-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "藝文與影音傳播／影視傳播",
+    "category_code": "ATC",
+    "occupation": "廣播及視聽技術員",
+    "occupation_code": "3521",
+    "industry": [
+      "出版、影音製作、傳播及資通訊服務業／影片及電視節目業；聲",
+      "音錄製及音樂發行業"
+    ],
+    "industry_code": [
+      "J592"
+    ],
+    "job_description": "整理電影或電視拍攝之原始影片，依劇本或導演意見選擇或修改片段，將選擇或修改後的片段組合成完整影片。",
+    "level": 3,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1原始素材整理",
+      "task_id": "T1.1",
+      "task_name": "原始素材存檔歸類",
+      "output": "影片歸檔表",
+      "behaviors": [
+        "影音同步(sync)原始拍攝素材。",
+        "分類整理原始拍攝素材，依場記表或劇本記錄之拍攝日期、場次順序、空鏡。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02"
+      ],
+      "skills": [
+        "S01",
+        "S02"
+      ],
+      "level": 3
+    },
+    {
+      "main_responsibility": "T4影片定剪與輸出",
+      "task_id": "T4.1",
+      "task_name": "確定最後版本",
+      "output": "完整影片",
+      "behaviors": [
+        "依據劇本走向和導演想法組織調整最後的版本。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03",
+        "K05",
+        "K06",
+        "K07",
+        "K08"
+      ],
+      "skills": [
+        "S03",
+        "S05",
+        "S06",
+        "S07",
+        "S08"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T4影片定剪與輸出",
+      "task_id": "T4.2",
+      "task_name": "輸出工作參數與檔案",
+      "output": "配上基本特殊效果的完整影片",
+      "behaviors": [
+        "輸出定剪版本與工作參數，供相關後製部門處理。"
+      ],
+      "knowledge": [
+        "K03"
+      ],
+      "skills": [
+        "S03",
+        "S05"
+      ],
+      "level": 3
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "戲劇概念",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "文學概念",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "剪輯軟體知識",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "攝影器材知識",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "影像美學",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "音樂概念",
+      "category": "知識"
+    },
+    {
+      "code": "K07",
+      "name": "美術概念",
+      "category": "知識"
+    },
+    {
+      "code": "K08",
+      "name": "剪接概念",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "劇本分析",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "資料歸納整理",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "影音軟體使用能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "溝通能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "時間管理",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "創意思考",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "美學傳達",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "文字轉換畫面能力",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：原始素材整理\n代碼：ATC3521-001v4\n版本：V4\n職類別：藝文與影音傳播／影視傳播（代碼：ATC）\n職業別：廣播及視聽技術員（代碼：3521）\n行業別：出版、影音製作、傳播及資通訊服務業／影片及電視節目業；聲; 音錄製及音樂發行業（代碼：J592）\n基準級別：3\n工作描述：整理電影或電視拍攝之原始影片，依劇本或導演意見選擇或修改片段，將選擇或修改後的片段組合成完整影片。\n建議條件：\n更新日期：2023/12/06",
+      "metadata": {
+        "code": "ATC3521-001v4",
+        "name": "原始素材整理",
+        "level": 3,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1原始素材整理\n任務編號：T1.1\n任務名稱：原始素材存檔歸類\n職能級別：3\n工作產出：影片歸檔表\n\n行為指標：\n- 影音同步(sync)原始拍攝素材。\n- 分類整理原始拍攝素材，依場記表或劇本記錄之拍攝日期、場次順序、空鏡。\n\n所需知識（2項）：\n- 戲劇概念\n- 文學概念\n\n所需技能（2項）：\n- 劇本分析\n- 資料歸納整理",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "原始素材存檔歸類",
+        "main_responsibility": "T1原始素材整理",
+        "code": "ATC3521-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.1",
+      "type": "工作任務",
+      "content": "主要職責：T4影片定剪與輸出\n任務編號：T4.1\n任務名稱：確定最後版本\n職能級別：4\n工作產出：完整影片\n\n行為指標：\n- 依據劇本走向和導演想法組織調整最後的版本。\n\n所需知識（7項）：\n- 戲劇概念\n- 文學概念\n- 剪輯軟體知識\n- 影像美學\n- 音樂概念\n- 美術概念\n- 剪接概念\n\n所需技能（5項）：\n- 影音軟體使用能力\n- 時間管理\n- 創意思考\n- 美學傳達\n- 文字轉換畫面能力",
+      "metadata": {
+        "task_id": "T4.1",
+        "task_name": "確定最後版本",
+        "main_responsibility": "T4影片定剪與輸出",
+        "code": "ATC3521-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T4.2",
+      "type": "工作任務",
+      "content": "主要職責：T4影片定剪與輸出\n任務編號：T4.2\n任務名稱：輸出工作參數與檔案\n職能級別：3\n工作產出：配上基本特殊效果的完整影片\n\n行為指標：\n- 輸出定剪版本與工作參數，供相關後製部門處理。\n\n所需知識（1項）：\n- 剪輯軟體知識\n\n所需技能（2項）：\n- 影音軟體使用能力\n- 時間管理",
+      "metadata": {
+        "task_id": "T4.2",
+        "task_name": "輸出工作參數與檔案",
+        "main_responsibility": "T4影片定剪與輸出",
+        "code": "ATC3521-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1原始素材整理\n\n需具備知識（2項）：\n- K01: 戲劇概念\n- K02: 文學概念\n\n需具備技能（2項）：\n- S01: 劇本分析\n- S02: 資料歸納整理",
+      "metadata": {
+        "main_responsibility": "T1原始素材整理",
+        "code": "ATC3521-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T4影片定剪與輸出\n\n需具備知識（7項）：\n- K01: 戲劇概念\n- K02: 文學概念\n- K03: 剪輯軟體知識\n- K05: 影像美學\n- K06: 音樂概念\n- K07: 美術概念\n- K08: 剪接概念\n\n需具備技能（5項）：\n- S03: 影音軟體使用能力\n- S05: 時間管理\n- S06: 創意思考\n- S07: 美學傳達\n- S08: 文字轉換畫面能力",
+      "metadata": {
+        "main_responsibility": "T4影片定剪與輸出",
+        "code": "ATC3521-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【原始素材整理職能基準摘要】\n\n一、基本資訊\n- 職能代碼：ATC3521-001v4\n- 職類別：藝文與影音傳播／影視傳播\n- 職業別：廣播及視聽技術員\n- 基準級別：3\n\n二、工作描述\n整理電影或電視拍攝之原始影片，依劇本或導演意見選擇或修改片段，將選擇或修改後的片段組合成完整影片。\n\n三、主要職責與任務（3項）\n- T1.1 原始素材存檔歸類\n- T4.1 確定最後版本\n- T4.2 輸出工作參數與檔案\n\n四、職能要求\n- 知識項目：8項\n- 技能項目：8項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "ATC3521-001v4",
+        "name": "原始素材整理",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

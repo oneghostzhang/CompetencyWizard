@@ -1,0 +1,389 @@
+{
+  "metadata": {
+    "code": "AVA1219-001v4",
+    "name": "工藝產業產品經理",
+    "update_date": "2023/07/24",
+    "version": "V4",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\工藝產業產品經理-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "藝文與影音傳播／視覺藝術",
+    "category_code": "AVA",
+    "occupation": "其他企業服務及行政經理人員",
+    "occupation_code": "1219",
+    "industry": [
+      "藝術、娛樂及休閒服務業／創作及藝術表演業"
+    ],
+    "industry_code": [
+      "R9010"
+    ],
+    "job_description": "此職能主要負責工作包括：新產品規劃、策略性產品規劃、專案管理、產品規格製定、產品開發時程掌控與成本規劃、專案管理等相關業務。",
+    "level": 4,
+    "requirements": ""
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1產品市場研究與分析",
+      "task_id": "T1.1",
+      "task_name": "市場需求與趨勢分析",
+      "output": "標竿工藝產品分析與趨勢報告",
+      "behaviors": [
+        "熟悉及瞭解工藝產業市場，具備評析產業動態與開創未來發展趨勢之能力與文化素養。"
+      ],
+      "knowledge": [
+        "K00",
+        "K40"
+      ],
+      "skills": [
+        "S40"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T1產品市場研究與分析",
+      "task_id": "T1.2",
+      "task_name": "產品競爭分析",
+      "output": "競爭者定位",
+      "behaviors": [
+        "競爭者產品分析與評估，研究新產品之創新及可行性。"
+      ],
+      "knowledge": [
+        "K40"
+      ],
+      "skills": [
+        "S40"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T2產品策略與企劃",
+      "task_id": "T2.1",
+      "task_name": "設定產品品牌策略",
+      "output": "工藝產品開發策略",
+      "behaviors": [],
+      "knowledge": [
+        "K00",
+        "K40"
+      ],
+      "skills": [
+        "S40",
+        "S41"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T2產品策略與企劃",
+      "task_id": "T2.2",
+      "task_name": "制定產品商業模式策略",
+      "output": "工藝產品開發策略",
+      "behaviors": [
+        "清楚定義商業模式，評估市場營運與銷售機制。"
+      ],
+      "knowledge": [
+        "K41"
+      ],
+      "skills": [
+        "S41"
+      ],
+      "level": 6
+    },
+    {
+      "main_responsibility": "T2產品策略與企劃",
+      "task_id": "T2.3",
+      "task_name": "設立產品佈局策略",
+      "output": "工藝產品開發策略",
+      "behaviors": [
+        "研擬產品策略地圖，制訂產品開發時程與價位規劃。",
+        "開創具市場價值的產品及產品線，並設定產品製造與品質規格方向。"
+      ],
+      "knowledge": [
+        "K41"
+      ],
+      "skills": [
+        "S41"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T2產品策略與企劃",
+      "task_id": "T2.4",
+      "task_name": "產品設計與材",
+      "output": "工藝產品開",
+      "behaviors": [
+        "與工藝設計師或顧客討論產品設計風格或細節，定義產品規格，設定產品製造與品"
+      ],
+      "knowledge": [
+        "K00",
+        "K41"
+      ],
+      "skills": [
+        "S41",
+        "S42"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3產品開發專案管理",
+      "task_id": "T3.1",
+      "task_name": "規劃量產實施方式",
+      "output": "跨部門執行對策方案與風險評估報告",
+      "behaviors": [
+        "專案規劃與預算執行，協調專案執行的資源分配，調配開發時程與專案進度，執行風險管理及供應商管理。"
+      ],
+      "knowledge": [
+        "K41",
+        "K42"
+      ],
+      "skills": [
+        "S42"
+      ],
+      "level": 5
+    },
+    {
+      "main_responsibility": "T3產品開發專案管理",
+      "task_id": "T3.2",
+      "task_name": "專案時程與預算控管",
+      "output": "產品開發進度報告",
+      "behaviors": [
+        "追蹤生產時程及預算開發專案進度追蹤，定期召開產品開發會議，協調跨部門合作與資源分配，確認產品製造與品質與風險管理。"
+      ],
+      "knowledge": [
+        "K42"
+      ],
+      "skills": [
+        "S42"
+      ],
+      "level": 4
+    },
+    {
+      "main_responsibility": "T3產品開發專案管理",
+      "task_id": "T3.3",
+      "task_name": "產品品質檢核",
+      "output": "工藝產品設計、打樣、量試品質確認紀錄",
+      "behaviors": [
+        "確保產品品質並能詳實檢核工藝產品品質。"
+      ],
+      "knowledge": [
+        "K42"
+      ],
+      "skills": [
+        "S40",
+        "S42"
+      ],
+      "level": 3
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K00",
+      "name": "4工藝產業發展脈絡",
+      "category": "知識"
+    },
+    {
+      "code": "K40",
+      "name": "1市場研究與趨勢分析",
+      "category": "知識"
+    },
+    {
+      "code": "K41",
+      "name": "0營運管理",
+      "category": "知識"
+    },
+    {
+      "code": "K42",
+      "name": "1生產管理概論",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S40",
+      "name": "1產業資訊蒐集與分析能力",
+      "category": "技能"
+    },
+    {
+      "code": "S41",
+      "name": "0組織與計畫",
+      "category": "技能"
+    },
+    {
+      "code": "S42",
+      "name": "0產品製造程序與加工技術",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：產品市場研究與分析\n代碼：AVA1219-001v4\n版本：V4\n職類別：藝文與影音傳播／視覺藝術（代碼：AVA）\n職業別：其他企業服務及行政經理人員（代碼：1219）\n行業別：藝術、娛樂及休閒服務業／創作及藝術表演業（代碼：R9010）\n基準級別：4\n工作描述：此職能主要負責工作包括：新產品規劃、策略性產品規劃、專案管理、產品規格製定、產品開發時程掌控與成本規劃、專案管理等相關業務。\n建議條件：\n更新日期：2023/07/24",
+      "metadata": {
+        "code": "AVA1219-001v4",
+        "name": "產品市場研究與分析",
+        "level": 4,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1產品市場研究與分析\n任務編號：T1.1\n任務名稱：市場需求與趨勢分析\n職能級別：4\n工作產出：標竿工藝產品分析與趨勢報告\n\n行為指標：\n- 熟悉及瞭解工藝產業市場，具備評析產業動態與開創未來發展趨勢之能力與文化素養。\n\n所需知識（2項）：\n- 4工藝產業發展脈絡\n- 1市場研究與趨勢分析\n\n所需技能（1項）：\n- 1產業資訊蒐集與分析能力",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "市場需求與趨勢分析",
+        "main_responsibility": "T1產品市場研究與分析",
+        "code": "AVA1219-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T1.2",
+      "type": "工作任務",
+      "content": "主要職責：T1產品市場研究與分析\n任務編號：T1.2\n任務名稱：產品競爭分析\n職能級別：5\n工作產出：競爭者定位\n\n行為指標：\n- 競爭者產品分析與評估，研究新產品之創新及可行性。\n\n所需知識（1項）：\n- 1市場研究與趨勢分析\n\n所需技能（1項）：\n- 1產業資訊蒐集與分析能力",
+      "metadata": {
+        "task_id": "T1.2",
+        "task_name": "產品競爭分析",
+        "main_responsibility": "T1產品市場研究與分析",
+        "code": "AVA1219-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2產品策略與企劃\n任務編號：T2.1\n任務名稱：設定產品品牌策略\n職能級別：6\n工作產出：工藝產品開發策略\n\n行為指標：\n無\n\n所需知識（2項）：\n- 4工藝產業發展脈絡\n- 1市場研究與趨勢分析\n\n所需技能（2項）：\n- 1產業資訊蒐集與分析能力\n- 0組織與計畫",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "設定產品品牌策略",
+        "main_responsibility": "T2產品策略與企劃",
+        "code": "AVA1219-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2產品策略與企劃\n任務編號：T2.2\n任務名稱：制定產品商業模式策略\n職能級別：6\n工作產出：工藝產品開發策略\n\n行為指標：\n- 清楚定義商業模式，評估市場營運與銷售機制。\n\n所需知識（1項）：\n- 0營運管理\n\n所需技能（1項）：\n- 0組織與計畫",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "制定產品商業模式策略",
+        "main_responsibility": "T2產品策略與企劃",
+        "code": "AVA1219-001v4",
+        "level": 6,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.3",
+      "type": "工作任務",
+      "content": "主要職責：T2產品策略與企劃\n任務編號：T2.3\n任務名稱：設立產品佈局策略\n職能級別：5\n工作產出：工藝產品開發策略\n\n行為指標：\n- 研擬產品策略地圖，制訂產品開發時程與價位規劃。\n- 開創具市場價值的產品及產品線，並設定產品製造與品質規格方向。\n\n所需知識（1項）：\n- 0營運管理\n\n所需技能（1項）：\n- 0組織與計畫",
+      "metadata": {
+        "task_id": "T2.3",
+        "task_name": "設立產品佈局策略",
+        "main_responsibility": "T2產品策略與企劃",
+        "code": "AVA1219-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.4",
+      "type": "工作任務",
+      "content": "主要職責：T2產品策略與企劃\n任務編號：T2.4\n任務名稱：產品設計與材\n職能級別：4\n工作產出：工藝產品開\n\n行為指標：\n- 與工藝設計師或顧客討論產品設計風格或細節，定義產品規格，設定產品製造與品\n\n所需知識（2項）：\n- 4工藝產業發展脈絡\n- 0營運管理\n\n所需技能（2項）：\n- 0組織與計畫\n- 0產品製造程序與加工技術",
+      "metadata": {
+        "task_id": "T2.4",
+        "task_name": "產品設計與材",
+        "main_responsibility": "T2產品策略與企劃",
+        "code": "AVA1219-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.1",
+      "type": "工作任務",
+      "content": "主要職責：T3產品開發專案管理\n任務編號：T3.1\n任務名稱：規劃量產實施方式\n職能級別：5\n工作產出：跨部門執行對策方案與風險評估報告\n\n行為指標：\n- 專案規劃與預算執行，協調專案執行的資源分配，調配開發時程與專案進度，執行風險管理及供應商管理。\n\n所需知識（2項）：\n- 0營運管理\n- 1生產管理概論\n\n所需技能（1項）：\n- 0產品製造程序與加工技術",
+      "metadata": {
+        "task_id": "T3.1",
+        "task_name": "規劃量產實施方式",
+        "main_responsibility": "T3產品開發專案管理",
+        "code": "AVA1219-001v4",
+        "level": 5,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.2",
+      "type": "工作任務",
+      "content": "主要職責：T3產品開發專案管理\n任務編號：T3.2\n任務名稱：專案時程與預算控管\n職能級別：4\n工作產出：產品開發進度報告\n\n行為指標：\n- 追蹤生產時程及預算開發專案進度追蹤，定期召開產品開發會議，協調跨部門合作與資源分配，確認產品製造與品質與風險管理。\n\n所需知識（1項）：\n- 1生產管理概論\n\n所需技能（1項）：\n- 0產品製造程序與加工技術",
+      "metadata": {
+        "task_id": "T3.2",
+        "task_name": "專案時程與預算控管",
+        "main_responsibility": "T3產品開發專案管理",
+        "code": "AVA1219-001v4",
+        "level": 4,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T3.3",
+      "type": "工作任務",
+      "content": "主要職責：T3產品開發專案管理\n任務編號：T3.3\n任務名稱：產品品質檢核\n職能級別：3\n工作產出：工藝產品設計、打樣、量試品質確認紀錄\n\n行為指標：\n- 確保產品品質並能詳實檢核工藝產品品質。\n\n所需知識（1項）：\n- 1生產管理概論\n\n所需技能（2項）：\n- 1產業資訊蒐集與分析能力\n- 0產品製造程序與加工技術",
+      "metadata": {
+        "task_id": "T3.3",
+        "task_name": "產品品質檢核",
+        "main_responsibility": "T3產品開發專案管理",
+        "code": "AVA1219-001v4",
+        "level": 3,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1產品市場研究與分析\n\n需具備知識（2項）：\n- K00: 4工藝產業發展脈絡\n- K40: 1市場研究與趨勢分析\n\n需具備技能（1項）：\n- S40: 1產業資訊蒐集與分析能力",
+      "metadata": {
+        "main_responsibility": "T1產品市場研究與分析",
+        "code": "AVA1219-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2產品策略與企劃\n\n需具備知識（3項）：\n- K00: 4工藝產業發展脈絡\n- K40: 1市場研究與趨勢分析\n- K41: 0營運管理\n\n需具備技能（3項）：\n- S40: 1產業資訊蒐集與分析能力\n- S41: 0組織與計畫\n- S42: 0產品製造程序與加工技術",
+      "metadata": {
+        "main_responsibility": "T2產品策略與企劃",
+        "code": "AVA1219-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_3",
+      "type": "知識技能",
+      "content": "職責領域：T3產品開發專案管理\n\n需具備知識（2項）：\n- K41: 0營運管理\n- K42: 1生產管理概論\n\n需具備技能（2項）：\n- S40: 1產業資訊蒐集與分析能力\n- S42: 0產品製造程序與加工技術",
+      "metadata": {
+        "main_responsibility": "T3產品開發專案管理",
+        "code": "AVA1219-001v4",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【產品市場研究與分析職能基準摘要】\n\n一、基本資訊\n- 職能代碼：AVA1219-001v4\n- 職類別：藝文與影音傳播／視覺藝術\n- 職業別：其他企業服務及行政經理人員\n- 基準級別：4\n\n二、工作描述\n此職能主要負責工作包括：新產品規劃、策略性產品規劃、專案管理、產品規格製定、產品開發時程掌控與成本規劃、專案管理等相關業務。\n\n三、主要職責與任務（9項）\n- T1.1 市場需求與趨勢分析\n- T1.2 產品競爭分析\n- T2.1 設定產品品牌策略\n- T2.2 制定產品商業模式策略\n- T2.3 設立產品佈局策略\n- T2.4 產品設計與材\n- T3.1 規劃量產實施方式\n- T3.2 專案時程與預算控管\n- T3.3 產品品質檢核\n\n四、職能要求\n- 知識項目：4項\n- 技能項目：3項\n- 態度項目：0項\n\n五、建議條件\n",
+      "metadata": {
+        "code": "AVA1219-001v4",
+        "name": "產品市場研究與分析",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}

@@ -1,0 +1,283 @@
+{
+  "metadata": {
+    "code": "SET4130-001v2",
+    "name": "AI標註人員",
+    "update_date": "2024/12/15",
+    "version": "V2",
+    "status": "最新版本",
+    "source_file": "C:\\Users\\User\\Graph_RAG_test\\data\\raw_pdf\\AI標註人員-職能基準.pdf"
+  },
+  "basic_info": {
+    "category": "科學、技術、工程、數學／工程及技術",
+    "category_code": "SET",
+    "occupation": "資料輸入及有關事務人員",
+    "occupation_code": "4130",
+    "industry": [
+      "出版影音及資通訊業／資訊服務業"
+    ],
+    "industry_code": [
+      "J6312"
+    ],
+    "job_description": "依據標註流程及任務要求，執行資料蒐集、彙整、分類、切割與標記工作。",
+    "level": 2,
+    "requirements": "• 高中職以上畢業，具備電腦基礎操作能力。"
+  },
+  "competency_tasks": [
+    {
+      "main_responsibility": "T1資訊彙整與分類",
+      "task_id": "T1.1",
+      "task_name": "蒐集及彙整資料",
+      "output": "資料彙整文件",
+      "behaviors": [
+        "熟悉任務標註系統及流程。",
+        "依據任務要求及資料來源蒐集及彙整資料。"
+      ],
+      "knowledge": [
+        "K01",
+        "K02",
+        "K03",
+        "K04"
+      ],
+      "skills": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05"
+      ],
+      "level": 2
+    },
+    {
+      "main_responsibility": "T2資料標註及校對",
+      "task_id": "T2.1",
+      "task_name": "資料標註",
+      "output": "標註成果",
+      "behaviors": [
+        "依據標註流程、標註模式及任務要求，操作標註系統。"
+      ],
+      "knowledge": [
+        "K01",
+        "K05"
+      ],
+      "skills": [
+        "S04",
+        "S05",
+        "S08"
+      ],
+      "level": 2
+    },
+    {
+      "main_responsibility": "T2資料標註及校對",
+      "task_id": "T2.2",
+      "task_name": "資料校對及匯入",
+      "output": null,
+      "behaviors": [
+        "依據標註流程及品質檢查模式，搭配抽檢，進行標註後資料驗證作業，並確認品質。",
+        "將標註後資料提供相關人員或依指示匯入AI系統。"
+      ],
+      "knowledge": [
+        "K01",
+        "K06"
+      ],
+      "skills": [
+        "S04",
+        "S05",
+        "S09"
+      ],
+      "level": 2
+    }
+  ],
+  "competency_knowledge": [
+    {
+      "code": "K01",
+      "name": "所屬領域知識及資料概念",
+      "category": "知識"
+    },
+    {
+      "code": "K02",
+      "name": "智慧財產權法規",
+      "category": "知識"
+    },
+    {
+      "code": "K03",
+      "name": "資訊安全相關法規",
+      "category": "知識"
+    },
+    {
+      "code": "K04",
+      "name": "個人資料保護法規",
+      "category": "知識"
+    },
+    {
+      "code": "K05",
+      "name": "資料標註類型",
+      "category": "知識"
+    },
+    {
+      "code": "K06",
+      "name": "標註資料檢核流程",
+      "category": "知識"
+    }
+  ],
+  "competency_skills": [
+    {
+      "code": "S01",
+      "name": "資料蒐集能力",
+      "category": "技能"
+    },
+    {
+      "code": "S02",
+      "name": "資料判斷能力",
+      "category": "技能"
+    },
+    {
+      "code": "S03",
+      "name": "資料彙整能力",
+      "category": "技能"
+    },
+    {
+      "code": "S04",
+      "name": "電腦基礎操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S05",
+      "name": "標註系統操作能力",
+      "category": "技能"
+    },
+    {
+      "code": "S06",
+      "name": "資料分類能力",
+      "category": "技能"
+    },
+    {
+      "code": "S07",
+      "name": "資料切割能力",
+      "category": "技能"
+    },
+    {
+      "code": "S08",
+      "name": "資料標註能力",
+      "category": "技能"
+    },
+    {
+      "code": "S09",
+      "name": "資料匯入技巧",
+      "category": "技能"
+    }
+  ],
+  "competency_attitudes": [
+    {
+      "code": "A01",
+      "name": "主動積極",
+      "description": "不需他人指示或要求能自動自發做事，面臨問題立即採取行動加以解決，且為達目標願意主動承擔額外責任。",
+      "category": "態度"
+    },
+    {
+      "code": "A02",
+      "name": "自我管理",
+      "description": "設立定義明確且實際可行的個人目標；對於及時完成任務展現高度進取、努力、承諾及負責任的行為。",
+      "category": "態度"
+    },
+    {
+      "code": "A03",
+      "name": "謹慎細心",
+      "description": "對於任務的執行過程，能謹慎考量及處理所有細節，精確地檢視每個程序，並持續對其保持高度關注。",
+      "category": "態度"
+    }
+  ],
+  "chunks_for_rag": [
+    {
+      "id": "basic_info",
+      "type": "基本資訊",
+      "content": "職能基準：資訊彙整與分類\n代碼：SET4130-001v2\n版本：V2\n職類別：科學、技術、工程、數學／工程及技術（代碼：SET）\n職業別：資料輸入及有關事務人員（代碼：4130）\n行業別：出版影音及資通訊業／資訊服務業（代碼：J6312）\n基準級別：2\n工作描述：依據標註流程及任務要求，執行資料蒐集、彙整、分類、切割與標記工作。\n建議條件：• 高中職以上畢業，具備電腦基礎操作能力。\n更新日期：2024/12/15",
+      "metadata": {
+        "code": "SET4130-001v2",
+        "name": "資訊彙整與分類",
+        "level": 2,
+        "chunk_type": "overview"
+      }
+    },
+    {
+      "id": "task_T1.1",
+      "type": "工作任務",
+      "content": "主要職責：T1資訊彙整與分類\n任務編號：T1.1\n任務名稱：蒐集及彙整資料\n職能級別：2\n工作產出：資料彙整文件\n\n行為指標：\n- 熟悉任務標註系統及流程。\n- 依據任務要求及資料來源蒐集及彙整資料。\n\n所需知識（4項）：\n- 所屬領域知識及資料概念\n- 智慧財產權法規\n- 資訊安全相關法規\n- 個人資料保護法規\n\n所需技能（5項）：\n- 資料蒐集能力\n- 資料判斷能力\n- 資料彙整能力\n- 電腦基礎操作能力\n- 標註系統操作能力",
+      "metadata": {
+        "task_id": "T1.1",
+        "task_name": "蒐集及彙整資料",
+        "main_responsibility": "T1資訊彙整與分類",
+        "code": "SET4130-001v2",
+        "level": 2,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.1",
+      "type": "工作任務",
+      "content": "主要職責：T2資料標註及校對\n任務編號：T2.1\n任務名稱：資料標註\n職能級別：2\n工作產出：標註成果\n\n行為指標：\n- 依據標註流程、標註模式及任務要求，操作標註系統。\n\n所需知識（2項）：\n- 所屬領域知識及資料概念\n- 資料標註類型\n\n所需技能（3項）：\n- 電腦基礎操作能力\n- 標註系統操作能力\n- 資料標註能力",
+      "metadata": {
+        "task_id": "T2.1",
+        "task_name": "資料標註",
+        "main_responsibility": "T2資料標註及校對",
+        "code": "SET4130-001v2",
+        "level": 2,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "task_T2.2",
+      "type": "工作任務",
+      "content": "主要職責：T2資料標註及校對\n任務編號：T2.2\n任務名稱：資料校對及匯入\n職能級別：2\n工作產出：無特定產出\n\n行為指標：\n- 依據標註流程及品質檢查模式，搭配抽檢，進行標註後資料驗證作業，並確認品質。\n- 將標註後資料提供相關人員或依指示匯入AI系統。\n\n所需知識（2項）：\n- 所屬領域知識及資料概念\n- 標註資料檢核流程\n\n所需技能（3項）：\n- 電腦基礎操作能力\n- 標註系統操作能力\n- 資料匯入技巧",
+      "metadata": {
+        "task_id": "T2.2",
+        "task_name": "資料校對及匯入",
+        "main_responsibility": "T2資料標註及校對",
+        "code": "SET4130-001v2",
+        "level": 2,
+        "chunk_type": "task"
+      }
+    },
+    {
+      "id": "knowledge_skills_1",
+      "type": "知識技能",
+      "content": "職責領域：T1資訊彙整與分類\n\n需具備知識（4項）：\n- K01: 所屬領域知識及資料概念\n- K02: 智慧財產權法規\n- K03: 資訊安全相關法規\n- K04: 個人資料保護法規\n\n需具備技能（5項）：\n- S01: 資料蒐集能力\n- S02: 資料判斷能力\n- S03: 資料彙整能力\n- S04: 電腦基礎操作能力\n- S05: 標註系統操作能力",
+      "metadata": {
+        "main_responsibility": "T1資訊彙整與分類",
+        "code": "SET4130-001v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "knowledge_skills_2",
+      "type": "知識技能",
+      "content": "職責領域：T2資料標註及校對\n\n需具備知識（3項）：\n- K01: 所屬領域知識及資料概念\n- K05: 資料標註類型\n- K06: 標註資料檢核流程\n\n需具備技能（4項）：\n- S04: 電腦基礎操作能力\n- S05: 標註系統操作能力\n- S08: 資料標註能力\n- S09: 資料匯入技巧",
+      "metadata": {
+        "main_responsibility": "T2資料標註及校對",
+        "code": "SET4130-001v2",
+        "chunk_type": "knowledge_skills"
+      }
+    },
+    {
+      "id": "attitudes",
+      "type": "職能態度",
+      "content": "職能態度要求（3項）：\n\nA01 - 主動積極：不需他人指示或要求能自動自發做事，面臨問題立即採取行動加以解決，且為達目標願意主動承擔額外責任。\n\nA02 - 自我管理：設立定義明確且實際可行的個人目標；對於及時完成任務展現高度進取、努力、承諾及負責任的行為。\n\nA03 - 謹慎細心：對於任務的執行過程，能謹慎考量及處理所有細節，精確地檢視每個程序，並持續對其保持高度關注。",
+      "metadata": {
+        "code": "SET4130-001v2",
+        "count": 3,
+        "chunk_type": "attitudes"
+      }
+    },
+    {
+      "id": "summary",
+      "type": "完整摘要",
+      "content": "【資訊彙整與分類職能基準摘要】\n\n一、基本資訊\n- 職能代碼：SET4130-001v2\n- 職類別：科學、技術、工程、數學／工程及技術\n- 職業別：資料輸入及有關事務人員\n- 基準級別：2\n\n二、工作描述\n依據標註流程及任務要求，執行資料蒐集、彙整、分類、切割與標記工作。\n\n三、主要職責與任務（3項）\n- T1.1 蒐集及彙整資料\n- T2.1 資料標註\n- T2.2 資料校對及匯入\n\n四、職能要求\n- 知識項目：6項\n- 技能項目：9項\n- 態度項目：3項\n\n五、建議條件\n• 高中職以上畢業，具備電腦基礎操作能力。",
+      "metadata": {
+        "code": "SET4130-001v2",
+        "name": "資訊彙整與分類",
+        "chunk_type": "summary"
+      }
+    }
+  ],
+  "parse_success": true,
+  "parse_errors": []
+}
