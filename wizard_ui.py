@@ -236,10 +236,11 @@ class WizardMainWindow(QMainWindow):
         btn_row = QHBoxLayout()
         btn_clear = QPushButton("清除")
         btn_clear.clicked.connect(self._clear_form)
-        btn_analyze = QPushButton("開始分析 →")
-        btn_analyze.setFixedHeight(36)
-        btn_analyze.setStyleSheet("background:#2F5496; color:white; font-weight:bold; font-size:13px;")
-        btn_analyze.clicked.connect(self._on_analyze)
+        self._btn_analyze = QPushButton("開始分析 →")
+        self._btn_analyze.setFixedHeight(36)
+        self._btn_analyze.setStyleSheet("background:#2F5496; color:white; font-weight:bold; font-size:13px;")
+        self._btn_analyze.clicked.connect(self._on_analyze)
+        btn_analyze = self._btn_analyze
         btn_row.addWidget(btn_clear)
         btn_row.addStretch()
         btn_row.addWidget(btn_analyze)
@@ -252,6 +253,7 @@ class WizardMainWindow(QMainWindow):
         w = QWidget()
         v = QVBoxLayout(w)
         v.setContentsMargins(16, 12, 16, 12)
+        v.setSpacing(8)
 
         # 頂部工具列
         toolbar = QHBoxLayout()
@@ -259,41 +261,86 @@ class WizardMainWindow(QMainWindow):
         btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(1))
         self._result_status = QLabel("")
         self._result_status.setFont(QFont("Microsoft JhengHei", 10))
-        btn_export = QPushButton("匯出 Excel")
-        btn_export.setStyleSheet("background:#217346; color:white; font-weight:bold;")
-        btn_export.clicked.connect(self._on_export)
+        self._btn_export = QPushButton("匯出 Excel")
+        self._btn_export.setStyleSheet(
+            "background:#217346; color:white; font-weight:bold;"
+            "padding:4px 12px;"
+        )
+        self._btn_export.setEnabled(False)   # 預設鎖定，需勾選確認後才開放
+        self._btn_export.clicked.connect(self._on_export)
         toolbar.addWidget(btn_back)
         toolbar.addStretch()
         toolbar.addWidget(self._result_status)
-        toolbar.addWidget(btn_export)
+        toolbar.addWidget(self._btn_export)
         v.addLayout(toolbar)
 
-        # 分隔佈局：左邊匹配清單，右邊缺口詳情
+        # 水平分割：左（使用者輸入 + 匹配清單）、右（缺口詳情）
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
-        # 左：匹配職能基準清單
+        # ── 左側面板 ──────────────────────────────────
         left = QWidget()
         lv = QVBoxLayout(left)
         lv.setContentsMargins(0, 0, 4, 0)
-        lv.addWidget(QLabel("相似職能基準（點選切換）："))
+        lv.setSpacing(6)
+
+        # 使用者填寫內容摘要
+        lbl_input = QLabel("您填寫的工作內容：")
+        lbl_input.setFont(QFont("Microsoft JhengHei", 9, QFont.Weight.Bold))
+        lv.addWidget(lbl_input)
+
+        self._input_summary = QTextEdit()
+        self._input_summary.setReadOnly(True)
+        self._input_summary.setFont(QFont("Microsoft JhengHei", 9))
+        self._input_summary.setStyleSheet(
+            "background:#f5f7fa; border:1px solid #d0d7de; border-radius:4px;"
+        )
+        self._input_summary.setFixedHeight(170)
+        lv.addWidget(self._input_summary)
+
+        # 分隔線
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet("color:#ccc;")
+        lv.addWidget(sep)
+
+        # 匹配清單
+        lbl_match = QLabel("相似職能基準（點選切換）：")
+        lbl_match.setFont(QFont("Microsoft JhengHei", 9, QFont.Weight.Bold))
+        lv.addWidget(lbl_match)
+
         self._match_list = QListWidget()
         self._match_list.currentRowChanged.connect(self._on_match_selected)
-        lv.addWidget(self._match_list)
+        lv.addWidget(self._match_list, 1)
+
         splitter.addWidget(left)
 
-        # 右：缺口摘要文字
+        # ── 右側面板 ──────────────────────────────────
         right = QWidget()
         rv = QVBoxLayout(right)
         rv.setContentsMargins(4, 0, 0, 0)
-        rv.addWidget(QLabel("缺口分析結果："))
+        lbl_gap = QLabel("缺口分析結果：")
+        lbl_gap.setFont(QFont("Microsoft JhengHei", 9, QFont.Weight.Bold))
+        rv.addWidget(lbl_gap)
         self._gap_text = QTextEdit()
         self._gap_text.setReadOnly(True)
-        self._gap_text.setFont(QFont("Consolas", 10))
+        self._gap_text.setFont(QFont("Microsoft JhengHei", 10))
         rv.addWidget(self._gap_text)
         splitter.addWidget(right)
 
-        splitter.setSizes([260, 600])
+        splitter.setSizes([300, 560])
         v.addWidget(splitter, 1)
+
+        # ── 底部確認列 ────────────────────────────────
+        confirm_bar = QHBoxLayout()
+        self._confirm_check = QCheckBox(
+            "我已確認以上缺口分析結果正確無誤，同意匯出職能說明書"
+        )
+        self._confirm_check.setFont(QFont("Microsoft JhengHei", 10))
+        self._confirm_check.setStyleSheet("color:#333;")
+        self._confirm_check.toggled.connect(self._btn_export.setEnabled)
+        confirm_bar.addWidget(self._confirm_check)
+        confirm_bar.addStretch()
+        v.addLayout(confirm_bar)
 
         return w
 
@@ -357,6 +404,7 @@ class WizardMainWindow(QMainWindow):
             return
 
         self._status_label.setText("分析中...")
+        self._btn_analyze.setEnabled(False)
         self._analyze_thread = AnalyzeThread(self.analyzer, ui)
         self._analyze_thread.finished.connect(self._on_analyze_done)
         self._analyze_thread.error.connect(self._on_analyze_error)
@@ -364,17 +412,47 @@ class WizardMainWindow(QMainWindow):
 
     def _on_analyze_done(self, report: GapReport):
         self.report = report
+        self._btn_analyze.setEnabled(True)
         self._status_label.setText("分析完成")
         self._populate_results(report)
         self.stack.setCurrentIndex(2)
 
     def _on_analyze_error(self, msg: str):
+        self._btn_analyze.setEnabled(True)
         self._status_label.setText("分析錯誤")
         QMessageBox.critical(self, "分析失敗", msg)
 
     # ─── 結果顯示 ─────────────────────────────
 
     def _populate_results(self, report: GapReport):
+        # 重置確認狀態（每次新分析都需要重新確認）
+        self._confirm_check.setChecked(False)
+        self._btn_export.setEnabled(False)
+
+        # 填入使用者輸入摘要
+        ui = report.user_input
+        summary_lines = []
+        if ui.who_role:
+            summary_lines.append(f"【角色】{ui.who_role}")
+        if ui.what_tasks:
+            summary_lines.append(f"【工作任務】{ui.what_tasks}")
+        if ui.what_outputs:
+            summary_lines.append(f"【工作產出】{ui.what_outputs}")
+        if ui.why_purpose:
+            summary_lines.append(f"【工作目的】{ui.why_purpose}")
+        if ui.how_skills:
+            summary_lines.append(f"【技能/工具】{ui.how_skills}")
+        if ui.how_much_kpi:
+            summary_lines.append(f"【績效指標】{ui.how_much_kpi}")
+        if ui.when_frequency:
+            summary_lines.append(f"【執行頻率】{ui.when_frequency}")
+        if ui.where_environment:
+            summary_lines.append(f"【工作環境】{ui.where_environment}")
+        if ui.who_collaborate:
+            summary_lines.append(f"【協作對象】{ui.who_collaborate}")
+        self._input_summary.setPlainText("\n".join(summary_lines))
+
+        # 填入匹配清單
         self._match_list.clear()
         for r in report.matched_standards:
             item = QListWidgetItem(
@@ -409,12 +487,14 @@ class WizardMainWindow(QMainWindow):
         lines.append(f"職能級別：{basic.get('level', '')}")
         lines.append(f"工作描述：{basic.get('description', '')[:200]}")
         lines.append("")
-        lines.append(f"知識項目 ({len(std_data.get('knowledge', []))} 項)：")
-        for k in std_data.get("knowledge", [])[:8]:
+        knowledge = std_data.get("competency_knowledge") or std_data.get("knowledge") or []
+        skills = std_data.get("competency_skills") or std_data.get("skills") or []
+        lines.append(f"知識項目 ({len(knowledge)} 項)：")
+        for k in knowledge[:8]:
             lines.append(f"  [{k.get('code','')}] {k.get('name','')}")
         lines.append("")
-        lines.append(f"技能項目 ({len(std_data.get('skills', []))} 項)：")
-        for s in std_data.get("skills", [])[:8]:
+        lines.append(f"技能項目 ({len(skills)} 項)：")
+        for s in skills[:8]:
             lines.append(f"  [{s.get('code','')}] {s.get('name','')}")
         lines.append("")
         lines.append(f"工作任務 ({len(std_data.get('competency_tasks', []))} 項)：")

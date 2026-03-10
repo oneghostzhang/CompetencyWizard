@@ -172,7 +172,7 @@ class GapAnalyzer:
     def _analyze_tasks(self, ui: UserInput5W2H, std: Dict, report: GapReport):
         """比對工作任務（What）"""
         user_text = _normalize_cjk((ui.what_tasks + " " + ui.what_outputs).lower())
-        tasks = std.get("competency_tasks", [])
+        tasks = std.get("competency_tasks") or []
 
         for task in tasks:
             task_name = task.get("task_name", "")
@@ -192,7 +192,7 @@ class GapAnalyzer:
     def _analyze_knowledge(self, ui: UserInput5W2H, std: Dict, report: GapReport):
         """比對知識項目（How 相關）"""
         user_text = _normalize_cjk((ui.how_skills + " " + ui.what_tasks + " " + ui.why_purpose).lower())
-        knowledge_list = std.get("competency_knowledge", []) or std.get("knowledge", [])
+        knowledge_list = std.get("competency_knowledge") or std.get("knowledge") or []
 
         for k in knowledge_list:
             code = k.get("code", "")
@@ -214,7 +214,7 @@ class GapAnalyzer:
     def _analyze_skills(self, ui: UserInput5W2H, std: Dict, report: GapReport):
         """比對技能項目（How 相關）"""
         user_text = _normalize_cjk((ui.how_skills + " " + ui.what_tasks).lower())
-        skill_list = std.get("competency_skills", []) or std.get("skills", [])
+        skill_list = std.get("competency_skills") or std.get("skills") or []
 
         for s in skill_list:
             code = s.get("code", "")
@@ -236,11 +236,11 @@ class GapAnalyzer:
     def _analyze_behaviors(self, ui: UserInput5W2H, std: Dict, report: GapReport):
         """比對行為指標（How Much 相關）"""
         user_text = (ui.how_much_kpi + " " + ui.what_tasks).lower()
-        tasks = std.get("competency_tasks", [])
+        tasks = std.get("competency_tasks") or []
 
         seen_behaviors = set()
         for task in tasks:
-            for behavior in task.get("behaviors", []):
+            for behavior in (task.get("behaviors") or []):
                 if not isinstance(behavior, dict):
                     continue
                 code = behavior.get("code", "")
@@ -263,11 +263,11 @@ class GapAnalyzer:
     def _analyze_outputs(self, ui: UserInput5W2H, std: Dict, report: GapReport):
         """比對工作產出（What outputs）"""
         user_text = (ui.what_outputs + " " + ui.what_tasks).lower()
-        tasks = std.get("competency_tasks", [])
+        tasks = std.get("competency_tasks") or []
 
         seen_outputs = set()
         for task in tasks:
-            for output in task.get("output", []):
+            for output in (task.get("output") or []):
                 if not isinstance(output, dict):
                     continue
                 code = output.get("code", "")
