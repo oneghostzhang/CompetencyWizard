@@ -28,12 +28,16 @@ from excel_exporter import export_to_excel
 # ─────────────────────────────────────────
 
 APP_STYLE = """
-/* ── 整體背景 ── */
+/* ── 字型與文字顏色（不設全域背景，避免染色） ── */
 QWidget {
     font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
     font-size: 10pt;
     color: #212529;
-    background-color: #F0F4FA;
+}
+
+/* 僅對主視窗與 StackedWidget 頁面設底色 */
+QMainWindow, QStackedWidget, QScrollArea > QWidget#page_bg {
+    background-color: #EEF2F8;
 }
 
 /* ── 輸入元件 ── */
@@ -43,6 +47,7 @@ QLineEdit, QTextEdit {
     border-radius: 5px;
     padding: 4px 8px;
     selection-background-color: #4472C4;
+    selection-color: #ffffff;
 }
 QLineEdit:focus, QTextEdit:focus {
     border: 1.5px solid #4472C4;
@@ -51,6 +56,7 @@ QLineEdit:focus, QTextEdit:focus {
 QLineEdit:read-only, QTextEdit[readOnly="true"] {
     background: #F5F7FB;
     border-color: #D8DEE6;
+    color: #3A4A5C;
 }
 
 /* ── 下拉選單 ── */
@@ -60,6 +66,7 @@ QComboBox {
     border-radius: 5px;
     padding: 4px 8px;
     min-height: 26px;
+    color: #212529;
 }
 QComboBox:focus { border: 1.5px solid #4472C4; }
 QComboBox::drop-down {
@@ -69,13 +76,15 @@ QComboBox::drop-down {
     border-left: 1px solid #D0D7E2;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
+    background: #F0F4FA;
 }
 QComboBox QAbstractItemView {
     background: #ffffff;
     border: 1px solid #C8D3E0;
-    selection-background-color: #E3EBF6;
+    selection-background-color: #D6E4F7;
     selection-color: #1a3a6e;
     outline: none;
+    padding: 2px;
 }
 
 /* ── 按鈕 ── */
@@ -279,6 +288,7 @@ class WizardMainWindow(QMainWindow):
 
     def _build_ui(self):
         central = QWidget()
+        central.setStyleSheet("QWidget { background:#EEF2F8; }")
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -288,6 +298,7 @@ class WizardMainWindow(QMainWindow):
         layout.addWidget(self._top_bar)
 
         self.stack = QStackedWidget()
+        self.stack.setStyleSheet("QStackedWidget { background:#EEF2F8; }")
         layout.addWidget(self.stack, 1)
 
         self._page_loading = self._make_loading_page()
@@ -330,7 +341,7 @@ class WizardMainWindow(QMainWindow):
 
     def _make_loading_page(self) -> QWidget:
         w = QWidget()
-        w.setStyleSheet("background:#F0F4FA;")
+        w.setStyleSheet("background:#EEF2F8;")
         v = QVBoxLayout(w)
         v.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v.setSpacing(18)
@@ -364,9 +375,9 @@ class WizardMainWindow(QMainWindow):
         """Step 1: 5W2H 輸入表單"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QScrollArea { background:#F0F4FA; }")
+        scroll.setStyleSheet("QScrollArea { background:#EEF2F8; }")
         inner = QWidget()
-        inner.setStyleSheet("background:#F0F4FA;")
+        inner.setStyleSheet("background:#EEF2F8;")
         scroll.setWidget(inner)
         v = QVBoxLayout(inner)
         v.setContentsMargins(28, 20, 28, 20)
@@ -480,7 +491,7 @@ class WizardMainWindow(QMainWindow):
     def _make_result_page(self) -> QWidget:
         """Step 2+3: 結果與缺口"""
         w = QWidget()
-        w.setStyleSheet("background:#F0F4FA;")
+        w.setStyleSheet("background:#EEF2F8;")
         v = QVBoxLayout(w)
         v.setContentsMargins(14, 10, 14, 10)
         v.setSpacing(8)
