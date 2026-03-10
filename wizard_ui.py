@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QLabel, QTextEdit, QLineEdit, QPushButton, QProgressBar,
     QStackedWidget, QGroupBox, QFormLayout, QSplitter,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
-    QScrollArea, QFrame, QComboBox, QCheckBox,
+    QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -359,18 +359,29 @@ class WizardMainWindow(QMainWindow):
 
         splitter.addWidget(left)
 
-        # ── 右側面板 ──────────────────────────────────
-        right = QWidget()
-        rv = QVBoxLayout(right)
-        rv.setContentsMargins(4, 0, 0, 0)
-        lbl_gap = QLabel("缺口分析結果：")
-        lbl_gap.setFont(QFont("Microsoft JhengHei", 9, QFont.Weight.Bold))
-        rv.addWidget(lbl_gap)
-        self._gap_text = QTextEdit()
-        self._gap_text.setReadOnly(True)
-        self._gap_text.setFont(QFont("Microsoft JhengHei", 10))
-        rv.addWidget(self._gap_text)
-        splitter.addWidget(right)
+        # ── 右側面板：分頁顯示職能基準各區塊 ─────────────
+        self._detail_tabs = QTabWidget()
+        self._detail_tabs.setFont(QFont("Microsoft JhengHei", 9))
+
+        def _make_tab() -> QTextEdit:
+            t = QTextEdit()
+            t.setReadOnly(True)
+            t.setFont(QFont("Microsoft JhengHei", 10))
+            return t
+
+        self._tab_basic     = _make_tab()
+        self._tab_tasks     = _make_tab()
+        self._tab_knowledge = _make_tab()
+        self._tab_skills    = _make_tab()
+        self._tab_gap       = _make_tab()
+
+        self._detail_tabs.addTab(self._tab_basic,     "基本資訊")
+        self._detail_tabs.addTab(self._tab_tasks,     "工作任務")
+        self._detail_tabs.addTab(self._tab_knowledge, "知識項目")
+        self._detail_tabs.addTab(self._tab_skills,    "技能項目")
+        self._detail_tabs.addTab(self._tab_gap,       "缺口分析")
+
+        splitter.addWidget(self._detail_tabs)
 
         splitter.setSizes([320, 540])
         v.addWidget(splitter, 1)
@@ -503,8 +514,7 @@ class WizardMainWindow(QMainWindow):
         )
 
         if self.analyzer:
-            text = self.analyzer.get_summary_text(report)
-            self._gap_text.setPlainText(text)
+            self._tab_gap.setPlainText(self.analyzer.get_summary_text(report))
 
         if self._match_combo.count() > 0:
             self._match_combo.setCurrentIndex(0)
@@ -518,28 +528,56 @@ class WizardMainWindow(QMainWindow):
         if not std_data:
             return
 
-        lines = []
-        basic = std_data.get("basic_info") or std_data.get("metadata") or {}
-        lines.append(f"【{basic.get('name', std_code)}】（{std_code}）")
-        lines.append(f"職能級別：{basic.get('level', '')}")
-        lines.append(f"工作描述：{basic.get('description', '')[:200]}")
-        lines.append("")
-        knowledge = std_data.get("competency_knowledge") or std_data.get("knowledge") or []
-        skills = std_data.get("competency_skills") or std_data.get("skills") or []
-        lines.append(f"知識項目（{len(knowledge)} 項）：")
-        for k in knowledge[:8]:
-            lines.append(f"  [{k.get('code','')}] {k.get('name','')}")
-        lines.append("")
-        lines.append(f"技能項目（{len(skills)} 項）：")
-        for s in skills[:8]:
-            lines.append(f"  [{s.get('code','')}] {s.get('name','')}")
-        lines.append("")
-        tasks = std_data.get("competency_tasks") or []
-        lines.append(f"工作任務（{len(tasks)} 項）：")
-        for t in tasks[:6]:
-            lines.append(f"  [{t.get('task_id','')}] {t.get('task_name','')}")
+        # ── Tab 1: 基本資訊 ──────────────────────────
+        meta  = std_data.get("metadata") or {}
+        basic = std_data.get("basic_info") or {}
+        b = []
+        b.append("═══ metadata ═══")
+        for k, v in meta.items():
+            b.append(f"  {k}：{v}")
+        b.append("")
+        b.append("═══ basic_info ═══")
+        for k, v in basic.items():
+            b.append(f"  {k}：{v}")
+        self._tab_basic.setPlainText("\n".join(b))
 
-        self._gap_text.setPlainText("\n".join(lines))
+        # ── Tab 2: 工作任務 ──────────────────────────
+        tasks = std_data.get("competency_tasks") or []
+        t = [f"共 {len(tasks)} 項工作任務\n"]
+        for task in tasks:
+            t.append(f"▌ [{task.get('task_id','')}] {task.get('task_name','')}")
+            if task.get("description"):
+                t.append(f"  說明：{task['description']}")
+            behaviors = [b for b in (task.get("behaviors") or []) if isinstance(b, dict)]
+            if behaviors:
+                t.append(f"  行為指標（{len(behaviors)} 項）：")
+                for bv in behaviors:
+                    t.append(f"    [{bv.get('code','')}] {bv.get('description','')}")
+            outputs = [o for o in (task.get("output") or []) if isinstance(o, dict)]
+            if outputs:
+                t.append(f"  工作產出（{len(outputs)} 項）：")
+                for o in outputs:
+                    t.append(f"    [{o.get('code','')}] {o.get('name','')}")
+            t.append("")
+        self._tab_tasks.setPlainText("\n".join(t))
+
+        # ── Tab 3: 知識項目 ──────────────────────────
+        knowledge = std_data.get("competency_knowledge") or std_data.get("knowledge") or []
+        kl = [f"共 {len(knowledge)} 項知識\n"]
+        for k in knowledge:
+            kl.append(f"  [{k.get('code','')}] {k.get('name','')}")
+            if k.get("description"):
+                kl.append(f"      {k['description']}")
+        self._tab_knowledge.setPlainText("\n".join(kl))
+
+        # ── Tab 4: 技能項目 ──────────────────────────
+        skills = std_data.get("competency_skills") or std_data.get("skills") or []
+        sl = [f"共 {len(skills)} 項技能\n"]
+        for s in skills:
+            sl.append(f"  [{s.get('code','')}] {s.get('name','')}")
+            if s.get("description"):
+                sl.append(f"      {s['description']}")
+        self._tab_skills.setPlainText("\n".join(sl))
 
     def _collect_result_input(self) -> UserInput5W2H:
         """從結果頁可編輯欄位收集 5W2H 輸入"""
