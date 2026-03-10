@@ -15,12 +15,13 @@ if str(_here) not in sys.path:
 
 from PyQt6.QtWidgets import QApplication
 
-from wizard_ui import WizardMainWindow
+from wizard_ui import WizardMainWindow, APP_STYLE
 
 
 def main():
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    app.setStyleSheet(APP_STYLE)
 
     win = WizardMainWindow()
     win.show()
