@@ -288,7 +288,7 @@ class WizardMainWindow(QMainWindow):
 
     def _build_ui(self):
         central = QWidget()
-        central.setStyleSheet("QWidget { background:#EEF2F8; }")
+        central.setStyleSheet("background:#EEF2F8;")
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -298,7 +298,6 @@ class WizardMainWindow(QMainWindow):
         layout.addWidget(self._top_bar)
 
         self.stack = QStackedWidget()
-        self.stack.setStyleSheet("QStackedWidget { background:#EEF2F8; }")
         layout.addWidget(self.stack, 1)
 
         self._page_loading = self._make_loading_page()
