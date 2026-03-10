@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QLabel, QTextEdit, QLineEdit, QPushButton, QProgressBar,
     QStackedWidget, QGroupBox, QFormLayout, QSplitter,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
-    QScrollArea, QFrame, QComboBox,
+    QScrollArea, QFrame, QComboBox, QCheckBox,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
