@@ -87,43 +87,45 @@ QComboBox QAbstractItemView {
     padding: 2px;
 }
 
-/* ── 按鈕 ── */
+/* ── 按鈕（白底，清晰邊框） ── */
 QPushButton {
-    background: #E9EEF5;
+    background: #ffffff;
     color: #2F5496;
-    border: 1px solid #B8C6D8;
+    border: 1.5px solid #8AAAC8;
     border-radius: 5px;
-    padding: 5px 16px;
+    padding: 5px 18px;
     font-weight: bold;
+    min-height: 28px;
 }
-QPushButton:hover  { background: #D4E0F0; border-color: #4472C4; }
-QPushButton:pressed { background: #C2D4EC; }
-QPushButton:disabled { background: #E0E4EA; color: #9AA5B1; border-color: #CDD4DC; }
+QPushButton:hover  { background: #EBF2FB; border-color: #4472C4; color: #1a3a6e; }
+QPushButton:pressed { background: #D4E4F5; border-color: #2F5496; }
+QPushButton:disabled { background: #F0F3F7; color: #A0AABB; border-color: #C8D3DE; }
 
 QPushButton#primary {
     background: #2F5496;
-    color: white;
+    color: #ffffff;
     border: none;
+    min-height: 28px;
 }
 QPushButton#primary:hover   { background: #3A64B0; }
 QPushButton#primary:pressed { background: #243F74; }
-QPushButton#primary:disabled { background: #8DA4C4; color: #D0DAE8; }
+QPushButton#primary:disabled { background: #8DA4C4; color: #D8E4F0; }
 
 QPushButton#success {
-    background: #1E7A45;
-    color: white;
+    background: #1A6E3C;
+    color: #ffffff;
     border: none;
 }
-QPushButton#success:hover   { background: #25914F; }
-QPushButton#success:pressed { background: #185E36; }
-QPushButton#success:disabled { background: #85B89A; color: #D0E8DA; }
+QPushButton#success:hover   { background: #208046; }
+QPushButton#success:pressed { background: #14562F; }
+QPushButton#success:disabled { background: #7AAD90; color: #D0E8DA; }
 
 QPushButton#danger {
-    background: #C0392B;
-    color: white;
+    background: #B83227;
+    color: #ffffff;
     border: none;
 }
-QPushButton#danger:hover { background: #D44333; }
+QPushButton#danger:hover { background: #CC3B2E; }
 
 /* ── GroupBox ── */
 QGroupBox {
