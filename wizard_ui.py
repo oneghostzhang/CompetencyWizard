@@ -369,17 +369,24 @@ class WizardMainWindow(QMainWindow):
             t.setFont(QFont("Microsoft JhengHei", 10))
             return t
 
-        self._tab_basic     = _make_tab()
-        self._tab_tasks     = _make_tab()
-        self._tab_knowledge = _make_tab()
-        self._tab_skills    = _make_tab()
-        self._tab_gap       = _make_tab()
+        self._tab_basic = _make_tab()
+        self._tab_gap   = _make_tab()
 
-        self._detail_tabs.addTab(self._tab_basic,     "基本資訊")
-        self._detail_tabs.addTab(self._tab_tasks,     "工作任務")
-        self._detail_tabs.addTab(self._tab_knowledge, "知識項目")
-        self._detail_tabs.addTab(self._tab_skills,    "技能項目")
-        self._detail_tabs.addTab(self._tab_gap,       "缺口分析")
+        # 工作職能 tab：任務下拉選單 + 詳情區
+        _task_tab_w = QWidget()
+        _task_tab_v = QVBoxLayout(_task_tab_w)
+        _task_tab_v.setContentsMargins(4, 6, 4, 4)
+        _task_tab_v.setSpacing(4)
+        self._task_combo = QComboBox()
+        self._task_combo.setFont(QFont("Microsoft JhengHei", 9))
+        self._task_combo.currentIndexChanged.connect(self._on_task_selected)
+        _task_tab_v.addWidget(self._task_combo)
+        self._tab_task_detail = _make_tab()
+        _task_tab_v.addWidget(self._tab_task_detail, 1)
+
+        self._detail_tabs.addTab(self._tab_basic, "基本資訊")
+        self._detail_tabs.addTab(_task_tab_w,     "工作職能")
+        self._detail_tabs.addTab(self._tab_gap,   "缺口分析")
 
         splitter.addWidget(self._detail_tabs)
 
@@ -528,11 +535,19 @@ class WizardMainWindow(QMainWindow):
         if not std_data:
             return
 
-        # ── Tab 1: 基本資訊 ──────────────────────────
-        meta  = std_data.get("metadata") or {}
+        # 儲存供 _on_task_selected 使用
+        self._current_std_data = std_data
+
+        # 建立知識 / 技能代碼查詢表
+        knowledge_list = std_data.get("competency_knowledge") or std_data.get("knowledge") or []
+        skills_list    = std_data.get("competency_skills")    or std_data.get("skills")    or []
+        self._k_lookup = {k.get("code", ""): k for k in knowledge_list if isinstance(k, dict)}
+        self._s_lookup = {s.get("code", ""): s for s in skills_list    if isinstance(s, dict)}
+
+        # ── Tab 基本資訊 ──────────────────────────────
+        meta  = std_data.get("metadata")   or {}
         basic = std_data.get("basic_info") or {}
-        b = []
-        b.append("═══ metadata ═══")
+        b = ["═══ metadata ═══"]
         for k, v in meta.items():
             b.append(f"  {k}：{v}")
         b.append("")
@@ -541,43 +556,87 @@ class WizardMainWindow(QMainWindow):
             b.append(f"  {k}：{v}")
         self._tab_basic.setPlainText("\n".join(b))
 
-        # ── Tab 2: 工作任務 ──────────────────────────
+        # ── Tab 工作職能：填入任務下拉選單 ──────────────
         tasks = std_data.get("competency_tasks") or []
-        t = [f"共 {len(tasks)} 項工作任務\n"]
+        self._task_combo.blockSignals(True)
+        self._task_combo.clear()
         for task in tasks:
-            t.append(f"▌ [{task.get('task_id','')}] {task.get('task_name','')}")
-            if task.get("description"):
-                t.append(f"  說明：{task['description']}")
-            behaviors = [b for b in (task.get("behaviors") or []) if isinstance(b, dict)]
-            if behaviors:
-                t.append(f"  行為指標（{len(behaviors)} 項）：")
-                for bv in behaviors:
-                    t.append(f"    [{bv.get('code','')}] {bv.get('description','')}")
-            outputs = [o for o in (task.get("output") or []) if isinstance(o, dict)]
-            if outputs:
-                t.append(f"  工作產出（{len(outputs)} 項）：")
-                for o in outputs:
-                    t.append(f"    [{o.get('code','')}] {o.get('name','')}")
-            t.append("")
-        self._tab_tasks.setPlainText("\n".join(t))
+            tid  = task.get("task_id", "")
+            name = task.get("task_name", "")
+            self._task_combo.addItem(f"[{tid}] {name}")
+        self._task_combo.blockSignals(False)
+        if self._task_combo.count() > 0:
+            self._task_combo.setCurrentIndex(0)
+            self._on_task_selected(0)
 
-        # ── Tab 3: 知識項目 ──────────────────────────
-        knowledge = std_data.get("competency_knowledge") or std_data.get("knowledge") or []
-        kl = [f"共 {len(knowledge)} 項知識\n"]
-        for k in knowledge:
-            kl.append(f"  [{k.get('code','')}] {k.get('name','')}")
-            if k.get("description"):
-                kl.append(f"      {k['description']}")
-        self._tab_knowledge.setPlainText("\n".join(kl))
+    def _on_task_selected(self, index: int):
+        """依選取的 task_id 顯示任務詳情 + 對應知識/技能"""
+        std_data = getattr(self, "_current_std_data", None)
+        if not std_data:
+            return
+        tasks = std_data.get("competency_tasks") or []
+        if index < 0 or index >= len(tasks):
+            return
 
-        # ── Tab 4: 技能項目 ──────────────────────────
-        skills = std_data.get("competency_skills") or std_data.get("skills") or []
-        sl = [f"共 {len(skills)} 項技能\n"]
-        for s in skills:
-            sl.append(f"  [{s.get('code','')}] {s.get('name','')}")
-            if s.get("description"):
-                sl.append(f"      {s['description']}")
-        self._tab_skills.setPlainText("\n".join(sl))
+        task = tasks[index]
+        k_lookup = getattr(self, "_k_lookup", {})
+        s_lookup = getattr(self, "_s_lookup", {})
+
+        lines = []
+        lines.append(f"▌ [{task.get('task_id','')}] {task.get('task_name','')}")
+        mr = task.get("main_responsibility", "")
+        if mr:
+            lines.append(f"  主責：{mr}")
+        lines.append(f"  層級：{task.get('level', '')}")
+
+        # 工作產出
+        output = task.get("output") or ""
+        if isinstance(output, str) and output:
+            lines.append(f"\n【工作產出】\n  {output}")
+        elif isinstance(output, list):
+            outs = [o for o in output if isinstance(o, dict)]
+            if outs:
+                lines.append("\n【工作產出】")
+                for o in outs:
+                    lines.append(f"  [{o.get('code','')}] {o.get('name','')}")
+
+        # 行為指標
+        behaviors = task.get("behaviors") or []
+        if behaviors:
+            lines.append(f"\n【行為指標】（{len(behaviors)} 項）")
+            for bv in behaviors:
+                if isinstance(bv, dict):
+                    lines.append(f"  [{bv.get('code','')}] {bv.get('description','')}")
+                elif isinstance(bv, str):
+                    lines.append(f"  • {bv}")
+
+        # 對應知識
+        k_codes = task.get("knowledge") or []
+        if k_codes:
+            lines.append(f"\n【對應知識項目】（{len(k_codes)} 項）")
+            for code in k_codes:
+                info = k_lookup.get(code)
+                if info:
+                    lines.append(f"  [{code}] {info.get('name','')}")
+                    if info.get("description"):
+                        lines.append(f"      {info['description']}")
+                else:
+                    lines.append(f"  [{code}]")
+
+        # 對應技能
+        s_codes = task.get("skills") or []
+        if s_codes:
+            lines.append(f"\n【對應技能項目】（{len(s_codes)} 項）")
+            for code in s_codes:
+                info = s_lookup.get(code)
+                if info:
+                    lines.append(f"  [{code}] {info.get('name','')}")
+                    if info.get("description"):
+                        lines.append(f"      {info['description']}")
+                else:
+                    lines.append(f"  [{code}]")
+
+        self._tab_task_detail.setPlainText("\n".join(lines))
 
     def _collect_result_input(self) -> UserInput5W2H:
         """從結果頁可編輯欄位收集 5W2H 輸入"""
