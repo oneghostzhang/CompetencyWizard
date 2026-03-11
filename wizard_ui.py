@@ -370,6 +370,12 @@ class DataManagerDialog(QDialog):
         # ── PDF 清單 ─────────────────────────
         v.addWidget(QLabel("raw_pdf 資料夾中的 PDF（勾選要操作的項目）："))
 
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("搜尋 PDF 名稱...")
+        self._search.setClearButtonEnabled(True)
+        self._search.textChanged.connect(self._on_search)
+        v.addWidget(self._search)
+
         self._list = QListWidget()
         v.addWidget(self._list, 1)
 
@@ -467,6 +473,12 @@ class DataManagerDialog(QDialog):
         for i in range(self._list.count()):
             item = self._list.item(i)
             item.setCheckState(Qt.CheckState.Unchecked)
+
+    def _on_search(self, text: str):
+        kw = text.strip().lower()
+        for i in range(self._list.count()):
+            item = self._list.item(i)
+            item.setHidden(bool(kw) and kw not in item.text().lower())
 
     # ── 操作 ──────────────────────────────
 
