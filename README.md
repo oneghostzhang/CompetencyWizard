@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.1.0-orange)
+![Version](https://img.shields.io/badge/Version-v1.2.0-orange)
 
 > 以 RAG 技術為核心的職能說明書產生工具。透過 5W2H 結構化問卷，自動從台灣 ICAP 職能基準資料庫中找出最相似的標準，進行缺口分析並輸出格式化 Excel 職能說明書。
 
@@ -71,6 +71,7 @@
 | ✏️ **即時修改重新分析** | 在結果頁直接修改 5W2H 欄位，一鍵重新執行分析 |
 | 📤 **匯出 Excel** | 將分析結果輸出為格式化的職能說明書 `.xlsx` 檔 |
 | ⚡ **索引快取** | 首次建立後自動快取，後續啟動直接載入（省略重複建立時間） |
+| 🗂️ **資料管理** | 頂部「資料管理」按鈕：新增／刪除 PDF、解析 PDF→JSON、搜尋過濾清單、重建向量索引 |
 
 ---
 
@@ -179,8 +180,9 @@ python main.py
 <summary><b>wizard_ui.py</b> — PyQt6 桌面 UI</summary>
 
 - 三頁 `QStackedWidget`：載入頁 → 輸入表單頁 → 結果頁
-- `InitThread` / `AnalyzeThread`：背景執行緒避免 UI 凍結
+- `InitThread` / `AnalyzeThread` / `ParseThread`：背景執行緒避免 UI 凍結
 - 結果頁右側 `QTabWidget`：基本資訊 / 工作職能（task_id 下拉）/ 缺口分析
+- `DataManagerDialog`：新增／刪除 PDF、PDF→JSON 解析、搜尋過濾、重建索引
 - 樣式：集中於 `APP_STYLE` 常數，使用 ID 選擇器（`#objectName`）管理容器背景，避免 Qt 樣式傳遞問題
 </details>
 
@@ -230,7 +232,7 @@ python main.py
 1. **資料格式**：`parsed_json_v2/` 的 JSON 須包含 `chunks_for_rag` 欄位，可使用 `pdf_parser_v2.py` 從原始 PDF 生成
 2. **記憶體需求**：Embedding 模型約 500 MB，完整 900+ JSON 索引約 300 MB，建議系統記憶體 ≥ 8 GB
 3. **資料來源**：職能基準資料來自 [ICAP 職能發展應用平台](https://icap.wda.gov.tw/)，僅供學習研究使用
-4. **索引更新**：新增 JSON 後需重建索引，可在載入頁點選「強制重建索引」按鈕
+4. **索引更新**：可透過頂部「資料管理」按鈕新增 PDF、解析後重建索引；載入頁亦提供「強制重建索引」按鈕
 
 ---
 
@@ -238,7 +240,8 @@ python main.py
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
-| v1.1.0 | 2026-03-11 | 重構 UI 樣式架構（ID 選擇器集中管理）；修正 Qt 樣式傳遞導致按鈕不可見問題；優化整體配色（參考 Graph_RAG_test 色系） |
+| v1.2.0 | 2026-03-11 | 新增資料管理功能：DataManagerDialog（新增／刪除 PDF、PDF→JSON 解析、PDF 清單搜尋、重建向量索引） |
+| v1.1.0 | 2026-03-11 | 重構 UI 樣式架構（ID 選擇器集中管理）；修正 Qt 樣式傳遞導致按鈕不可見問題；優化整體配色 |
 | v1.0.0 | 2026-03-10 | 初始版本：5W2H 輸入、RAG 職能基準檢索、缺口分析、結果頁分頁瀏覽、Excel 匯出 |
 
 ---
@@ -249,4 +252,4 @@ python main.py
 
 ---
 
-**版本**：v1.1.0　　**最後更新**：2026-03-11
+**版本**：v1.2.0　　**最後更新**：2026-03-11
