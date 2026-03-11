@@ -869,10 +869,17 @@ class WizardMainWindow(QMainWindow):
         f4 = QFormLayout(gb_when)
         f4.setSpacing(10)
         f4.setContentsMargins(10, 8, 10, 10)
-        self._when_frequency = QComboBox()
-        self._when_frequency.addItems(["每日", "每週", "每月", "每季", "專案型（不固定）", "其他"])
-        self._when_frequency.setEditable(True)
-        f4.addRow("執行頻率：", self._when_frequency)
+        freq_widget = QWidget()
+        freq_layout = QHBoxLayout(freq_widget)
+        freq_layout.setContentsMargins(0, 0, 0, 0)
+        freq_layout.setSpacing(16)
+        self._when_checkboxes: dict = {}
+        for opt in ["每日", "每週", "每月", "每季", "專案型（不固定）", "其他"]:
+            cb = QCheckBox(opt)
+            self._when_checkboxes[opt] = cb
+            freq_layout.addWidget(cb)
+        freq_layout.addStretch()
+        f4.addRow("執行頻率：", freq_widget)
         v.addWidget(gb_when)
 
         # Where
@@ -1159,10 +1166,10 @@ class WizardMainWindow(QMainWindow):
         tasks    = data.get("competency_tasks", [])
         skills   = data.get("competency_skills", [])
 
-        # What — 工作任務（列出所有 task_id + task_name）
+        # What — 工作任務（數字編號列表）
         task_lines = [
-            f"【{t.get('task_id', '')}】{t.get('task_name', '')}"
-            for t in tasks if t.get("task_name")
+            f"{i+1}. {t.get('task_name', '')}"
+            for i, t in enumerate(tasks) if t.get("task_name")
         ]
         self._what_tasks.setPlainText("\n".join(task_lines))
 
@@ -1177,10 +1184,7 @@ class WizardMainWindow(QMainWindow):
         # Who — 自身角色（職能基準名稱）
         self._who_role.setText(meta.get("name", ""))
 
-        # Who — 協作對象（occupation，取第一行）
-        occupation = bi.get("occupation", "")
-        if occupation:
-            self._who_collaborate.setText(occupation.split("\n")[0][:50])
+        # Who — 協作對象（無對應欄位，保留空白讓使用者自填）
 
         # Where — 工作環境（第一個行業別）
         industry = bi.get("industry", [])
@@ -1208,7 +1212,8 @@ class WizardMainWindow(QMainWindow):
         self._why_purpose.clear()
         self._who_role.clear()
         self._who_collaborate.clear()
-        self._when_frequency.setCurrentIndex(0)
+        for cb in self._when_checkboxes.values():
+            cb.setChecked(False)
         self._where_env.clear()
         self._how_skills.clear()
         self._how_much.clear()
@@ -1220,7 +1225,9 @@ class WizardMainWindow(QMainWindow):
             why_purpose=self._why_purpose.text().strip(),
             who_role=self._who_role.text().strip(),
             who_collaborate=self._who_collaborate.text().strip(),
-            when_frequency=self._when_frequency.currentText().strip(),
+            when_frequency="、".join(
+                opt for opt, cb in self._when_checkboxes.items() if cb.isChecked()
+            ),
             where_environment=self._where_env.text().strip(),
             how_skills=self._how_skills.toPlainText().strip(),
             how_much_kpi=self._how_much.text().strip(),
