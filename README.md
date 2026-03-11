@@ -20,7 +20,6 @@
 - [模組說明](#-模組說明)
 - [效能](#-效能)
 - [技術棧](#️-技術棧)
-- [與 Graph\_RAG\_test 整合](#-與-graph_rag_test-整合)
 - [注意事項](#️-注意事項)
 - [更新日誌](#-更新日誌)
 
@@ -39,7 +38,7 @@
 │   wizard_rag.py (WizardRAG)                             │
 │   ├── BAAI/bge-base-zh-v1.5 Embedding 模型             │
 │   ├── FAISS 向量索引（_index_cache/）                   │
-│   └── 可復用外部 GraphRAGQueryEngine（省略重複載入）    │
+│   └── 索引快取（_index_cache/）省略重複建立             │
 └─────────────────────────┬───────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
@@ -127,8 +126,6 @@ CompetencyWizard/
         └── ...
 ```
 
-> 若已有 [Graph_RAG_test](https://github.com/oneghostzhang/RAG_test) 的 `parsed_json_v2` 資料，可直接複製或建立符號連結使用。
-
 ### 4. 啟動程式
 
 ```bash
@@ -167,7 +164,6 @@ python main.py
 - 使用 `BAAI/bge-base-zh-v1.5` 將職能基準 JSON 的 `chunks_for_rag` 欄位向量化
 - FAISS IndexFlatIP 建立餘弦相似度索引，支援 Top-K 檢索
 - 索引自動快取至 `_index_cache/`，避免每次啟動重建
-- 支援傳入 `GraphRAGQueryEngine` 實例以復用已載入的 Embedding 模型
 </details>
 
 <details>
@@ -201,7 +197,6 @@ python main.py
 
 - 使用 pdfplumber 提取 ICAP 職能基準 PDF 的結構化資料
 - 輸出含 `chunks_for_rag` 的 JSON，可直接供 WizardRAG 使用
-- 與 [Graph_RAG_test](https://github.com/oneghostzhang/RAG_test) 共用相同格式
 </details>
 
 ---
@@ -227,28 +222,6 @@ python main.py
 | 向量檢索 | FAISS | 高效相似度搜尋 |
 | Excel 輸出 | openpyxl | 職能說明書格式化輸出 |
 | PDF 解析 | pdfplumber | ICAP 職能基準 PDF 轉 JSON |
-
----
-
-## 🔗 與 Graph_RAG_test 整合（選用）
-
-CompetencyWizard **可完全獨立運行**，不依賴 Graph_RAG_test。
-此整合為**效能優化選項**：若同一台電腦上 [Graph_RAG_test](https://github.com/oneghostzhang/RAG_test) 已在運行，可傳入其 `GraphRAGQueryEngine` 共用已載入的 Embedding 模型，**省去重複載入時間（30–60 秒）**：
-
-```python
-from wizard_ui import WizardMainWindow, APP_STYLE
-from PyQt6.QtWidgets import QApplication
-
-# your_engine 為已初始化的 GraphRAGQueryEngine
-app = QApplication([])
-app.setStyle("Fusion")
-app.setStyleSheet(APP_STYLE)
-win = WizardMainWindow(engine=your_engine)
-win.show()
-app.exec()
-```
-
-兩個專案共用同一份 `parsed_json_v2/` 資料，無需重複存放。
 
 ---
 
