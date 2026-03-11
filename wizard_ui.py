@@ -4,6 +4,7 @@ competency_wizard/wizard_ui.py
 流程：初始化 → Step1(5W2H 輸入) → Step2(分析結果) → Step3(缺口詳情) → 輸出 Excel
 """
 
+import shutil
 import sys
 from pathlib import Path
 from typing import Optional
@@ -14,6 +15,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget, QGroupBox, QFormLayout, QSplitter,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
+    QDialog,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -303,6 +305,246 @@ class AnalyzeThread(QThread):
 
 
 # ─────────────────────────────────────────
+# PDF 解析執行緒
+# ─────────────────────────────────────────
+
+class ParseThread(QThread):
+    progress = pyqtSignal(str)
+    done     = pyqtSignal(int, int)   # ok_count, err_count
+
+    def __init__(self, pdf_paths: list, json_dir: Path):
+        super().__init__()
+        self.pdf_paths = pdf_paths
+        self.json_dir  = json_dir
+
+    def run(self):
+        try:
+            from pdf_parser_v2 import parse_pdf_to_json
+        except ImportError:
+            self.progress.emit("✗ pdfplumber 未安裝，請執行：pip install pdfplumber")
+            self.done.emit(0, len(self.pdf_paths))
+            return
+
+        ok = err = 0
+        for path_str in self.pdf_paths:
+            p   = Path(path_str)
+            out = self.json_dir / (p.stem + ".json")
+            try:
+                self.progress.emit(f"解析中：{p.name} ...")
+                parse_pdf_to_json(str(p), str(out))
+                self.progress.emit(f"  ✓ {p.name}")
+                ok += 1
+            except Exception as e:
+                self.progress.emit(f"  ✗ {p.name} 失敗：{e}")
+                err += 1
+        self.done.emit(ok, err)
+
+
+# ─────────────────────────────────────────
+# 資料管理對話框
+# ─────────────────────────────────────────
+
+class DataManagerDialog(QDialog):
+    """管理 raw_pdf / parsed_json_v2 資料，並觸發重建索引。"""
+    rebuild_requested = pyqtSignal()
+
+    def __init__(self, rag: WizardRAG, parent=None):
+        super().__init__(parent)
+        self.rag  = rag
+        self._raw_dir  = rag.json_dir.parent / "raw_pdf"
+        self._json_dir = rag.json_dir
+        self._parse_thread: Optional[ParseThread] = None
+
+        self.setWindowTitle("資料管理")
+        self.setMinimumSize(660, 500)
+        self._build_ui()
+        self._refresh_list()
+
+    # ── UI ────────────────────────────────
+
+    def _build_ui(self):
+        v = QVBoxLayout(self)
+        v.setSpacing(10)
+        v.setContentsMargins(14, 12, 14, 12)
+
+        # ── PDF 清單 ─────────────────────────
+        v.addWidget(QLabel("raw_pdf 資料夾中的 PDF（勾選要操作的項目）："))
+
+        self._list = QListWidget()
+        v.addWidget(self._list, 1)
+
+        # ── 清單操作列 ───────────────────────
+        row1 = QHBoxLayout()
+        btn_add = QPushButton("新增 PDF")
+        btn_add.clicked.connect(self._on_add)
+
+        btn_del = QPushButton("刪除選取")
+        btn_del.setObjectName("danger")
+        btn_del.clicked.connect(self._on_delete)
+
+        btn_all  = QPushButton("全選")
+        btn_all.clicked.connect(self._check_all)
+        btn_none = QPushButton("全不選")
+        btn_none.clicked.connect(self._check_none)
+
+        row1.addWidget(btn_add)
+        row1.addWidget(btn_del)
+        row1.addStretch()
+        row1.addWidget(btn_all)
+        row1.addWidget(btn_none)
+        v.addLayout(row1)
+
+        # ── 分隔 ─────────────────────────────
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        v.addWidget(sep)
+
+        # ── 記錄區 ───────────────────────────
+        v.addWidget(QLabel("操作記錄："))
+        self._log = QTextEdit()
+        self._log.setReadOnly(True)
+        self._log.setFixedHeight(130)
+        self._log.setFont(QFont("Consolas", 9))
+        v.addWidget(self._log)
+
+        # ── 底部動作列 ───────────────────────
+        row2 = QHBoxLayout()
+        self._btn_parse = QPushButton("解析勾選的 PDF → JSON")
+        self._btn_parse.setObjectName("primary")
+        self._btn_parse.clicked.connect(self._on_parse)
+
+        self._btn_rebuild = QPushButton("重建向量索引")
+        self._btn_rebuild.setObjectName("success")
+        self._btn_rebuild.clicked.connect(self._on_rebuild)
+
+        btn_close = QPushButton("關閉")
+        btn_close.clicked.connect(self.close)
+
+        row2.addWidget(self._btn_parse)
+        row2.addWidget(self._btn_rebuild)
+        row2.addStretch()
+        row2.addWidget(btn_close)
+        v.addLayout(row2)
+
+    # ── 清單管理 ──────────────────────────
+
+    def _refresh_list(self):
+        self._list.clear()
+        self._raw_dir.mkdir(parents=True, exist_ok=True)
+        pdfs = sorted(self._raw_dir.glob("*.pdf"))
+        if not pdfs:
+            item = QListWidgetItem("（資料夾中目前沒有 PDF）")
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            self._list.addItem(item)
+            return
+        for pdf in pdfs:
+            parsed = (self._json_dir / (pdf.stem + ".json")).exists()
+            label = f"{'✓' if parsed else '✗'}  {pdf.name}"
+            item = QListWidgetItem(label)
+            item.setCheckState(Qt.CheckState.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, str(pdf))
+            if not parsed:
+                item.setForeground(QColor("#e74c3c"))
+            self._list.addItem(item)
+
+    def _checked_paths(self) -> list:
+        result = []
+        for i in range(self._list.count()):
+            item = self._list.item(i)
+            if item.checkState() == Qt.CheckState.Checked:
+                p = item.data(Qt.ItemDataRole.UserRole)
+                if p:
+                    result.append(p)
+        return result
+
+    def _check_all(self):
+        for i in range(self._list.count()):
+            item = self._list.item(i)
+            if item.data(Qt.ItemDataRole.UserRole):
+                item.setCheckState(Qt.CheckState.Checked)
+
+    def _check_none(self):
+        for i in range(self._list.count()):
+            item = self._list.item(i)
+            item.setCheckState(Qt.CheckState.Unchecked)
+
+    # ── 操作 ──────────────────────────────
+
+    def _on_add(self):
+        self._raw_dir.mkdir(parents=True, exist_ok=True)
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "選擇 PDF 檔案", str(Path.home()), "PDF 檔案 (*.pdf)"
+        )
+        if not paths:
+            return
+        copied = 0
+        for src in paths:
+            dst = self._raw_dir / Path(src).name
+            if dst.exists():
+                self._log.append(f"⚠ 已存在，略過：{Path(src).name}")
+            else:
+                shutil.copy2(src, dst)
+                self._log.append(f"✓ 已複製：{Path(src).name}")
+                copied += 1
+        if copied:
+            self._refresh_list()
+
+    def _on_delete(self):
+        paths = self._checked_paths()
+        if not paths:
+            QMessageBox.information(self, "提示", "請先勾選要刪除的 PDF")
+            return
+        names = "\n".join(Path(p).name for p in paths)
+        reply = QMessageBox.question(
+            self, "確認刪除",
+            f"確定要刪除以下 {len(paths)} 個 PDF 及其對應 JSON？\n\n{names}",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        for p in paths:
+            pdf = Path(p)
+            pdf.unlink(missing_ok=True)
+            self._log.append(f"🗑 已刪除 PDF：{pdf.name}")
+            json_f = self._json_dir / (pdf.stem + ".json")
+            if json_f.exists():
+                json_f.unlink()
+                self._log.append(f"🗑 已刪除 JSON：{json_f.name}")
+        self._refresh_list()
+
+    def _on_parse(self):
+        paths = self._checked_paths()
+        if not paths:
+            QMessageBox.information(self, "提示", "請先勾選要解析的 PDF")
+            return
+        self._btn_parse.setEnabled(False)
+        self._btn_rebuild.setEnabled(False)
+        self._log.append(f"\n▶ 開始解析 {len(paths)} 個 PDF...")
+        self._parse_thread = ParseThread(paths, self._json_dir)
+        self._parse_thread.progress.connect(self._log.append)
+        self._parse_thread.done.connect(self._on_parse_done)
+        self._parse_thread.start()
+
+    def _on_parse_done(self, ok: int, err: int):
+        self._log.append(f"── 完成：{ok} 成功，{err} 失敗 ──")
+        self._btn_parse.setEnabled(True)
+        self._btn_rebuild.setEnabled(True)
+        self._refresh_list()
+
+    def _on_rebuild(self):
+        reply = QMessageBox.question(
+            self, "重建向量索引",
+            "確定要重建向量索引？\n（需要數分鐘，完成後程式將回到載入畫面）",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        self._log.append("\n▶ 送出重建請求...")
+        self.rebuild_requested.emit()
+        self.close()
+
+
+# ─────────────────────────────────────────
 # 主視窗
 # ─────────────────────────────────────────
 
@@ -361,6 +603,18 @@ class WizardMainWindow(QMainWindow):
         title.setStyleSheet("color:white; letter-spacing:1px;")
         h.addWidget(title)
         h.addStretch()
+
+        btn_data = QPushButton("資料管理")
+        btn_data.setFixedHeight(28)
+        btn_data.setStyleSheet(
+            "QPushButton { background:rgba(255,255,255,0.12); color:white; "
+            "border:1px solid rgba(255,255,255,0.28); border-radius:4px; "
+            "padding:2px 12px; font-size:9pt; font-weight:bold; }"
+            "QPushButton:hover { background:rgba(255,255,255,0.22); }"
+            "QPushButton:pressed { background:rgba(255,255,255,0.32); }"
+        )
+        btn_data.clicked.connect(self._open_data_manager)
+        h.addWidget(btn_data)
 
         self._status_label = QLabel("初始化中...")
         self._status_label.setStyleSheet(
@@ -732,6 +986,11 @@ class WizardMainWindow(QMainWindow):
     def _on_force_rebuild(self):
         self._loading_label.setText("強制重建索引中...")
         self._start_init(force_rebuild=True)
+
+    def _open_data_manager(self):
+        dlg = DataManagerDialog(self.rag, self)
+        dlg.rebuild_requested.connect(self._on_force_rebuild)
+        dlg.exec()
 
     # ─── 表單操作 ─────────────────────────────
 
