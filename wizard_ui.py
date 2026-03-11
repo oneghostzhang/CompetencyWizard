@@ -28,110 +28,117 @@ from excel_exporter import export_to_excel
 # ─────────────────────────────────────────
 
 APP_STYLE = """
-/* ── 字型與文字顏色（不設全域背景，避免染色） ── */
-QWidget {
-    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
-    font-size: 10pt;
-    color: #212529;
-}
+/* ══ 配色借鑒自 Graph_RAG_test ══
+   主色  #3498db  天藍
+   深色  #2c3e50  石板
+   綠色  #27ae60  知識節點綠
+   紅色  #e74c3c  警示
+   背景  #f8f9fa  淨白
+*/
 
-/* 僅對主視窗與 StackedWidget 頁面設底色 */
-QMainWindow, QStackedWidget, QScrollArea > QWidget#page_bg {
-    background-color: #EEF2F8;
+/* ── 字型 ── */
+QWidget {
+    font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+    font-size: 10pt;
+    color: #2c3e50;
 }
 
 /* ── 輸入元件 ── */
 QLineEdit, QTextEdit {
     background: #ffffff;
-    border: 1px solid #C8D3E0;
-    border-radius: 5px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
     padding: 4px 8px;
-    selection-background-color: #4472C4;
+    selection-background-color: #3498db;
     selection-color: #ffffff;
+    color: #2c3e50;
 }
 QLineEdit:focus, QTextEdit:focus {
-    border: 1.5px solid #4472C4;
-    background: #FAFCFF;
+    border: 1.5px solid #3498db;
+    background: #fdfdff;
 }
 QLineEdit:read-only, QTextEdit[readOnly="true"] {
-    background: #F5F7FB;
-    border-color: #D8DEE6;
-    color: #3A4A5C;
+    background: #f4f6f8;
+    border-color: #dee2e6;
+    color: #4a5568;
 }
 
 /* ── 下拉選單 ── */
 QComboBox {
     background: #ffffff;
-    border: 1px solid #C8D3E0;
-    border-radius: 5px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
     padding: 4px 8px;
     min-height: 26px;
-    color: #212529;
+    color: #2c3e50;
 }
-QComboBox:focus { border: 1.5px solid #4472C4; }
+QComboBox:focus { border: 1.5px solid #3498db; }
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 22px;
-    border-left: 1px solid #D0D7E2;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    background: #F0F4FA;
+    border-left: 1px solid #dee2e6;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    background: #f4f6f8;
 }
 QComboBox QAbstractItemView {
     background: #ffffff;
-    border: 1px solid #C8D3E0;
-    selection-background-color: #D6E4F7;
-    selection-color: #1a3a6e;
+    border: 1px solid #ced4da;
+    selection-background-color: #d6eaf8;
+    selection-color: #1a5276;
     outline: none;
     padding: 2px;
 }
 
-/* ── 按鈕（白底，清晰邊框） ── */
+/* ── 按鈕（白底 + 石板色邊框） ── */
 QPushButton {
     background: #ffffff;
-    color: #2F5496;
-    border: 1.5px solid #8AAAC8;
-    border-radius: 5px;
+    color: #2c3e50;
+    border: 1.5px solid #aab4be;
+    border-radius: 4px;
     padding: 5px 18px;
     font-weight: bold;
     min-height: 28px;
 }
-QPushButton:hover  { background: #EBF2FB; border-color: #4472C4; color: #1a3a6e; }
-QPushButton:pressed { background: #D4E4F5; border-color: #2F5496; }
-QPushButton:disabled { background: #F0F3F7; color: #A0AABB; border-color: #C8D3DE; }
+QPushButton:hover  { background: #eaf4fb; border-color: #3498db; color: #1a5276; }
+QPushButton:pressed { background: #d6eaf8; border-color: #2980b9; }
+QPushButton:disabled { background: #f4f6f8; color: #aab4be; border-color: #dee2e6; }
 
+/* primary — 天藍（借自 Graph_RAG_test btn-primary） */
 QPushButton#primary {
-    background: #2F5496;
+    background: #3498db;
     color: #ffffff;
     border: none;
     min-height: 28px;
 }
-QPushButton#primary:hover   { background: #3A64B0; }
-QPushButton#primary:pressed { background: #243F74; }
-QPushButton#primary:disabled { background: #8DA4C4; color: #D8E4F0; }
+QPushButton#primary:hover   { background: #2980b9; }
+QPushButton#primary:pressed { background: #1f618d; }
+QPushButton#primary:disabled { background: #85c1e9; color: #eaf4fb; }
 
+/* success — 知識節點綠 */
 QPushButton#success {
-    background: #1A6E3C;
+    background: #27ae60;
     color: #ffffff;
     border: none;
 }
-QPushButton#success:hover   { background: #208046; }
-QPushButton#success:pressed { background: #14562F; }
-QPushButton#success:disabled { background: #7AAD90; color: #D0E8DA; }
+QPushButton#success:hover   { background: #219a52; }
+QPushButton#success:pressed { background: #1a7a41; }
+QPushButton#success:disabled { background: #82c09a; color: #e8f5e9; }
 
+/* danger — 警示紅 */
 QPushButton#danger {
-    background: #B83227;
+    background: #e74c3c;
     color: #ffffff;
     border: none;
 }
-QPushButton#danger:hover { background: #CC3B2E; }
+QPushButton#danger:hover { background: #c0392b; }
 
 /* ── GroupBox ── */
 QGroupBox {
     background: #ffffff;
-    border: 1px solid #D0DAE8;
-    border-radius: 7px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
     margin-top: 14px;
     padding: 6px 10px 8px 10px;
 }
@@ -140,7 +147,7 @@ QGroupBox::title {
     subcontrol-position: top left;
     left: 12px;
     padding: 0 6px;
-    color: #2F5496;
+    color: #2980b9;
     font-weight: bold;
     font-size: 10pt;
     background: #ffffff;
@@ -149,54 +156,54 @@ QGroupBox::title {
 /* ── 捲動區 ── */
 QScrollArea { border: none; background: transparent; }
 QScrollBar:vertical {
-    background: #EEF1F5;
+    background: #ecf0f1;
     width: 8px;
     border-radius: 4px;
 }
 QScrollBar::handle:vertical {
-    background: #B0BECF;
+    background: #aab4be;
     border-radius: 4px;
     min-height: 24px;
 }
-QScrollBar::handle:vertical:hover { background: #8A9CB0; }
+QScrollBar::handle:vertical:hover { background: #7f8c8d; }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 
 /* ── 分頁標籤 ── */
 QTabWidget::pane {
-    border: 1px solid #D0DAE8;
-    border-radius: 0 6px 6px 6px;
+    border: 1px solid #dee2e6;
+    border-radius: 0 5px 5px 5px;
     background: #ffffff;
 }
 QTabBar::tab {
-    background: #E3EBF6;
-    color: #4A5568;
-    border: 1px solid #C8D3E0;
+    background: #ecf0f1;
+    color: #4a5568;
+    border: 1px solid #ced4da;
     border-bottom: none;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     padding: 5px 14px;
     margin-right: 2px;
     font-weight: bold;
 }
 QTabBar::tab:selected {
     background: #ffffff;
-    color: #2F5496;
-    border-color: #D0DAE8;
+    color: #2980b9;
+    border-color: #dee2e6;
 }
-QTabBar::tab:hover:!selected { background: #D4E0F0; }
+QTabBar::tab:hover:!selected { background: #d6eaf8; color: #2980b9; }
 
 /* ── 進度條 ── */
 QProgressBar {
-    border: 1px solid #C8D3E0;
-    border-radius: 5px;
-    background: #E8EEF5;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #ecf0f1;
     text-align: center;
-    height: 16px;
+    height: 14px;
 }
 QProgressBar::chunk {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #4472C4, stop:1 #6A96D8);
-    border-radius: 4px;
+        stop:0 #3498db, stop:1 #5dade2);
+    border-radius: 3px;
 }
 
 /* ── 核取方塊 ── */
@@ -204,26 +211,54 @@ QCheckBox { spacing: 8px; }
 QCheckBox::indicator {
     width: 16px;
     height: 16px;
-    border: 1.5px solid #7A8FA6;
+    border: 1.5px solid #aab4be;
     border-radius: 3px;
     background: white;
 }
 QCheckBox::indicator:checked {
-    background: #2F5496;
-    border-color: #2F5496;
-    image: none;
+    background: #27ae60;
+    border-color: #219a52;
 }
-QCheckBox::indicator:hover { border-color: #4472C4; }
+QCheckBox::indicator:hover { border-color: #3498db; }
 
 /* ── 分隔線 ── */
-QFrame[frameShape="4"] { color: #D0DAE8; }
+QFrame[frameShape="4"] { color: #dee2e6; }
 
 /* ── Splitter ── */
-QSplitter::handle {
-    background: #D0DAE8;
-    width: 3px;
+QSplitter::handle { background: #dee2e6; width: 3px; }
+QSplitter::handle:hover { background: #3498db; }
+
+/* ════ 版面容器（ID 選擇器不會向下傳遞） ════ */
+
+/* 主視窗底色 */
+#central   { background: #f8f9fa; }
+
+/* 頂部導覽列 */
+#topBar {
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+        stop:0 #2c3e50, stop:1 #34495e);
+    border: none;
 }
-QSplitter::handle:hover { background: #4472C4; }
+
+/* 載入 / 表單頁面底色 */
+#pageLoading { background: #f8f9fa; }
+#formInner   { background: #f8f9fa; }
+#pageResult  { background: #f8f9fa; }
+
+/* 結果頁容器卡片 */
+#statusBar, #confirmBar {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+#leftPanel {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 7px;
+}
+
+/* 工作職能分頁內容區 */
+#taskTabWidget { background: #ffffff; }
 """
 
 
@@ -290,7 +325,7 @@ class WizardMainWindow(QMainWindow):
 
     def _build_ui(self):
         central = QWidget()
-        central.setStyleSheet("background:#EEF2F8;")
+        central.setObjectName("central")
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -312,16 +347,13 @@ class WizardMainWindow(QMainWindow):
 
     def _make_top_bar(self) -> QWidget:
         bar = QFrame()
+        bar.setObjectName("topBar")
         bar.setFixedHeight(52)
-        bar.setStyleSheet(
-            "QFrame { background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
-            "stop:0 #1E3A6E, stop:1 #2F5496); }"
-        )
         h = QHBoxLayout(bar)
         h.setContentsMargins(20, 0, 20, 0)
 
         dot = QLabel("●")
-        dot.setStyleSheet("color:#7EC8E3; font-size:10pt; margin-right:4px;")
+        dot.setStyleSheet("color:#5dade2; font-size:10pt; margin-right:4px;")
         h.addWidget(dot)
 
         title = QLabel("職能說明書精靈")
@@ -332,8 +364,8 @@ class WizardMainWindow(QMainWindow):
 
         self._status_label = QLabel("初始化中...")
         self._status_label.setStyleSheet(
-            "color:#A8C8F0; font-size:9pt; "
-            "background:rgba(255,255,255,0.08); "
+            "color:#aed6f1; font-size:9pt; "
+            "background:rgba(255,255,255,0.10); "
             "border-radius:4px; padding:2px 10px;"
         )
         h.addWidget(self._status_label)
@@ -342,14 +374,14 @@ class WizardMainWindow(QMainWindow):
 
     def _make_loading_page(self) -> QWidget:
         w = QWidget()
-        w.setStyleSheet("background:#EEF2F8;")
+        w.setObjectName("pageLoading")
         v = QVBoxLayout(w)
         v.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v.setSpacing(18)
 
         icon = QLabel("⚙")
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon.setStyleSheet("font-size:40pt; color:#4472C4;")
+        icon.setStyleSheet("font-size:40pt; color:#3498db;")
         v.addWidget(icon)
 
         self._loading_label = QLabel("正在載入 Embedding 模型，請稍候...")
@@ -376,9 +408,8 @@ class WizardMainWindow(QMainWindow):
         """Step 1: 5W2H 輸入表單"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QScrollArea { background:#EEF2F8; }")
         inner = QWidget()
-        inner.setStyleSheet("background:#EEF2F8;")
+        inner.setObjectName("formInner")
         scroll.setWidget(inner)
         v = QVBoxLayout(inner)
         v.setContentsMargins(28, 20, 28, 20)
@@ -492,17 +523,14 @@ class WizardMainWindow(QMainWindow):
     def _make_result_page(self) -> QWidget:
         """Step 2+3: 結果與缺口"""
         w = QWidget()
-        w.setStyleSheet("background:#EEF2F8;")
+        w.setObjectName("pageResult")
         v = QVBoxLayout(w)
         v.setContentsMargins(14, 10, 14, 10)
         v.setSpacing(8)
 
         # ── 頂部狀態列 ─────────────────────────────
         status_bar = QFrame()
-        status_bar.setStyleSheet(
-            "QFrame { background:#ffffff; border:1px solid #D0DAE8; "
-            "border-radius:6px; }"
-        )
+        status_bar.setObjectName("statusBar")
         status_bar.setFixedHeight(40)
         sh = QHBoxLayout(status_bar)
         sh.setContentsMargins(12, 0, 12, 0)
@@ -510,7 +538,7 @@ class WizardMainWindow(QMainWindow):
         self._result_status = QLabel("")
         self._result_status.setFont(QFont("Microsoft JhengHei", 10))
         self._result_status.setStyleSheet(
-            "color:#2F5496; font-weight:bold; background:transparent; border:none;"
+            "color:#2980b9; font-weight:bold; background:transparent; border:none;"
         )
         self._btn_export = QPushButton("匯出 Excel")
         self._btn_export.setObjectName("success")
@@ -528,17 +556,14 @@ class WizardMainWindow(QMainWindow):
 
         # ── 左側：職能基準選擇 + 可編輯 5W2H ──────────
         left = QFrame()
-        left.setStyleSheet(
-            "QFrame { background:#ffffff; border:1px solid #D0DAE8; "
-            "border-radius:7px; }"
-        )
+        left.setObjectName("leftPanel")
         lv = QVBoxLayout(left)
         lv.setContentsMargins(12, 10, 12, 10)
         lv.setSpacing(8)
 
         lbl_match = QLabel("相似職能基準")
         lbl_match.setStyleSheet(
-            "font-weight:bold; color:#2F5496; font-size:9pt; "
+            "font-weight:bold; color:#2980b9; font-size:9pt; "
             "background:transparent; border:none;"
         )
         lv.addWidget(lbl_match)
@@ -554,7 +579,7 @@ class WizardMainWindow(QMainWindow):
 
         lbl_edit = QLabel("工作內容（可直接修改後重新分析）")
         lbl_edit.setStyleSheet(
-            "font-weight:bold; color:#2F5496; font-size:9pt; "
+            "font-weight:bold; color:#2980b9; font-size:9pt; "
             "background:transparent; border:none;"
         )
         lv.addWidget(lbl_edit)
@@ -642,7 +667,7 @@ class WizardMainWindow(QMainWindow):
         self._tab_gap   = _make_tab()
 
         _task_tab_w = QWidget()
-        _task_tab_w.setStyleSheet("background:#ffffff;")
+        _task_tab_w.setObjectName("taskTabWidget")
         _task_tab_v = QVBoxLayout(_task_tab_w)
         _task_tab_v.setContentsMargins(8, 8, 8, 8)
         _task_tab_v.setSpacing(6)
@@ -665,10 +690,7 @@ class WizardMainWindow(QMainWindow):
 
         # ── 底部確認列 ────────────────────────────────
         confirm_bar = QFrame()
-        confirm_bar.setStyleSheet(
-            "QFrame { background:#ffffff; border:1px solid #D0DAE8; "
-            "border-radius:6px; }"
-        )
+        confirm_bar.setObjectName("confirmBar")
         confirm_bar.setFixedHeight(42)
         ch = QHBoxLayout(confirm_bar)
         ch.setContentsMargins(14, 0, 14, 0)
@@ -678,7 +700,7 @@ class WizardMainWindow(QMainWindow):
         )
         self._confirm_check.setFont(QFont("Microsoft JhengHei", 10))
         self._confirm_check.setStyleSheet(
-            "QCheckBox { color:#2F5496; font-weight:bold; "
+            "QCheckBox { color:#2980b9; font-weight:bold; "
             "background:transparent; border:none; }"
         )
         self._confirm_check.toggled.connect(self._btn_export.setEnabled)
