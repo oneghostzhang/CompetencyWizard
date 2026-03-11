@@ -341,6 +341,111 @@ class ParseThread(QThread):
 
 
 # ─────────────────────────────────────────
+# 職能基準選擇對話框
+# ─────────────────────────────────────────
+
+class StandardSelectorDialog(QDialog):
+    """從已載入的職能基準中選擇範本，供表單預填使用。"""
+
+    def __init__(self, rag: WizardRAG, parent=None):
+        super().__init__(parent)
+        self.rag = rag
+        self.selected_data: Optional[dict] = None
+        self.setWindowTitle("選擇職能基準範本")
+        self.setMinimumSize(600, 520)
+        self._build_ui()
+        self._populate_list()
+
+    def _build_ui(self):
+        v = QVBoxLayout(self)
+        v.setSpacing(10)
+        v.setContentsMargins(14, 12, 14, 12)
+
+        hint = QLabel("選擇一個職能基準作為起始範本，系統將自動預填 5W2H 欄位，您可隨時修改。")
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color:#555; font-size:9pt; padding:4px 0;")
+        v.addWidget(hint)
+
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("搜尋職能名稱 / 代碼...")
+        self._search.setClearButtonEnabled(True)
+        self._search.textChanged.connect(self._on_search)
+        v.addWidget(self._search)
+
+        self._list = QListWidget()
+        self._list.setAlternatingRowColors(True)
+        self._list.currentItemChanged.connect(self._on_selection_changed)
+        self._list.itemDoubleClicked.connect(self._on_confirm)
+        v.addWidget(self._list, 1)
+
+        # 預覽區
+        preview_lbl = QLabel("工作說明：")
+        preview_lbl.setStyleSheet("font-weight:bold; font-size:9pt;")
+        v.addWidget(preview_lbl)
+        self._preview = QTextEdit()
+        self._preview.setReadOnly(True)
+        self._preview.setFixedHeight(90)
+        self._preview.setPlaceholderText("選取職能基準後顯示工作說明預覽...")
+        v.addWidget(self._preview)
+
+        # 按鈕列
+        btn_row = QHBoxLayout()
+        btn_cancel = QPushButton("取消")
+        btn_cancel.setFixedHeight(34)
+        btn_cancel.clicked.connect(self.reject)
+        self._btn_load = QPushButton("載入此職能基準 →")
+        self._btn_load.setObjectName("primary")
+        self._btn_load.setFixedHeight(34)
+        self._btn_load.setEnabled(False)
+        self._btn_load.clicked.connect(self._on_confirm)
+        btn_row.addWidget(btn_cancel)
+        btn_row.addStretch()
+        btn_row.addWidget(self._btn_load)
+        v.addLayout(btn_row)
+
+    def _populate_list(self):
+        self._list.clear()
+        standards = getattr(self.rag, "_standards", {})
+        items = sorted(
+            standards.items(),
+            key=lambda kv: kv[1].get("metadata", {}).get("name", "")
+        )
+        for code, data in items:
+            name = data.get("metadata", {}).get("name", "") or code
+            level = data.get("basic_info", {}).get("level", "")
+            level_str = f"  Lv.{level}" if level else ""
+            item = QListWidgetItem(f"{name}{level_str}  （{code}）")
+            item.setData(Qt.ItemDataRole.UserRole, code)
+            self._list.addItem(item)
+
+    def _on_search(self, text: str):
+        kw = text.strip().lower()
+        for i in range(self._list.count()):
+            item = self._list.item(i)
+            item.setHidden(bool(kw) and kw not in item.text().lower())
+
+    def _on_selection_changed(self, current, _previous):
+        if current is None:
+            self._preview.clear()
+            self._btn_load.setEnabled(False)
+            return
+        code = current.data(Qt.ItemDataRole.UserRole)
+        data = self.rag.get_standard(code)
+        if data:
+            desc = data.get("basic_info", {}).get("job_description", "（無說明）")
+            self._preview.setPlainText(desc[:400])
+        self._btn_load.setEnabled(True)
+
+    def _on_confirm(self):
+        item = self._list.currentItem()
+        if not item:
+            return
+        code = item.data(Qt.ItemDataRole.UserRole)
+        self.selected_data = self.rag.get_standard(code)
+        self.accept()
+
+
+# ─────────────────────────────────────────
 # 資料管理對話框
 # ─────────────────────────────────────────
 
@@ -681,6 +786,43 @@ class WizardMainWindow(QMainWindow):
         v.setContentsMargins(28, 20, 28, 20)
         v.setSpacing(14)
 
+        # ── 快速載入提示區塊 ─────────────────────
+        hint_bar = QFrame()
+        hint_bar.setStyleSheet(
+            "QFrame { background:#eaf4fb; border:1px solid #aed6f1; border-radius:6px; }"
+        )
+        hint_h = QHBoxLayout(hint_bar)
+        hint_h.setContentsMargins(12, 8, 12, 8)
+        hint_h.setSpacing(12)
+        hint_icon = QLabel("💡")
+        hint_icon.setStyleSheet("font-size:16pt; background:transparent; border:none;")
+        hint_h.addWidget(hint_icon)
+        hint_text = QLabel(
+            "<b>從職能基準快速填寫</b><br>"
+            "<span style='color:#555; font-size:9pt;'>"
+            "選擇 ICAP 職能基準作為起始範本，系統自動預填工作任務、技能、產出等欄位，"
+            "您只需微調個人情境即可完成 80–90% 的填寫。"
+            "</span>"
+        )
+        hint_text.setTextFormat(Qt.TextFormat.RichText)
+        hint_text.setWordWrap(True)
+        hint_text.setStyleSheet("background:transparent; border:none;")
+        hint_h.addWidget(hint_text, 1)
+        self._btn_load_template = QPushButton("選擇範本 →")
+        self._btn_load_template.setFixedHeight(32)
+        self._btn_load_template.setFixedWidth(110)
+        self._btn_load_template.setStyleSheet(
+            "QPushButton { background:#3498db; color:white; border:none; "
+            "border-radius:4px; font-weight:bold; font-size:9pt; padding:0 8px; }"
+            "QPushButton:hover { background:#2980b9; }"
+            "QPushButton:pressed { background:#2471a3; }"
+            "QPushButton:disabled { background:#aaa; }"
+        )
+        self._btn_load_template.setEnabled(False)   # 初始化完成前禁用
+        self._btn_load_template.clicked.connect(self._on_load_from_standard)
+        hint_h.addWidget(self._btn_load_template)
+        v.addWidget(hint_bar)
+
         def section(title):
             gb = QGroupBox(title)
             return gb
@@ -990,6 +1132,7 @@ class WizardMainWindow(QMainWindow):
             self.analyzer = GapAnalyzer(self.rag)
             mode = "共用索引" if self.rag.using_shared_engine else "獨立索引"
             self._status_label.setText(f"已就緒（{self.rag.chunk_count} chunks，{mode}）")
+            self._btn_load_template.setEnabled(True)
             self.stack.setCurrentIndex(1)
         else:
             self._loading_label.setText(f"初始化失敗：{error_msg}")
@@ -1003,6 +1146,59 @@ class WizardMainWindow(QMainWindow):
         dlg = DataManagerDialog(self.rag, self)
         dlg.rebuild_requested.connect(self._on_force_rebuild)
         dlg.exec()
+
+    def _on_load_from_standard(self):
+        dlg = StandardSelectorDialog(self.rag, self)
+        if dlg.exec() == QDialog.DialogCode.Accepted and dlg.selected_data:
+            self._fill_form_from_standard(dlg.selected_data)
+
+    def _fill_form_from_standard(self, data: dict):
+        """將職能基準 JSON 資料對應預填到 5W2H 表單欄位。"""
+        meta = data.get("metadata", {})
+        bi   = data.get("basic_info", {})
+        tasks    = data.get("competency_tasks", [])
+        skills   = data.get("competency_skills", [])
+
+        # What — 工作任務（列出所有 task_id + task_name）
+        task_lines = [
+            f"【{t.get('task_id', '')}】{t.get('task_name', '')}"
+            for t in tasks if t.get("task_name")
+        ]
+        self._what_tasks.setPlainText("\n".join(task_lines))
+
+        # What — 工作產出（前 3 筆任務產出）
+        outputs = [t.get("output", "") for t in tasks if t.get("output")]
+        self._what_outputs.setText("、".join(outputs[:3]))
+
+        # Why — 工作目的（job_description 前 120 字）
+        desc = bi.get("job_description", "")
+        self._why_purpose.setText(desc[:120])
+
+        # Who — 自身角色（職能基準名稱）
+        self._who_role.setText(meta.get("name", ""))
+
+        # Who — 協作對象（occupation，取第一行）
+        occupation = bi.get("occupation", "")
+        if occupation:
+            self._who_collaborate.setText(occupation.split("\n")[0][:50])
+
+        # Where — 工作環境（第一個行業別）
+        industry = bi.get("industry", [])
+        if isinstance(industry, list) and industry:
+            self._where_env.setText(industry[0])
+        elif isinstance(industry, str):
+            self._where_env.setText(industry)
+
+        # How — 技能/工具（所有技能名稱）
+        skill_names = [s.get("name", "") for s in skills if s.get("name")]
+        self._how_skills.setPlainText("、".join(skill_names))
+
+        # How Much — 績效指標（第一項行為指標）
+        for t in tasks:
+            behaviors = t.get("behaviors", [])
+            if behaviors:
+                self._how_much.setText(behaviors[0][:100])
+                break
 
     # ─── 表單操作 ─────────────────────────────
 
