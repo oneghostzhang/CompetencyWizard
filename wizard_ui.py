@@ -1030,13 +1030,45 @@ class WizardMainWindow(QMainWindow):
             how_much_kpi=self._how_much.text().strip(),
         )
 
+    def _validate_input(self, ui: "UserInput5W2H") -> bool:
+        """驗證 5W2H 輸入；回傳 True 表示可繼續分析。"""
+        missing_required = []
+        missing_suggested = []
+
+        if not ui.what_tasks:
+            missing_required.append("• 工作任務（What）")
+        if not ui.why_purpose:
+            missing_suggested.append("• 工作目的（Why）")
+        if not ui.who_role:
+            missing_suggested.append("• 自身角色（Who）")
+        if not ui.how_skills:
+            missing_suggested.append("• 技能 / 工具（How）")
+
+        if missing_required:
+            msg = "以下必填欄位尚未填寫，請補充後再分析：\n\n" + "\n".join(missing_required)
+            if missing_suggested:
+                msg += "\n\n以下欄位也建議補充以提高分析準確度：\n" + "\n".join(missing_suggested)
+            QMessageBox.warning(self, "欄位未填寫", msg)
+            return False
+
+        if missing_suggested:
+            msg = "以下欄位尚未填寫，補充後分析結果會更準確：\n\n" + "\n".join(missing_suggested)
+            msg += "\n\n是否仍要繼續分析？"
+            reply = QMessageBox.question(
+                self, "欄位未填寫", msg,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            return reply == QMessageBox.StandardButton.Yes
+
+        return True
+
     def _on_analyze(self):
         if not self.analyzer:
             QMessageBox.warning(self, "未就緒", "RAG 尚未初始化，請稍候")
             return
         ui = self._collect_input()
-        if not ui.to_search_query().strip():
-            QMessageBox.warning(self, "輸入不足", "請至少填寫工作任務或技能欄位")
+        if not self._validate_input(ui):
             return
         self._status_label.setText("分析中...")
         self._btn_analyze.setEnabled(False)
@@ -1215,8 +1247,7 @@ class WizardMainWindow(QMainWindow):
             QMessageBox.warning(self, "未就緒", "RAG 尚未初始化，請稍候")
             return
         ui = self._collect_result_input()
-        if not ui.to_search_query().strip():
-            QMessageBox.warning(self, "輸入不足", "請至少填寫工作任務或技能欄位")
+        if not self._validate_input(ui):
             return
         self._status_label.setText("重新分析中...")
         self._btn_reanalyze.setEnabled(False)
