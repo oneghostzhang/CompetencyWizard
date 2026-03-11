@@ -230,9 +230,10 @@ python main.py
 
 ---
 
-## 🔗 與 Graph_RAG_test 整合
+## 🔗 與 Graph_RAG_test 整合（選用）
 
-若系統已有運行中的 [Graph_RAG_test](https://github.com/oneghostzhang/RAG_test) `GraphRAGQueryEngine` 實例，可直接傳入共用，**避免重複載入 Embedding 模型（節省 30–60 秒）**：
+CompetencyWizard **可完全獨立運行**，不依賴 Graph_RAG_test。
+此整合為**效能優化選項**：若同一台電腦上 [Graph_RAG_test](https://github.com/oneghostzhang/RAG_test) 已在運行，可傳入其 `GraphRAGQueryEngine` 共用已載入的 Embedding 模型，**省去重複載入時間（30–60 秒）**：
 
 ```python
 from wizard_ui import WizardMainWindow, APP_STYLE
