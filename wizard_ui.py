@@ -662,6 +662,226 @@ class DataManagerDialog(QDialog):
 
 
 # ─────────────────────────────────────────
+# 職能基準逐項確認精靈
+# ─────────────────────────────────────────
+
+class StandardAdoptionWizard(QDialog):
+    """
+    分析完成後開啟，讓員工逐項確認工作任務、知識、技能，
+    系統依確認結果重新計算缺口與完整度。
+    """
+
+    def __init__(self, report: GapReport, parent=None):
+        super().__init__(parent)
+        self.report   = report
+        self.std_data = report.best_standard_data or {}
+        self._task_checks:  list = []
+        self._know_checks:  list = []
+        self._skill_checks: list = []
+        self.confirmed_tasks:     list = []
+        self.confirmed_knowledge: list = []
+        self.confirmed_skills:    list = []
+        self.setWindowTitle(f"職能基準確認 — {report.best_standard_name}")
+        self.setMinimumSize(780, 600)
+        self._build_ui()
+
+    # ── UI 建構 ──────────────────────────────────
+
+    def _build_ui(self):
+        v = QVBoxLayout(self)
+        v.setSpacing(8)
+        v.setContentsMargins(14, 12, 14, 12)
+
+        # 頂部資訊列
+        info = QFrame()
+        info.setStyleSheet(
+            "QFrame { background:#e8f4fd; border:1px solid #bee3f8; border-radius:6px; }"
+        )
+        ih = QHBoxLayout(info)
+        ih.setContentsMargins(12, 8, 12, 8)
+        lbl_std = QLabel(
+            f"<b>最佳匹配職能基準：</b>{self.report.best_standard_name}"
+            f"&nbsp;&nbsp;（{self.report.best_standard_code}）"
+        )
+        lbl_std.setStyleSheet("background:transparent; border:none; color:#1a202c;")
+        lbl_score = QLabel(
+            f"原始比對完整度：<b style='color:#e67e22'>"
+            f"{self.report.completeness_score:.1f}%</b>"
+        )
+        lbl_score.setStyleSheet("background:transparent; border:none; color:#555;")
+        ih.addWidget(lbl_std, 1)
+        ih.addWidget(lbl_score)
+        v.addWidget(info)
+
+        # 職務說明
+        bi  = self.std_data.get("basic_info", {})
+        jd  = bi.get("job_description", "")
+        if jd:
+            lbl_jd = QLabel(jd[:220] + ("…" if len(jd) > 220 else ""))
+            lbl_jd.setWordWrap(True)
+            lbl_jd.setStyleSheet(
+                "color:#4a5568; font-size:9pt; background:transparent; padding:2px 4px;"
+            )
+            v.addWidget(lbl_jd)
+
+        # 三個分頁
+        self._tabs = QTabWidget()
+        self._tabs.addTab(self._build_task_tab(),          "📋 工作任務")
+        self._tabs.addTab(self._build_item_tab("knowledge"), "📖 知識")
+        self._tabs.addTab(self._build_item_tab("skills"),    "🔧 技能")
+        v.addWidget(self._tabs, 1)
+
+        # 說明文字
+        lbl_hint = QLabel(
+            "💡 綠色項目為系統自動偵測到您已具備的內容，請仔細核對所有項目，"
+            "勾選您實際執行或具備的項目，完成後按「確認採用 ✓」。"
+        )
+        lbl_hint.setWordWrap(True)
+        lbl_hint.setStyleSheet(
+            "color:#555; font-size:9pt; background:transparent; padding:4px 2px;"
+        )
+        v.addWidget(lbl_hint)
+
+        # 按鈕列
+        btn_row = QHBoxLayout()
+        btn_all  = QPushButton("全選目前頁")
+        btn_none = QPushButton("全不選目前頁")
+        btn_all.clicked.connect(self._select_all)
+        btn_none.clicked.connect(self._select_none)
+        btn_skip = QPushButton("略過")
+        btn_skip.clicked.connect(self.reject)
+        btn_confirm = QPushButton("確認採用 ✓")
+        btn_confirm.setObjectName("primary")
+        btn_confirm.setFixedHeight(34)
+        btn_confirm.clicked.connect(self._on_confirm)
+        btn_row.addWidget(btn_all)
+        btn_row.addWidget(btn_none)
+        btn_row.addStretch()
+        btn_row.addWidget(btn_skip)
+        btn_row.addWidget(btn_confirm)
+        v.addLayout(btn_row)
+
+    def _make_scroll_widget(self) -> tuple:
+        """建立帶 ScrollArea 的容器，回傳 (container, inner_vlay)"""
+        container = QWidget()
+        scroll    = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        inner = QWidget()
+        vlay  = QVBoxLayout(inner)
+        vlay.setContentsMargins(8, 8, 8, 8)
+        vlay.setSpacing(4)
+        scroll.setWidget(inner)
+        outer = QVBoxLayout(container)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+        return container, vlay
+
+    def _build_task_tab(self) -> QWidget:
+        """工作任務 tab — 依 main_responsibility 分組"""
+        container, vlay = self._make_scroll_widget()
+        tasks         = self.std_data.get("competency_tasks", [])
+        covered_names = set(self.report.covered_tasks)
+        current_resp  = None
+
+        for task in tasks:
+            resp = task.get("main_responsibility", "")
+            if resp != current_resp:
+                current_resp = resp
+                grp = QLabel(f"▌ {resp}")
+                grp.setStyleSheet(
+                    "font-weight:bold; color:#2c3e50; font-size:9pt; "
+                    "background:#f0f4f8; border-radius:3px; padding:3px 6px;"
+                )
+                grp.setContentsMargins(0, 6, 0, 2)
+                vlay.addWidget(grp)
+
+            tid    = task.get("task_id", "")
+            name   = task.get("task_name", "")
+            output = task.get("output", "") or ""
+            label  = f"[{tid}]  {name}"
+            if output:
+                label += f"　→　{output[:50]}{'…' if len(output) > 50 else ''}"
+
+            cb = QCheckBox(label)
+            cb.setFont(QFont("Microsoft JhengHei", 9))
+            is_covered = name in covered_names
+            cb.setChecked(is_covered)
+            cb.setProperty("item_name", name)
+            cb.setStyleSheet(
+                "QCheckBox { color:#27ae60; background:transparent; }" if is_covered
+                else "QCheckBox { background:transparent; }"
+            )
+            self._task_checks.append(cb)
+            vlay.addWidget(cb)
+
+        vlay.addStretch()
+        return container
+
+    def _build_item_tab(self, item_type: str) -> QWidget:
+        """知識 / 技能 tab"""
+        container, vlay = self._make_scroll_widget()
+
+        if item_type == "knowledge":
+            items         = self.std_data.get("competency_knowledge", [])
+            covered_names = set(self.report.covered_knowledge)
+            target        = self._know_checks
+        else:
+            items         = self.std_data.get("competency_skills", [])
+            covered_names = set(self.report.covered_skills)
+            target        = self._skill_checks
+
+        for item in items:
+            code = item.get("code", "")
+            name = item.get("name", "")
+            if not name:
+                continue
+            cb = QCheckBox(f"[{code}]  {name}")
+            cb.setFont(QFont("Microsoft JhengHei", 9))
+            is_covered = name in covered_names
+            cb.setChecked(is_covered)
+            cb.setProperty("item_name", name)
+            cb.setStyleSheet(
+                "QCheckBox { color:#27ae60; background:transparent; }" if is_covered
+                else "QCheckBox { background:transparent; }"
+            )
+            target.append(cb)
+            vlay.addWidget(cb)
+
+        vlay.addStretch()
+        return container
+
+    # ── 全選 / 全不選 ─────────────────────────────
+
+    def _current_checks(self) -> list:
+        return [self._task_checks, self._know_checks, self._skill_checks][
+            self._tabs.currentIndex()
+        ]
+
+    def _select_all(self):
+        for cb in self._current_checks():
+            cb.setChecked(True)
+
+    def _select_none(self):
+        for cb in self._current_checks():
+            cb.setChecked(False)
+
+    # ── 確認採用 ──────────────────────────────────
+
+    def _on_confirm(self):
+        self.confirmed_tasks      = [
+            cb.property("item_name") for cb in self._task_checks  if cb.isChecked()
+        ]
+        self.confirmed_knowledge  = [
+            cb.property("item_name") for cb in self._know_checks  if cb.isChecked()
+        ]
+        self.confirmed_skills     = [
+            cb.property("item_name") for cb in self._skill_checks if cb.isChecked()
+        ]
+        self.accept()
+
+
+# ─────────────────────────────────────────
 # 主視窗
 # ─────────────────────────────────────────
 
@@ -955,6 +1175,11 @@ class WizardMainWindow(QMainWindow):
         self._result_status.setStyleSheet(
             "color:#2980b9; font-weight:bold; background:transparent; border:none;"
         )
+        self._btn_adoption = QPushButton("📋 重新確認職能")
+        self._btn_adoption.setFixedHeight(28)
+        self._btn_adoption.setEnabled(False)
+        self._btn_adoption.clicked.connect(self._open_adoption_wizard)
+
         self._btn_export = QPushButton("匯出 Excel")
         self._btn_export.setObjectName("success")
         self._btn_export.setFixedHeight(28)
@@ -962,6 +1187,7 @@ class WizardMainWindow(QMainWindow):
         self._btn_export.clicked.connect(self._on_export)
 
         sh.addWidget(self._result_status, 1)
+        sh.addWidget(self._btn_adoption)
         sh.addWidget(self._btn_export)
         v.addWidget(status_bar)
 
@@ -1287,6 +1513,9 @@ class WizardMainWindow(QMainWindow):
         self._status_label.setText("分析完成")
         self._populate_results(report)
         self.stack.setCurrentIndex(2)
+        # 自動開啟職能確認精靈
+        if report.best_standard_data:
+            self._open_adoption_wizard()
 
     def _on_analyze_error(self, msg: str):
         self._btn_analyze.setEnabled(True)
@@ -1294,11 +1523,97 @@ class WizardMainWindow(QMainWindow):
         self._status_label.setText("分析錯誤")
         QMessageBox.critical(self, "分析失敗", msg)
 
+    # ─── 職能確認精靈 ─────────────────────────────
+
+    def _open_adoption_wizard(self):
+        """開啟 StandardAdoptionWizard，確認後重建缺口報告"""
+        if not self.report or not self.report.best_standard_data:
+            QMessageBox.information(self, "無法開啟", "請先執行分析後再確認職能項目。")
+            return
+        dlg = StandardAdoptionWizard(self.report, self)
+        if dlg.exec() == QDialog.DialogCode.Accepted:
+            self._rebuild_from_confirmation(
+                dlg.confirmed_tasks,
+                dlg.confirmed_knowledge,
+                dlg.confirmed_skills,
+            )
+
+    def _rebuild_from_confirmation(
+        self,
+        confirmed_task_names: list,
+        confirmed_k_names: list,
+        confirmed_s_names: list,
+    ):
+        """依員工確認結果重建 covered/gap 清單與完整度"""
+        from gap_analyzer import GapItem
+
+        std_data      = self.report.best_standard_data or {}
+        all_tasks     = std_data.get("competency_tasks", [])
+        all_knowledge = std_data.get("competency_knowledge", [])
+        all_skills    = std_data.get("competency_skills", [])
+
+        confirmed_t = set(confirmed_task_names)
+        confirmed_k = set(confirmed_k_names)
+        confirmed_s = set(confirmed_s_names)
+
+        # 更新 covered
+        self.report.covered_tasks     = confirmed_task_names[:]
+        self.report.covered_knowledge = confirmed_k_names[:]
+        self.report.covered_skills    = confirmed_s_names[:]
+
+        # 重建 gap（標準中有但員工未勾選的項目）
+        self.report.gap_tasks = [
+            GapItem(
+                category="task",
+                code=t.get("task_id", ""),
+                name=t.get("task_name", ""),
+                description=t.get("output", "") or "",
+            )
+            for t in all_tasks if t.get("task_name", "") not in confirmed_t
+        ]
+        self.report.gap_knowledge = [
+            GapItem(
+                category="knowledge",
+                code=k.get("code", ""),
+                name=k.get("name", ""),
+                description=k.get("description", "") or "",
+            )
+            for k in all_knowledge if k.get("name", "") not in confirmed_k
+        ]
+        self.report.gap_skills = [
+            GapItem(
+                category="skill",
+                code=s.get("code", ""),
+                name=s.get("name", ""),
+                description=s.get("description", "") or "",
+            )
+            for s in all_skills if s.get("name", "") not in confirmed_s
+        ]
+
+        # 重算完整度
+        total = len(all_tasks) + len(all_knowledge) + len(all_skills)
+        confirmed_count = (
+            len(confirmed_task_names) + len(confirmed_k_names) + len(confirmed_s_names)
+        )
+        self.report.completeness_score = (
+            round(confirmed_count / total * 100, 1) if total > 0 else 0.0
+        )
+
+        # 刷新結果頁顯示
+        score = self.report.completeness_score
+        self._result_status.setText(
+            f"最佳匹配：{self.report.best_standard_name}"
+            f"  ｜  完整度：{score}%（員工確認）"
+        )
+        if self.analyzer:
+            self._tab_gap.setPlainText(self.analyzer.get_summary_text(self.report))
+
     # ─── 結果顯示 ─────────────────────────────
 
     def _populate_results(self, report: GapReport):
         self._confirm_check.setChecked(False)
         self._btn_export.setEnabled(False)
+        self._btn_adoption.setEnabled(bool(report.best_standard_data))
 
         ui = report.user_input
         self._r_who_role.setText(ui.who_role)
