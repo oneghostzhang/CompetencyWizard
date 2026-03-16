@@ -699,22 +699,19 @@ class StandardAdoptionWizard(QDialog):
         )
         ih = QHBoxLayout(info)
         ih.setContentsMargins(12, 8, 12, 8)
+        bi  = self.std_data.get("basic_info", {})
         lbl_std = QLabel(
             f"<b>最佳匹配職能基準：</b>{self.report.best_standard_name}"
             f"&nbsp;&nbsp;（{self.report.best_standard_code}）"
         )
         lbl_std.setStyleSheet("background:transparent; border:none; color:#1a202c;")
-        lbl_score = QLabel(
-            f"原始比對完整度：<b style='color:#e67e22'>"
-            f"{self.report.completeness_score:.1f}%</b>"
-        )
+        lbl_score = QLabel(f"基準級別：<b>Level {bi.get('level', '—')}</b>")
         lbl_score.setStyleSheet("background:transparent; border:none; color:#555;")
         ih.addWidget(lbl_std, 1)
         ih.addWidget(lbl_score)
         v.addWidget(info)
 
         # 職務說明
-        bi  = self.std_data.get("basic_info", {})
         jd  = bi.get("job_description", "")
         if jd:
             lbl_jd = QLabel(jd[:220] + ("…" if len(jd) > 220 else ""))
@@ -1634,9 +1631,9 @@ class WizardMainWindow(QMainWindow):
             )
         self._match_combo.blockSignals(False)
 
-        score = report.completeness_score
         self._result_status.setText(
-            f"最佳匹配：{report.best_standard_name}  ｜  完整度：{score}%"
+            f"找到最相似職能基準：{report.best_standard_name}"
+            f"  ｜  請確認符合您工作的項目 👇"
         )
 
         if self.analyzer:
