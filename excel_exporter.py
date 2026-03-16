@@ -64,6 +64,7 @@ def export_to_excel(
     wb.remove(wb.active)  # 移除預設空白頁
 
     _sheet_summary(wb, report, role_name)
+    _sheet_confirmed(wb, report, role_name)
     _sheet_tasks(wb, report)
     _sheet_knowledge_skills(wb, report)
     _sheet_gap(wb, report)
@@ -95,7 +96,7 @@ def _sheet_summary(wb, report: GapReport, role_name: str):
     ws["A3"] = "匹配職能基準"
     ws["B3"] = f"{report.best_standard_name}（{report.best_standard_code}）"
 
-    ws["A4"] = "完整度分數"
+    ws["A4"] = "員工確認完整度"
     ws["B4"] = f"{report.completeness_score}%"
     _style(ws["B4"], bg=COLOR_SCORE_BG, bold=True)
 
@@ -122,7 +123,101 @@ def _sheet_summary(wb, report: GapReport, role_name: str):
 
 
 # ─────────────────────────────────────────
-# Sheet 2: 工作任務對照
+# Sheet 2: 我的職能確認（員工已確認具備的項目）
+# ─────────────────────────────────────────
+
+def _sheet_confirmed(wb, report: GapReport, role_name: str):
+    ws = wb.create_sheet("我的職能確認")
+    ws.column_dimensions["A"].width = 10
+    ws.column_dimensions["B"].width = 14
+    ws.column_dimensions["C"].width = 44
+
+    # 標題
+    ws.merge_cells("A1:C1")
+    _write(ws, "A1", f"我的職能確認 — {role_name}",
+           bold=True, size=13, bg=COLOR_HEADER_BG,
+           font_color=COLOR_HEADER_FONT, align="center")
+
+    std = report.best_standard_data or {}
+    task_id_map = {t.get("task_name", ""): t.get("task_id", "")
+                   for t in std.get("competency_tasks", [])}
+    k_code_map  = {k.get("name", ""): k.get("code", "")
+                   for k in std.get("competency_knowledge", [])}
+    s_code_map  = {s.get("name", ""): s.get("code", "")
+                   for s in std.get("competency_skills", [])}
+
+    row = 3
+
+    # ── 工作任務 ─────────────────────────────
+    ws.merge_cells(f"A{row}:C{row}")
+    _write(ws, f"A{row}", "📋 工作任務", bold=True, bg=COLOR_SUB_BG)
+    row += 1
+
+    if report.covered_tasks:
+        _header_row(ws, row, ["任務代碼", "任務名稱", "說明"])
+        row += 1
+        for name in report.covered_tasks:
+            tid  = task_id_map.get(name, "")
+            # 取得對應任務的 output 說明
+            output = next((t.get("output", "") for t in std.get("competency_tasks", [])
+                           if t.get("task_name") == name), "")
+            ws[f"A{row}"] = tid
+            ws[f"B{row}"] = name
+            ws[f"C{row}"] = output if isinstance(output, str) else ""
+            for col in ["A", "B", "C"]:
+                _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
+            row += 1
+    else:
+        ws[f"A{row}"] = "（尚未確認任何工作任務）"
+        row += 1
+
+    row += 1
+
+    # ── 具備知識 ─────────────────────────────
+    ws.merge_cells(f"A{row}:C{row}")
+    _write(ws, f"A{row}", "📖 具備知識", bold=True, bg=COLOR_SUB_BG)
+    row += 1
+
+    if report.covered_knowledge:
+        _header_row(ws, row, ["類別", "代碼", "知識名稱"])
+        row += 1
+        for name in report.covered_knowledge:
+            ws[f"A{row}"] = "知識"
+            ws[f"B{row}"] = k_code_map.get(name, "")
+            ws[f"C{row}"] = name
+            for col in ["A", "B", "C"]:
+                _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
+            row += 1
+    else:
+        ws[f"A{row}"] = "（尚未確認任何知識項目）"
+        row += 1
+
+    row += 1
+
+    # ── 具備技能 ─────────────────────────────
+    ws.merge_cells(f"A{row}:C{row}")
+    _write(ws, f"A{row}", "🔧 具備技能", bold=True, bg=COLOR_SUB_BG)
+    row += 1
+
+    if report.covered_skills:
+        _header_row(ws, row, ["類別", "代碼", "技能名稱"])
+        row += 1
+        for name in report.covered_skills:
+            ws[f"A{row}"] = "技能"
+            ws[f"B{row}"] = s_code_map.get(name, "")
+            ws[f"C{row}"] = name
+            for col in ["A", "B", "C"]:
+                _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
+            row += 1
+    else:
+        ws[f"A{row}"] = "（尚未確認任何技能項目）"
+        row += 1
+
+    _auto_wrap(ws, "C", 3, row)
+
+
+# ─────────────────────────────────────────
+# Sheet 3: 工作任務對照
 # ─────────────────────────────────────────
 
 def _sheet_tasks(wb, report: GapReport):
@@ -133,19 +228,28 @@ def _sheet_tasks(wb, report: GapReport):
 
     _header_row(ws, 1, ["任務代碼", "工作任務名稱", "狀態"])
 
+    # 建立 task_name → task_id 的查找表
+    std = report.best_standard_data or {}
+    task_id_map = {
+        t.get("task_name", ""): t.get("task_id", "")
+        for t in std.get("competency_tasks", [])
+    }
+
     row = 2
     for name in report.covered_tasks:
-        ws[f"A{row}"] = ""
+        ws[f"A{row}"] = task_id_map.get(name, "")
         ws[f"B{row}"] = name
         ws[f"C{row}"] = "✓ 已涵蓋"
-        _style(ws[f"C{row}"], bg=COLOR_COVERED_BG)
+        for col in ["A", "B", "C"]:
+            _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
         row += 1
 
     for g in report.gap_tasks:
         ws[f"A{row}"] = g.code
         ws[f"B{row}"] = g.name
         ws[f"C{row}"] = "△ 缺口"
-        bg = COLOR_GAP_HIGH if g.severity == "high" else COLOR_GAP_MED
+        bg = COLOR_GAP_HIGH if g.severity == "high" else (
+             COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
         for col in ["A", "B", "C"]:
             _style(ws[f"{col}{row}"], bg=bg)
         row += 1
@@ -166,12 +270,19 @@ def _sheet_knowledge_skills(wb, report: GapReport):
 
     _header_row(ws, 1, ["類別", "代碼", "名稱", "狀態"])
 
+    # 建立 name → code 查找表
+    std = report.best_standard_data or {}
+    k_code_map = {k.get("name", ""): k.get("code", "") for k in std.get("competency_knowledge", [])}
+    s_code_map = {s.get("name", ""): s.get("code", "") for s in std.get("competency_skills", [])}
+
     row = 2
     for name in report.covered_knowledge:
         ws[f"A{row}"] = "知識"
+        ws[f"B{row}"] = k_code_map.get(name, "")
         ws[f"C{row}"] = name
         ws[f"D{row}"] = "✓ 已涵蓋"
-        _style(ws[f"D{row}"], bg=COLOR_COVERED_BG)
+        for col in ["A", "B", "C", "D"]:
+            _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
         row += 1
 
     for g in report.gap_knowledge:
@@ -179,15 +290,19 @@ def _sheet_knowledge_skills(wb, report: GapReport):
         ws[f"B{row}"] = g.code
         ws[f"C{row}"] = g.name
         ws[f"D{row}"] = "△ 缺口"
+        bg = COLOR_GAP_HIGH if g.severity == "high" else (
+             COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
         for col in ["A", "B", "C", "D"]:
-            _style(ws[f"{col}{row}"], bg=COLOR_GAP_MED)
+            _style(ws[f"{col}{row}"], bg=bg)
         row += 1
 
     for name in report.covered_skills:
         ws[f"A{row}"] = "技能"
+        ws[f"B{row}"] = s_code_map.get(name, "")
         ws[f"C{row}"] = name
         ws[f"D{row}"] = "✓ 已涵蓋"
-        _style(ws[f"D{row}"], bg=COLOR_COVERED_BG)
+        for col in ["A", "B", "C", "D"]:
+            _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
         row += 1
 
     for g in report.gap_skills:
@@ -195,8 +310,10 @@ def _sheet_knowledge_skills(wb, report: GapReport):
         ws[f"B{row}"] = g.code
         ws[f"C{row}"] = g.name
         ws[f"D{row}"] = "△ 缺口"
+        bg = COLOR_GAP_HIGH if g.severity == "high" else (
+             COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
         for col in ["A", "B", "C", "D"]:
-            _style(ws[f"{col}{row}"], bg=COLOR_GAP_MED)
+            _style(ws[f"{col}{row}"], bg=bg)
         row += 1
 
     _auto_wrap(ws, "C", 2, row)
@@ -274,22 +391,23 @@ def _sheet_full_standard(wb, report: GapReport):
             _style(ws[f"A{row}"], bold=True)
         row += 1
 
-    add_row("職能基準代碼", basic.get("code", report.best_standard_code))
-    add_row("職能基準名稱", basic.get("name", report.best_standard_name))
+    meta = std.get("metadata", {})
+    add_row("職能基準代碼", meta.get("code", "") or basic.get("code", report.best_standard_code))
+    add_row("職能基準名稱", meta.get("name", "") or basic.get("name", report.best_standard_name))
     add_row("職能類別", basic.get("category", ""))
     add_row("職能級別", basic.get("level", ""))
-    add_row("工作描述", basic.get("description", ""))
+    add_row("工作描述", basic.get("job_description", ""))
     row += 1
 
     # 知識
     add_row("── 知識項目 ──", "", sub=True)
-    for k in std.get("knowledge", []):
+    for k in std.get("competency_knowledge", []):
         add_row(k.get("code", ""), k.get("name", ""))
 
     row += 1
     # 技能
     add_row("── 技能項目 ──", "", sub=True)
-    for s in std.get("skills", []):
+    for s in std.get("competency_skills", []):
         add_row(s.get("code", ""), s.get("name", ""))
 
     row += 1

@@ -730,8 +730,8 @@ class StandardAdoptionWizard(QDialog):
 
         # 說明文字
         lbl_hint = QLabel(
-            "💡 綠色項目為系統自動偵測到您已具備的內容，請仔細核對所有項目，"
-            "勾選您實際執行或具備的項目，完成後按「確認採用 ✓」。"
+            "💡 系統已預先勾選所有項目（綠色為自動偵測確認）。"
+            "請取消勾選您實際上不執行或不具備的項目，完成後按「確認採用 ✓」。"
         )
         lbl_hint.setWordWrap(True)
         lbl_hint.setStyleSheet(
@@ -803,11 +803,11 @@ class StandardAdoptionWizard(QDialog):
             cb = QCheckBox(label)
             cb.setFont(QFont("Microsoft JhengHei", 9))
             is_covered = name in covered_names
-            cb.setChecked(is_covered)
+            cb.setChecked(True)   # 預設全選，讓員工取消不具備的項目
             cb.setProperty("item_name", name)
             cb.setStyleSheet(
                 "QCheckBox { color:#27ae60; background:transparent; }" if is_covered
-                else "QCheckBox { background:transparent; }"
+                else "QCheckBox { color:#2980b9; background:transparent; }"
             )
             self._task_checks.append(cb)
             vlay.addWidget(cb)
@@ -836,11 +836,11 @@ class StandardAdoptionWizard(QDialog):
             cb = QCheckBox(f"[{code}]  {name}")
             cb.setFont(QFont("Microsoft JhengHei", 9))
             is_covered = name in covered_names
-            cb.setChecked(is_covered)
+            cb.setChecked(True)   # 預設全選，讓員工取消不具備的項目
             cb.setProperty("item_name", name)
             cb.setStyleSheet(
                 "QCheckBox { color:#27ae60; background:transparent; }" if is_covered
-                else "QCheckBox { background:transparent; }"
+                else "QCheckBox { color:#2980b9; background:transparent; }"
             )
             target.append(cb)
             vlay.addWidget(cb)

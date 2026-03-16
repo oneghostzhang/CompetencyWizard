@@ -208,7 +208,7 @@ class GapAnalyzer:
                     code=code,
                     name=name,
                     description=desc,
-                    severity="medium",
+                    severity=self._knowledge_severity(name, desc),
                 ))
 
     def _analyze_skills(self, ui: UserInput5W2H, std: Dict, report: GapReport):
@@ -230,7 +230,7 @@ class GapAnalyzer:
                     code=code,
                     name=name,
                     description=desc,
-                    severity="medium",
+                    severity=self._skill_severity(name, desc),
                 ))
 
     def _analyze_behaviors(self, ui: UserInput5W2H, std: Dict, report: GapReport):
@@ -319,6 +319,44 @@ class GapAnalyzer:
         elif level >= 2:
             return "medium"
         return "low"
+
+    # 低嚴重度關鍵字：行政、衛生、法規類
+    _LOW_SEVERITY_KEYWORDS = [
+        "衛生", "清潔", "廢棄", "廚餘", "貯存", "盤點", "安全", "法規",
+        "規範", "環境", "垃圾", "消毒", "滅菌", "記錄", "表單", "行政",
+        "合規", "稽核", "申報", "SOP", "sop",
+    ]
+    # 高嚴重度關鍵字：核心生產/技術類
+    _HIGH_SEVERITY_KEYWORDS = [
+        "製作", "烘焙", "裝飾", "調配", "發酵", "成型", "擠花", "塗抹",
+        "餡料", "糕點", "麵糰", "麵包", "蛋糕", "餅乾", "慕斯", "淋面",
+        "翻糖", "巧克力", "烤溫", "配方", "原料", "食材", "品質", "感官",
+        "操作", "技術", "技能", "工藝", "製程",
+    ]
+
+    @classmethod
+    def _knowledge_severity(cls, name: str, desc: str = "") -> str:
+        """根據知識名稱/說明判定缺口嚴重度"""
+        text = (name + desc).lower()
+        for kw in cls._LOW_SEVERITY_KEYWORDS:
+            if kw.lower() in text:
+                return "low"
+        for kw in cls._HIGH_SEVERITY_KEYWORDS:
+            if kw.lower() in text:
+                return "high"
+        return "medium"
+
+    @classmethod
+    def _skill_severity(cls, name: str, desc: str = "") -> str:
+        """根據技能名稱/說明判定缺口嚴重度"""
+        text = (name + desc).lower()
+        for kw in cls._LOW_SEVERITY_KEYWORDS:
+            if kw.lower() in text:
+                return "low"
+        for kw in cls._HIGH_SEVERITY_KEYWORDS:
+            if kw.lower() in text:
+                return "high"
+        return "medium"
 
     def _calc_completeness(self, report: GapReport, std: Dict) -> float:
         """計算整體完整度（0-100）"""
