@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.3.0-orange)
+![Version](https://img.shields.io/badge/Version-v1.3.1-orange)
 
 > 以 RAG 技術為核心的職能說明書產生工具。透過 5W2H 結構化問卷引導員工描述工作內容，自動從台灣 ICAP 職能基準資料庫中找出最相似標準，再由員工逐項確認形成完整缺口報告，最終輸出格式化 Excel 職能說明書。
 
@@ -254,6 +254,7 @@ python main.py
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v1.3.1 | 2026-03-16 | 修正 Excel 已涵蓋項目代碼欄空白、完整職能基準 sheet 關鍵欄位空白；新增「我的職能確認」sheet；確認精靈改為 opt-out 全選模式；知識/技能缺口嚴重度關鍵字分級（核心=高, 衛生行政=低） |
 | v1.3.0 | 2026-03-16 | 新增 `StandardAdoptionWizard` 逐項確認精靈（任務／知識／技能三頁勾選，綠色預勾已偵測項目，確認後重算完整度）；執行頻率改為勾選框；修正職能基準快速填入格式 |
 | v1.2.0 | 2026-03-11 | 新增資料管理功能：DataManagerDialog（新增／刪除 PDF、PDF→JSON 解析、PDF 清單搜尋、重建向量索引） |
 | v1.1.0 | 2026-03-11 | 重構 UI 樣式架構（ID 選擇器集中管理）；修正 Qt 樣式傳遞導致按鈕不可見問題；優化整體配色 |
@@ -267,4 +268,4 @@ python main.py
 
 ---
 
-**版本**：v1.3.0　　**最後更新**：2026-03-16
+**版本**：v1.3.1　　**最後更新**：2026-03-16
