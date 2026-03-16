@@ -1298,19 +1298,71 @@ class WizardMainWindow(QMainWindow):
         hint_h.addWidget(self._btn_load_template)
         v.addWidget(hint_bar)
 
+        # ── 已加入任務清單面板 ──────────────────────
+        self._added_tasks: list = []          # 儲存已加入的任務字串清單
+
+        self._task_panel = QFrame()
+        self._task_panel.setObjectName("taskPanel")
+        self._task_panel.setStyleSheet(
+            "QFrame#taskPanel { background:#f0f4f8; border:1px solid #ced4da; "
+            "border-radius:6px; }"
+        )
+        tp_v = QVBoxLayout(self._task_panel)
+        tp_v.setContentsMargins(10, 8, 10, 8)
+        tp_v.setSpacing(4)
+
+        tp_title_row = QHBoxLayout()
+        tp_title = QLabel("已加入的任務清單")
+        tp_title.setStyleSheet("font-weight:bold; color:#2c3e50; background:transparent;")
+        self._task_count_lbl = QLabel("（尚未加入任何任務）")
+        self._task_count_lbl.setStyleSheet("color:#888; font-size:9pt; background:transparent;")
+        tp_title_row.addWidget(tp_title)
+        tp_title_row.addWidget(self._task_count_lbl)
+        tp_title_row.addStretch()
+        tp_v.addLayout(tp_title_row)
+
+        self._task_rows_widget = QWidget()
+        self._task_rows_widget.setStyleSheet("background:transparent;")
+        self._task_rows_layout = QVBoxLayout(self._task_rows_widget)
+        self._task_rows_layout.setContentsMargins(0, 2, 0, 2)
+        self._task_rows_layout.setSpacing(3)
+        tp_v.addWidget(self._task_rows_widget)
+
+        v.addWidget(self._task_panel)
+
         def section(title):
             gb = QGroupBox(title)
             return gb
 
         # What
-        gb_what = section("What — 做什麼")
+        gb_what = section("What — 做什麼（填寫一項任務後按「加入清單」）")
         f = QFormLayout(gb_what)
         f.setSpacing(10)
         f.setContentsMargins(10, 8, 10, 10)
-        self._task_list_widget = TaskListWidget()
+        self._what_tasks = QTextEdit()
+        self._what_tasks.setPlaceholderText(
+            "描述這項工作任務的具體內容\n（例：每月編製損益表、資產負債表，核對各科目餘額）"
+        )
+        self._what_tasks.setFixedHeight(72)
         self._what_outputs = QLineEdit()
         self._what_outputs.setPlaceholderText("工作產出/交付物（例：企劃書、月報、產品說明頁）")
-        f.addRow("工作任務：", self._task_list_widget)
+
+        # 加入清單按鈕
+        btn_add_task = QPushButton("加入清單 ＋")
+        btn_add_task.setFixedHeight(30)
+        btn_add_task.setStyleSheet(
+            "QPushButton { background:#27ae60; color:white; border:none; "
+            "border-radius:4px; font-weight:bold; padding:0 14px; }"
+            "QPushButton:hover { background:#219a52; }"
+            "QPushButton:pressed { background:#1a7a42; }"
+        )
+        btn_add_task.clicked.connect(self._add_current_task)
+        add_row = QHBoxLayout()
+        add_row.addStretch()
+        add_row.addWidget(btn_add_task)
+
+        f.addRow("任務描述：", self._what_tasks)
+        f.addRow("", add_row)
         f.addRow("工作產出：", self._what_outputs)
         v.addWidget(gb_what)
 
@@ -1645,9 +1697,11 @@ class WizardMainWindow(QMainWindow):
         tasks    = data.get("competency_tasks", [])
         skills   = data.get("competency_skills", [])
 
-        # What — 工作任務（逐項填入）
-        task_texts = [t.get("task_name", "") for t in tasks if t.get("task_name")]
-        self._task_list_widget.set_tasks(task_texts)
+        # What — 工作任務：將範本任務全部加入清單
+        self._added_tasks.clear()
+        self._added_tasks.extend(t.get("task_name", "") for t in tasks if t.get("task_name"))
+        self._what_tasks.clear()
+        self._refresh_task_panel()
 
         # What — 工作產出（前 3 筆任務產出）
         outputs = [t.get("output", "") for t in tasks if t.get("output")]
@@ -1682,8 +1736,75 @@ class WizardMainWindow(QMainWindow):
 
     # ─── 表單操作 ─────────────────────────────
 
+    # ─── 任務清單操作 ──────────────────────────
+
+    def _add_current_task(self):
+        """將目前 What 欄位內容加入任務清單，並清空 What 欄位"""
+        text = self._what_tasks.toPlainText().strip()
+        if not text:
+            QMessageBox.information(self, "請填寫任務", "請先填寫「任務描述」欄位再加入清單。")
+            return
+        self._added_tasks.append(text)
+        self._what_tasks.clear()
+        self._refresh_task_panel()
+
+    def _remove_task(self, index: int):
+        """從清單中刪除指定任務"""
+        if 0 <= index < len(self._added_tasks):
+            self._added_tasks.pop(index)
+            self._refresh_task_panel()
+
+    def _refresh_task_panel(self):
+        """重新繪製任務清單面板"""
+        # 清除舊列
+        while self._task_rows_layout.count():
+            item = self._task_rows_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if not self._added_tasks:
+            self._task_count_lbl.setText("（尚未加入任何任務）")
+            return
+
+        self._task_count_lbl.setText(f"共 {len(self._added_tasks)} 項")
+        for i, task_text in enumerate(self._added_tasks):
+            row_w = QFrame()
+            row_w.setStyleSheet(
+                "QFrame { background:#ffffff; border:1px solid #dee2e6; "
+                "border-radius:4px; }"
+            )
+            hl = QHBoxLayout(row_w)
+            hl.setContentsMargins(8, 4, 6, 4)
+            hl.setSpacing(6)
+
+            num = QLabel(f"{i+1}.")
+            num.setFixedWidth(20)
+            num.setStyleSheet("color:#888; font-weight:bold; background:transparent; border:none;")
+            lbl = QLabel(task_text[:80] + ("…" if len(task_text) > 80 else ""))
+            lbl.setWordWrap(False)
+            lbl.setStyleSheet("color:#2c3e50; background:transparent; border:none;")
+            lbl.setSizePolicy(lbl.sizePolicy().horizontalPolicy(),
+                              lbl.sizePolicy().verticalPolicy())
+
+            btn_del = QPushButton("✕")
+            btn_del.setFixedSize(22, 22)
+            btn_del.setStyleSheet(
+                "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
+                "border-radius:3px; font-weight:bold; background:#fff; font-size:8pt; }"
+                "QPushButton:hover { background:#fdecea; border:none; }"
+            )
+            idx = i
+            btn_del.clicked.connect(lambda _, x=idx: self._remove_task(x))
+
+            hl.addWidget(num)
+            hl.addWidget(lbl, 1)
+            hl.addWidget(btn_del)
+            self._task_rows_layout.addWidget(row_w)
+
     def _clear_form(self):
-        self._task_list_widget.clear()
+        self._added_tasks.clear()
+        self._refresh_task_panel()
+        self._what_tasks.clear()
         self._what_outputs.clear()
         self._why_purpose.clear()
         self._who_role.clear()
@@ -1695,10 +1816,16 @@ class WizardMainWindow(QMainWindow):
         self._how_much.clear()
 
     def _collect_input(self) -> UserInput5W2H:
-        task_list = self._task_list_widget.get_tasks()
+        # 若 What 欄有未加入的文字，自動加入清單
+        current = self._what_tasks.toPlainText().strip()
+        if current and current not in self._added_tasks:
+            self._added_tasks.append(current)
+            self._what_tasks.clear()
+            self._refresh_task_panel()
+        task_list = list(self._added_tasks)
         return UserInput5W2H(
             task_list=task_list,
-            what_tasks=" ".join(task_list),   # 向下相容（RAG query 用）
+            what_tasks=" ".join(task_list),
             what_outputs=self._what_outputs.text().strip(),
             why_purpose=self._why_purpose.text().strip(),
             who_role=self._who_role.text().strip(),
