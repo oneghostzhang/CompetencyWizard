@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget, QGroupBox, QFormLayout, QSplitter,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
-    QDialog,
+    QDialog, QRadioButton,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -659,6 +659,98 @@ class DataManagerDialog(QDialog):
         self._log.append("\n▶ 送出重建請求...")
         self.rebuild_requested.emit()
         self.close()
+
+
+# ─────────────────────────────────────────
+# 職能基準候選選擇對話框
+# ─────────────────────────────────────────
+
+class StandardPickerDialog(QDialog):
+    """分析完成後讓使用者從 Top-K 候選中確認或選擇正確的職能基準"""
+
+    def __init__(self, matched_standards: list, rag, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("請確認職能基準")
+        self.setMinimumWidth(580)
+        self.setModal(True)
+        self.selected_index = 0
+        self._rag = rag
+        self._standards = matched_standards
+        self._radio_btns = []
+        self._build_ui()
+
+    def _build_ui(self):
+        lv = QVBoxLayout(self)
+        lv.setSpacing(10)
+
+        lbl_hint = QLabel(
+            "系統找到以下最相似的職能基準，請確認或選擇最符合您職務的項目，\n"
+            "再進行逐項確認。若職稱或級別不對，請選擇其他候選。"
+        )
+        lbl_hint.setWordWrap(True)
+        lbl_hint.setStyleSheet("color:#555; padding:4px 0;")
+        lv.addWidget(lbl_hint)
+
+        for i, r in enumerate(self._standards):
+            std_data  = self._rag.get_standard(r["standard_code"]) or {}
+            basic     = std_data.get("basic_info") or {}
+            level     = basic.get("level", "—")
+            tasks     = std_data.get("competency_tasks") or []
+            task_cnt  = len(tasks)
+
+            frame = QFrame()
+            frame.setFrameShape(QFrame.Shape.StyledPanel)
+            frame.setStyleSheet(
+                "QFrame { border:1px solid #ced4da; border-radius:6px; "
+                "background:#ffffff; padding:6px; }"
+            )
+            hl = QHBoxLayout(frame)
+            hl.setSpacing(10)
+
+            rb = QRadioButton()
+            rb.setChecked(i == 0)
+            hl.addWidget(rb)
+            self._radio_btns.append(rb)
+
+            # 資訊文字
+            warn_html = ""
+            if task_cnt <= 2:
+                warn_html = (
+                    f"　<span style='color:#e67e22; font-weight:bold;'>"
+                    f"⚠️ 任務僅 {task_cnt} 項，可能為助理/初階職位</span>"
+                )
+            info = QLabel(
+                f"<b>{r['standard_name']}</b>（{r['standard_code']}）{warn_html}<br>"
+                f"<span style='color:#555;'>級別：Level {level}　"
+                f"工作任務：{task_cnt} 項　"
+                f"相似度：{r['score']:.3f}</span>"
+            )
+            info.setTextFormat(Qt.TextFormat.RichText)
+            info.setWordWrap(True)
+            hl.addWidget(info, 1)
+
+            # 點擊整個 frame 也能選中
+            frame.mousePressEvent = (lambda e, btn=rb: btn.setChecked(True))
+
+            lv.addWidget(frame)
+
+        lv.addSpacing(6)
+
+        bb = QHBoxLayout()
+        bb.addStretch()
+        btn_ok = QPushButton("使用此基準，開始確認 →")
+        btn_ok.setObjectName("primaryBtn")
+        btn_ok.setFixedHeight(32)
+        btn_ok.clicked.connect(self._on_confirm)
+        bb.addWidget(btn_ok)
+        lv.addLayout(bb)
+
+    def _on_confirm(self):
+        for i, rb in enumerate(self._radio_btns):
+            if rb.isChecked():
+                self.selected_index = i
+                break
+        self.accept()
 
 
 # ─────────────────────────────────────────
@@ -1510,9 +1602,29 @@ class WizardMainWindow(QMainWindow):
         self._status_label.setText("分析完成")
         self._populate_results(report)
         self.stack.setCurrentIndex(2)
-        # 自動開啟職能確認精靈
-        if report.best_standard_data:
-            self._open_adoption_wizard()
+        # 先讓使用者確認/選擇職能基準，再開啟精靈
+        if report.matched_standards:
+            self._open_standard_picker()
+
+    def _open_standard_picker(self):
+        """顯示 Top-K 候選基準讓使用者確認，再開啟逐項確認精靈"""
+        if not self.report or not self.report.matched_standards:
+            return
+        dlg = StandardPickerDialog(self.report.matched_standards, self.rag, self)
+        if dlg.exec() != QDialog.DialogCode.Accepted:
+            return
+        idx = dlg.selected_index
+        if idx != 0:
+            # 使用者選了非預設基準，更新 report 與 UI 下拉
+            chosen = self.report.matched_standards[idx]
+            self.report.best_standard_code = chosen["standard_code"]
+            self.report.best_standard_name = chosen["standard_name"]
+            self.report.best_standard_data = self.rag.get_standard(chosen["standard_code"])
+            self._match_combo.blockSignals(True)
+            self._match_combo.setCurrentIndex(idx)
+            self._match_combo.blockSignals(False)
+            self._on_match_selected(idx)
+        self._open_adoption_wizard()
 
     def _on_analyze_error(self, msg: str):
         self._btn_analyze.setEnabled(True)
@@ -1527,6 +1639,24 @@ class WizardMainWindow(QMainWindow):
         if not self.report or not self.report.best_standard_data:
             QMessageBox.information(self, "無法開啟", "請先執行分析後再確認職能項目。")
             return
+
+        # 任務數過少警告
+        std_data  = self.report.best_standard_data
+        task_cnt  = len(std_data.get("competency_tasks") or [])
+        std_name  = self.report.best_standard_name
+        if task_cnt <= 2:
+            reply = QMessageBox.warning(
+                self, "工作任務項目偏少",
+                f"職能基準「{std_name}」僅包含 {task_cnt} 個工作任務，\n"
+                "可能為助理或初階職位，與您實際工作內容可能不符。\n\n"
+                "建議關閉後，在上方下拉選單切換至其他候選基準。\n\n"
+                "是否仍要繼續確認此基準？",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.No:
+                return
+
         dlg = StandardAdoptionWizard(self.report, self)
         if dlg.exec() == QDialog.DialogCode.Accepted:
             self._rebuild_from_confirmation(
