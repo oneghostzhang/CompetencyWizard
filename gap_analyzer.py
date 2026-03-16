@@ -26,8 +26,9 @@ def _normalize_cjk(text: str) -> str:
 class UserInput5W2H:
     """使用者的 5W2H 輸入"""
     # What — 做什麼
-    what_tasks: str = ""          # 主要工作任務描述
-    what_outputs: str = ""        # 工作產出/交付物
+    what_tasks: str = ""              # 主要工作任務描述（向下相容用，task_list 優先）
+    task_list: List[str] = field(default_factory=list)  # 逐項工作任務清單
+    what_outputs: str = ""            # 工作產出/交付物
 
     # Why — 為何做
     why_purpose: str = ""         # 工作目的/意義
@@ -51,7 +52,10 @@ class UserInput5W2H:
     def to_search_query(self) -> str:
         """組合成 RAG 查詢字串"""
         parts = []
-        if self.what_tasks:
+        # task_list 優先；若有逐項清單，合併成查詢字串
+        if self.task_list:
+            parts.append(" ".join(self.task_list))
+        elif self.what_tasks:
             parts.append(self.what_tasks)
         if self.what_outputs:
             parts.append(self.what_outputs)
@@ -66,6 +70,7 @@ class UserInput5W2H:
     def to_dict(self) -> Dict:
         return {
             "what_tasks": self.what_tasks,
+            "task_list": self.task_list,
             "what_outputs": self.what_outputs,
             "why_purpose": self.why_purpose,
             "who_role": self.who_role,
@@ -75,6 +80,16 @@ class UserInput5W2H:
             "how_skills": self.how_skills,
             "how_much_kpi": self.how_much_kpi,
         }
+
+
+@dataclass
+class TaskMapping:
+    """員工自填任務與職能基準任務的對應結果"""
+    employee_task: str      # 員工填入的任務描述
+    std_task_name: str      # 對應的標準任務名稱（空字串 = 未對應）
+    std_task_code: str      # 對應的標準任務代碼
+    similarity: float       # 相似度分數（0-1）
+    is_matched: bool        # 是否達到相似度門檻
 
 
 @dataclass
@@ -95,6 +110,9 @@ class GapReport:
     best_standard_code: str = ""
     best_standard_name: str = ""
     best_standard_data: Optional[Dict] = None
+
+    # 員工任務 → 標準任務對應結果（逐項輸入模式才有值）
+    task_mappings: List[TaskMapping] = field(default_factory=list)
 
     # 使用者已涵蓋的項目
     covered_tasks: List[str] = field(default_factory=list)
@@ -156,7 +174,10 @@ class GapAnalyzer:
         report.best_standard_data = std_data
 
         # Step 3: 缺口比對
-        self._analyze_tasks(user_input, std_data, report)
+        if user_input.task_list:
+            self._analyze_tasks_from_list(user_input, std_data, report)
+        else:
+            self._analyze_tasks(user_input, std_data, report)
         self._analyze_knowledge(user_input, std_data, report)
         self._analyze_skills(user_input, std_data, report)
         self._analyze_behaviors(user_input, std_data, report)
@@ -187,6 +208,49 @@ class GapAnalyzer:
                     code=task_id,
                     name=task_name,
                     severity=self._task_severity(task),
+                ))
+
+    def _analyze_tasks_from_list(self, ui: UserInput5W2H, std: Dict, report: GapReport):
+        """Layer 2：將員工逐項填入的任務與標準任務做相似度對應"""
+        std_tasks  = std.get("competency_tasks") or []
+        task_names = [t.get("task_name", "") for t in std_tasks]
+        matched_std_indices: set = set()
+
+        for emp_task in ui.task_list:
+            if not emp_task.strip():
+                continue
+            idx, score = self.rag.match_to_tasks(emp_task, task_names)
+            if idx >= 0:
+                t = std_tasks[idx]
+                std_name = t.get("task_name", "")
+                std_code = t.get("task_id", "")
+                report.task_mappings.append(TaskMapping(
+                    employee_task=emp_task,
+                    std_task_name=std_name,
+                    std_task_code=std_code,
+                    similarity=score,
+                    is_matched=True,
+                ))
+                matched_std_indices.add(idx)
+                if std_name not in report.covered_tasks:
+                    report.covered_tasks.append(std_name)
+            else:
+                report.task_mappings.append(TaskMapping(
+                    employee_task=emp_task,
+                    std_task_name="",
+                    std_task_code="",
+                    similarity=score,
+                    is_matched=False,
+                ))
+
+        # 未被任何員工任務對應到的標準任務 → 缺口
+        for i, t in enumerate(std_tasks):
+            if i not in matched_std_indices:
+                report.gap_tasks.append(GapItem(
+                    category="task",
+                    code=t.get("task_id", ""),
+                    name=t.get("task_name", ""),
+                    severity=self._task_severity(t),
                 ))
 
     def _analyze_knowledge(self, ui: UserInput5W2H, std: Dict, report: GapReport):

@@ -341,6 +341,93 @@ class ParseThread(QThread):
 
 
 # ─────────────────────────────────────────
+# ─────────────────────────────────────────
+# 動態工作任務清單元件
+# ─────────────────────────────────────────
+
+class TaskListWidget(QWidget):
+    """可新增 / 刪除列的動態工作任務清單，每列一項任務。"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._rows: list = []   # list of QLineEdit
+
+        outer = QVBoxLayout(self)
+        outer.setSpacing(4)
+        outer.setContentsMargins(0, 0, 0, 0)
+
+        self._rows_widget = QWidget()
+        self._rows_layout = QVBoxLayout(self._rows_widget)
+        self._rows_layout.setSpacing(4)
+        self._rows_layout.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(self._rows_widget)
+
+        btn_add = QPushButton("＋ 新增任務")
+        btn_add.setFixedHeight(26)
+        btn_add.setStyleSheet(
+            "QPushButton { color:#3498db; border:1px solid #3498db; "
+            "border-radius:3px; padding:2px 10px; background:#fff; }"
+            "QPushButton:hover { background:#eaf4fb; }"
+        )
+        btn_add.clicked.connect(lambda: self.add_task(""))
+        outer.addWidget(btn_add, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        self.add_task("")   # 預設一列空白
+
+    # ── 公開 API ──────────────────────────────
+
+    def add_task(self, text: str = ""):
+        idx = len(self._rows) + 1
+        row_w = QWidget()
+        hl = QHBoxLayout(row_w)
+        hl.setContentsMargins(0, 0, 0, 0)
+        hl.setSpacing(4)
+
+        le = QLineEdit(text)
+        le.setPlaceholderText(f"任務 {idx}：請描述一項具體工作任務")
+        hl.addWidget(le, 1)
+
+        btn_del = QPushButton("✕")
+        btn_del.setFixedSize(26, 26)
+        btn_del.setStyleSheet(
+            "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
+            "border-radius:3px; font-weight:bold; background:#fff; }"
+            "QPushButton:hover { background:#fdecea; }"
+        )
+        btn_del.clicked.connect(lambda: self._remove_row(row_w, le))
+        hl.addWidget(btn_del)
+
+        self._rows_layout.addWidget(row_w)
+        self._rows.append(le)
+
+    def _remove_row(self, row_w: QWidget, le: QLineEdit):
+        if len(self._rows) <= 1:
+            le.clear()
+            return
+        self._rows.remove(le)
+        row_w.setParent(None)
+        row_w.deleteLater()
+
+    def get_tasks(self) -> list:
+        """回傳所有非空任務字串的清單。"""
+        return [le.text().strip() for le in self._rows if le.text().strip()]
+
+    def set_tasks(self, tasks: list):
+        """清除現有列並依清單重新填入。"""
+        for le in list(self._rows):
+            le.parent().setParent(None)
+            le.parent().deleteLater()
+        self._rows.clear()
+        for t in tasks:
+            self.add_task(t)
+        if not tasks:
+            self.add_task("")
+
+    def clear(self):
+        self.set_tasks([])
+
+
+# ─────────────────────────────────────────
 # 職能基準選擇對話框
 # ─────────────────────────────────────────
 
@@ -821,10 +908,18 @@ class StandardAdoptionWizard(QDialog):
         v.addWidget(self._tabs, 1)
 
         # 說明文字
-        lbl_hint = QLabel(
-            "💡 系統已預先勾選所有項目（綠色為自動偵測確認）。"
-            "請取消勾選您實際上不執行或不具備的項目，完成後按「確認採用 ✓」。"
-        )
+        if self.report.task_mappings:
+            hint_text = (
+                "💡 任務頁：綠色 = 您填入的任務已對應到標準任務（預設勾選）；"
+                "藍色 = 基準其他任務（請確認是否執行）；灰色 = 未對應。"
+                "知識 / 技能頁：請取消勾選您不具備的項目。"
+            )
+        else:
+            hint_text = (
+                "💡 系統已預先勾選所有項目（綠色為自動偵測確認）。"
+                "請取消勾選您實際上不執行或不具備的項目，完成後按「確認採用 ✓」。"
+            )
+        lbl_hint = QLabel(hint_text)
         lbl_hint.setWordWrap(True)
         lbl_hint.setStyleSheet(
             "color:#555; font-size:9pt; background:transparent; padding:4px 2px;"
@@ -867,12 +962,86 @@ class StandardAdoptionWizard(QDialog):
         return container, vlay
 
     def _build_task_tab(self) -> QWidget:
-        """工作任務 tab — 依 main_responsibility 分組"""
+        """工作任務 tab — 有 task_mappings 時顯示對應關係，否則依分組顯示"""
         container, vlay = self._make_scroll_widget()
         tasks         = self.std_data.get("competency_tasks", [])
+        mappings      = self.report.task_mappings
+
+        if mappings:
+            self._build_task_tab_mapped(vlay, tasks, mappings)
+        else:
+            self._build_task_tab_grouped(vlay, tasks)
+
+        vlay.addStretch()
+        return container
+
+    def _build_task_tab_mapped(self, vlay, tasks: list, mappings: list):
+        """逐項任務模式：顯示員工任務 → 對應標準任務"""
+        std_task_map = {t.get("task_name", ""): t for t in tasks}
+        matched_std  = {m.std_task_name for m in mappings if m.is_matched}
+
+        # ── Section 1: 員工填入的任務 ─────────────────
+        sec1 = QLabel("▌ 您填入的任務（系統已自動對應至職能基準）")
+        sec1.setStyleSheet(
+            "font-weight:bold; color:#155724; font-size:9pt; "
+            "background:#d4edda; border-radius:3px; padding:4px 8px;"
+        )
+        vlay.addWidget(sec1)
+
+        for m in mappings:
+            if m.is_matched:
+                t      = std_task_map.get(m.std_task_name, {})
+                tid    = t.get("task_id", "")
+                pct    = f"{m.similarity*100:.0f}%"
+                label  = (
+                    f"✓  {m.employee_task}\n"
+                    f"   　→　[{tid}] {m.std_task_name}　（相似度 {pct}）"
+                )
+                cb = QCheckBox(label)
+                cb.setChecked(True)
+                cb.setProperty("item_name", m.std_task_name)
+                cb.setStyleSheet(
+                    "QCheckBox { color:#155724; background:transparent; }"
+                    "QCheckBox::indicator { width:14px; height:14px; }"
+                )
+            else:
+                label = f"？  {m.employee_task}\n   　→　（未對應到職能基準任務）"
+                cb = QCheckBox(label)
+                cb.setChecked(False)
+                cb.setEnabled(False)
+                cb.setProperty("item_name", "")
+                cb.setStyleSheet(
+                    "QCheckBox { color:#888; background:transparent; font-style:italic; }"
+                )
+            cb.setFont(QFont("Microsoft JhengHei", 9))
+            self._task_checks.append(cb)
+            vlay.addWidget(cb)
+
+        # ── Section 2: 職能基準中其他未涵蓋任務 ──────
+        unmatched = [t for t in tasks if t.get("task_name", "") not in matched_std]
+        if unmatched:
+            vlay.addSpacing(10)
+            sec2 = QLabel("▌ 職能基準其他任務（請確認您是否也執行這些項目）")
+            sec2.setStyleSheet(
+                "font-weight:bold; color:#004085; font-size:9pt; "
+                "background:#cce5ff; border-radius:3px; padding:4px 8px;"
+            )
+            vlay.addWidget(sec2)
+            for t in unmatched:
+                tid   = t.get("task_id", "")
+                name  = t.get("task_name", "")
+                cb    = QCheckBox(f"[{tid}]  {name}")
+                cb.setFont(QFont("Microsoft JhengHei", 9))
+                cb.setChecked(True)   # opt-out 預設全勾
+                cb.setProperty("item_name", name)
+                cb.setStyleSheet("QCheckBox { color:#2980b9; background:transparent; }")
+                self._task_checks.append(cb)
+                vlay.addWidget(cb)
+
+    def _build_task_tab_grouped(self, vlay, tasks: list):
+        """原始模式：依 main_responsibility 分組顯示"""
         covered_names = set(self.report.covered_tasks)
         current_resp  = None
-
         for task in tasks:
             resp = task.get("main_responsibility", "")
             if resp != current_resp:
@@ -895,7 +1064,7 @@ class StandardAdoptionWizard(QDialog):
             cb = QCheckBox(label)
             cb.setFont(QFont("Microsoft JhengHei", 9))
             is_covered = name in covered_names
-            cb.setChecked(True)   # 預設全選，讓員工取消不具備的項目
+            cb.setChecked(True)
             cb.setProperty("item_name", name)
             cb.setStyleSheet(
                 "QCheckBox { color:#27ae60; background:transparent; }" if is_covered
@@ -903,9 +1072,6 @@ class StandardAdoptionWizard(QDialog):
             )
             self._task_checks.append(cb)
             vlay.addWidget(cb)
-
-        vlay.addStretch()
-        return container
 
     def _build_item_tab(self, item_type: str) -> QWidget:
         """知識 / 技能 tab"""
@@ -1141,12 +1307,10 @@ class WizardMainWindow(QMainWindow):
         f = QFormLayout(gb_what)
         f.setSpacing(10)
         f.setContentsMargins(10, 8, 10, 10)
-        self._what_tasks = QTextEdit()
-        self._what_tasks.setPlaceholderText("描述主要工作任務（例：撰寫行銷企劃案、管理社群媒體帳號）")
-        self._what_tasks.setFixedHeight(72)
+        self._task_list_widget = TaskListWidget()
         self._what_outputs = QLineEdit()
         self._what_outputs.setPlaceholderText("工作產出/交付物（例：企劃書、月報、產品說明頁）")
-        f.addRow("工作任務：", self._what_tasks)
+        f.addRow("工作任務：", self._task_list_widget)
         f.addRow("工作產出：", self._what_outputs)
         v.addWidget(gb_what)
 
@@ -1481,12 +1645,9 @@ class WizardMainWindow(QMainWindow):
         tasks    = data.get("competency_tasks", [])
         skills   = data.get("competency_skills", [])
 
-        # What — 工作任務（數字編號列表）
-        task_lines = [
-            f"{i+1}. {t.get('task_name', '')}"
-            for i, t in enumerate(tasks) if t.get("task_name")
-        ]
-        self._what_tasks.setPlainText("\n".join(task_lines))
+        # What — 工作任務（逐項填入）
+        task_texts = [t.get("task_name", "") for t in tasks if t.get("task_name")]
+        self._task_list_widget.set_tasks(task_texts)
 
         # What — 工作產出（前 3 筆任務產出）
         outputs = [t.get("output", "") for t in tasks if t.get("output")]
@@ -1522,7 +1683,7 @@ class WizardMainWindow(QMainWindow):
     # ─── 表單操作 ─────────────────────────────
 
     def _clear_form(self):
-        self._what_tasks.clear()
+        self._task_list_widget.clear()
         self._what_outputs.clear()
         self._why_purpose.clear()
         self._who_role.clear()
@@ -1534,8 +1695,10 @@ class WizardMainWindow(QMainWindow):
         self._how_much.clear()
 
     def _collect_input(self) -> UserInput5W2H:
+        task_list = self._task_list_widget.get_tasks()
         return UserInput5W2H(
-            what_tasks=self._what_tasks.toPlainText().strip(),
+            task_list=task_list,
+            what_tasks=" ".join(task_list),   # 向下相容（RAG query 用）
             what_outputs=self._what_outputs.text().strip(),
             why_purpose=self._why_purpose.text().strip(),
             who_role=self._who_role.text().strip(),
@@ -1553,7 +1716,7 @@ class WizardMainWindow(QMainWindow):
         missing_required = []
         missing_suggested = []
 
-        if not ui.what_tasks:
+        if not ui.task_list and not ui.what_tasks:
             missing_required.append("• 工作任務（What）")
         if not ui.why_purpose:
             missing_suggested.append("• 工作目的（Why）")
@@ -1744,7 +1907,9 @@ class WizardMainWindow(QMainWindow):
 
         ui = report.user_input
         self._r_who_role.setText(ui.who_role)
-        self._r_what_tasks.setPlainText(ui.what_tasks)
+        # 逐項任務清單顯示：用換行合併
+        display_tasks = "\n".join(f"• {t}" for t in ui.task_list) if ui.task_list else ui.what_tasks
+        self._r_what_tasks.setPlainText(display_tasks)
         self._r_what_outputs.setText(ui.what_outputs)
         self._r_why_purpose.setText(ui.why_purpose)
         self._r_how_skills.setPlainText(ui.how_skills)
@@ -1875,9 +2040,17 @@ class WizardMainWindow(QMainWindow):
         self._tab_task_detail.setPlainText("\n".join(lines))
 
     def _collect_result_input(self) -> UserInput5W2H:
+        raw_text = self._r_what_tasks.toPlainText().strip()
+        # 結果頁是純文字顯示（• 項目符號），重新拆成 task_list
+        task_list = [
+            line.lstrip("•● ").strip()
+            for line in raw_text.splitlines()
+            if line.strip() and line.strip() not in ("•", "●")
+        ]
         return UserInput5W2H(
             who_role=self._r_who_role.text().strip(),
-            what_tasks=self._r_what_tasks.toPlainText().strip(),
+            what_tasks=raw_text,
+            task_list=task_list,
             what_outputs=self._r_what_outputs.text().strip(),
             why_purpose=self._r_why_purpose.text().strip(),
             how_skills=self._r_how_skills.toPlainText().strip(),

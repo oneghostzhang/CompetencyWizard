@@ -292,6 +292,30 @@ class WizardRAG:
         """取得職能基準完整資料（含任務、知識、技能）。"""
         return self._standards.get(code)
 
+    def match_to_tasks(
+        self,
+        query: str,
+        task_names: List[str],
+        threshold: float = 0.55,
+    ) -> tuple:
+        """Layer 2：將一段員工任務描述與標準任務名稱清單做語意相似度比對。
+
+        回傳 (best_index, best_score)。
+        若最高分未達 threshold，best_index 為 -1。
+        """
+        if not task_names or not self.initialized or not self._model:
+            return -1, 0.0
+
+        texts = [query] + task_names
+        embs = self._model.encode(texts, show_progress_bar=False).astype("float32")
+        faiss.normalize_L2(embs)
+
+        # 查詢向量 vs. 各任務向量的點積（= 正規化後的餘弦相似度）
+        scores = embs[1:] @ embs[0]
+        best_idx   = int(np.argmax(scores))
+        best_score = float(scores[best_idx])
+        return (best_idx, best_score) if best_score >= threshold else (-1, best_score)
+
     def invalidate_cache(self):
         """刪除獨立快取，下次初始化時強制重建。
 

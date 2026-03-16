@@ -102,8 +102,10 @@ def _sheet_summary(wb, report: GapReport, role_name: str):
 
     # 5W2H 表格
     _section_header(ws, "A6", "B6", "5W2H 工作內容描述")
+    task_display = ("\n".join(f"• {t}" for t in ui.task_list)
+                   if ui.task_list else ui.what_tasks)
     rows = [
-        ("What — 工作任務", ui.what_tasks),
+        ("What — 工作任務", task_display),
         ("What — 工作產出", ui.what_outputs),
         ("Why — 工作目的", ui.why_purpose),
         ("Who — 自身角色", ui.who_role),
@@ -222,39 +224,84 @@ def _sheet_confirmed(wb, report: GapReport, role_name: str):
 
 def _sheet_tasks(wb, report: GapReport):
     ws = wb.create_sheet("工作任務對照")
-    ws.column_dimensions["A"].width = 14
-    ws.column_dimensions["B"].width = 40
-    ws.column_dimensions["C"].width = 14
 
-    _header_row(ws, 1, ["任務代碼", "工作任務名稱", "狀態"])
-
-    # 建立 task_name → task_id 的查找表
     std = report.best_standard_data or {}
     task_id_map = {
         t.get("task_name", ""): t.get("task_id", "")
         for t in std.get("competency_tasks", [])
     }
 
-    row = 2
-    for name in report.covered_tasks:
-        ws[f"A{row}"] = task_id_map.get(name, "")
-        ws[f"B{row}"] = name
-        ws[f"C{row}"] = "✓ 已涵蓋"
-        for col in ["A", "B", "C"]:
-            _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
-        row += 1
+    if report.task_mappings:
+        # ── 逐項任務模式：顯示員工任務 → 標準任務對應 ──
+        ws.column_dimensions["A"].width = 36
+        ws.column_dimensions["B"].width = 14
+        ws.column_dimensions["C"].width = 36
+        ws.column_dimensions["D"].width = 10
+        ws.column_dimensions["E"].width = 12
 
-    for g in report.gap_tasks:
-        ws[f"A{row}"] = g.code
-        ws[f"B{row}"] = g.name
-        ws[f"C{row}"] = "△ 缺口"
-        bg = COLOR_GAP_HIGH if g.severity == "high" else (
-             COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
-        for col in ["A", "B", "C"]:
-            _style(ws[f"{col}{row}"], bg=bg)
-        row += 1
+        _header_row(ws, 1, ["員工填入任務", "對應代碼", "對應標準任務", "相似度", "狀態"])
+        row = 2
+        for m in report.task_mappings:
+            ws[f"A{row}"] = m.employee_task
+            if m.is_matched:
+                ws[f"B{row}"] = m.std_task_code
+                ws[f"C{row}"] = m.std_task_name
+                ws[f"D{row}"] = f"{m.similarity*100:.0f}%"
+                ws[f"E{row}"] = "✓ 已對應"
+                for col in ["A", "B", "C", "D", "E"]:
+                    _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
+            else:
+                ws[f"B{row}"] = ""
+                ws[f"C{row}"] = "（未對應到標準任務）"
+                ws[f"D{row}"] = f"{m.similarity*100:.0f}%"
+                ws[f"E{row}"] = "？ 補充任務"
+                for col in ["A", "B", "C", "D", "E"]:
+                    _style(ws[f"{col}{row}"], bg=COLOR_GAP_LOW)
+            row += 1
 
-    _auto_wrap(ws, "B", 2, row)
+        # 缺口任務
+        for g in report.gap_tasks:
+            ws[f"A{row}"] = "（職能基準任務，未被涵蓋）"
+            ws[f"B{row}"] = g.code
+            ws[f"C{row}"] = g.name
+            ws[f"D{row}"] = ""
+            ws[f"E{row}"] = "△ 缺口"
+            bg = COLOR_GAP_HIGH if g.severity == "high" else (
+                 COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
+            for col in ["A", "B", "C", "D", "E"]:
+                _style(ws[f"{col}{row}"], bg=bg)
+            row += 1
+
+        _auto_wrap(ws, "A", 2, row)
+        _auto_wrap(ws, "C", 2, row)
+
+    else:
+        # ── 原始模式 ──
+        ws.column_dimensions["A"].width = 14
+        ws.column_dimensions["B"].width = 40
+        ws.column_dimensions["C"].width = 14
+
+        _header_row(ws, 1, ["任務代碼", "工作任務名稱", "狀態"])
+        row = 2
+        for name in report.covered_tasks:
+            ws[f"A{row}"] = task_id_map.get(name, "")
+            ws[f"B{row}"] = name
+            ws[f"C{row}"] = "✓ 已涵蓋"
+            for col in ["A", "B", "C"]:
+                _style(ws[f"{col}{row}"], bg=COLOR_COVERED_BG)
+            row += 1
+
+        for g in report.gap_tasks:
+            ws[f"A{row}"] = g.code
+            ws[f"B{row}"] = g.name
+            ws[f"C{row}"] = "△ 缺口"
+            bg = COLOR_GAP_HIGH if g.severity == "high" else (
+                 COLOR_GAP_LOW if g.severity == "low" else COLOR_GAP_MED)
+            for col in ["A", "B", "C"]:
+                _style(ws[f"{col}{row}"], bg=bg)
+            row += 1
+
+        _auto_wrap(ws, "B", 2, row)
 
 
 # ─────────────────────────────────────────
