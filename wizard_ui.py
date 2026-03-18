@@ -1878,13 +1878,9 @@ class WizardMainWindow(QMainWindow):
                 col.addWidget(lbl_sub)
 
             btn_edit = QPushButton("編輯")
-            btn_edit.setFixedHeight(26)
-            btn_edit.setFixedWidth(50)
             btn_edit.clicked.connect(lambda _, x=i: self._edit_task(x))
 
             btn_del = QPushButton("刪除")
-            btn_del.setFixedHeight(26)
-            btn_del.setFixedWidth(50)
             btn_del.setObjectName("danger")
             btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
 
