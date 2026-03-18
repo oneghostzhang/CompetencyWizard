@@ -1710,10 +1710,23 @@ class WizardMainWindow(QMainWindow):
         tasks    = data.get("competency_tasks", [])
         skills   = data.get("competency_skills", [])
 
-        # What — 工作任務：將範本任務全部加入清單
+        # What — 工作任務：將範本任務全部加入清單（每項為獨立 dict）
         self._added_tasks.clear()
-        self._added_tasks.extend(t.get("task_name", "") for t in tasks if t.get("task_name"))
-        self._what_tasks.clear()
+        for t in tasks:
+            name = t.get("task_name", "").strip()
+            if name:
+                self._added_tasks.append({
+                    "what_tasks": name,
+                    "what_outputs": "",
+                    "why_purpose": "",
+                    "who_role": "",
+                    "who_collaborate": "",
+                    "when_frequency": "",
+                    "where_environment": "",
+                    "how_skills": "",
+                    "how_much_kpi": "",
+                })
+        self._clear_form_fields()
         self._refresh_task_panel()
 
         # What — 工作產出（前 3 筆任務產出）
@@ -1751,72 +1764,24 @@ class WizardMainWindow(QMainWindow):
 
     # ─── 任務清單操作 ──────────────────────────
 
-    def _add_current_task(self):
-        """將目前 What 欄位內容加入任務清單，並清空 What 欄位"""
-        text = self._what_tasks.toPlainText().strip()
-        if not text:
-            QMessageBox.information(self, "請填寫任務", "請先填寫「任務描述」欄位再加入清單。")
-            return
-        self._added_tasks.append(text)
-        self._what_tasks.clear()
-        self._refresh_task_panel()
+    def _collect_form_fields(self) -> dict:
+        """讀取目前表單所有欄位，回傳 dict（代表一項完整任務）"""
+        return {
+            "what_tasks":    self._what_tasks.toPlainText().strip(),
+            "what_outputs":  self._what_outputs.text().strip(),
+            "why_purpose":   self._why_purpose.text().strip(),
+            "who_role":      self._who_role.text().strip(),
+            "who_collaborate": self._who_collaborate.text().strip(),
+            "when_frequency": "、".join(
+                opt for opt, cb in self._when_checkboxes.items() if cb.isChecked()
+            ),
+            "where_environment": self._where_env.text().strip(),
+            "how_skills":    self._how_skills.toPlainText().strip(),
+            "how_much_kpi":  self._how_much.text().strip(),
+        }
 
-    def _remove_task(self, index: int):
-        """從清單中刪除指定任務"""
-        if 0 <= index < len(self._added_tasks):
-            self._added_tasks.pop(index)
-            self._refresh_task_panel()
-
-    def _refresh_task_panel(self):
-        """重新繪製任務清單面板"""
-        # 清除舊列
-        while self._task_rows_layout.count():
-            item = self._task_rows_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-
-        if not self._added_tasks:
-            self._task_count_lbl.setText("（尚未加入任何任務）")
-            return
-
-        self._task_count_lbl.setText(f"共 {len(self._added_tasks)} 項")
-        for i, task_text in enumerate(self._added_tasks):
-            row_w = QFrame()
-            row_w.setStyleSheet(
-                "QFrame { background:#ffffff; border:1px solid #dee2e6; "
-                "border-radius:4px; }"
-            )
-            hl = QHBoxLayout(row_w)
-            hl.setContentsMargins(8, 4, 6, 4)
-            hl.setSpacing(6)
-
-            num = QLabel(f"{i+1}.")
-            num.setFixedWidth(20)
-            num.setStyleSheet("color:#888; font-weight:bold; background:transparent; border:none;")
-            lbl = QLabel(task_text[:80] + ("…" if len(task_text) > 80 else ""))
-            lbl.setWordWrap(False)
-            lbl.setStyleSheet("color:#2c3e50; background:transparent; border:none;")
-            lbl.setSizePolicy(lbl.sizePolicy().horizontalPolicy(),
-                              lbl.sizePolicy().verticalPolicy())
-
-            btn_del = QPushButton("✕")
-            btn_del.setFixedSize(22, 22)
-            btn_del.setStyleSheet(
-                "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
-                "border-radius:3px; font-weight:bold; background:#fff; font-size:8pt; }"
-                "QPushButton:hover { background:#fdecea; border:none; }"
-            )
-            idx = i
-            btn_del.clicked.connect(lambda _, x=idx: self._remove_task(x))
-
-            hl.addWidget(num)
-            hl.addWidget(lbl, 1)
-            hl.addWidget(btn_del)
-            self._task_rows_layout.addWidget(row_w)
-
-    def _clear_form(self):
-        self._added_tasks.clear()
-        self._refresh_task_panel()
+    def _clear_form_fields(self):
+        """清空所有 5W2H 欄位（不清任務清單）"""
         self._what_tasks.clear()
         self._what_outputs.clear()
         self._why_purpose.clear()
@@ -1828,27 +1793,118 @@ class WizardMainWindow(QMainWindow):
         self._how_skills.clear()
         self._how_much.clear()
 
-    def _collect_input(self) -> UserInput5W2H:
-        # 若 What 欄有未加入的文字，自動加入清單
-        current = self._what_tasks.toPlainText().strip()
-        if current and current not in self._added_tasks:
-            self._added_tasks.append(current)
-            self._what_tasks.clear()
+    def _add_current_task(self):
+        """將目前整份表單（完整 5W2H）儲存為一項任務，並清空表單準備下一項"""
+        fields = self._collect_form_fields()
+        if not fields["what_tasks"]:
+            QMessageBox.information(self, "請填寫任務",
+                "請先填寫「任務描述（What）」欄位後再加入清單。")
+            return
+        self._added_tasks.append(fields)
+        self._clear_form_fields()
+        self._refresh_task_panel()
+
+    def _remove_task(self, index: int):
+        """從清單中刪除指定任務"""
+        if 0 <= index < len(self._added_tasks):
+            self._added_tasks.pop(index)
             self._refresh_task_panel()
-        task_list = list(self._added_tasks)
+
+    def _refresh_task_panel(self):
+        """重新繪製任務清單面板"""
+        while self._task_rows_layout.count():
+            item = self._task_rows_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if not self._added_tasks:
+            self._task_count_lbl.setText("（尚未加入任何任務，請在下方填寫後按「加入清單 ＋」）")
+            return
+
+        self._task_count_lbl.setText(f"共 {len(self._added_tasks)} 項")
+        for i, task_dict in enumerate(self._added_tasks):
+            what = task_dict.get("what_tasks", "")
+            row_w = QFrame()
+            row_w.setStyleSheet(
+                "QFrame { background:#ffffff; border:1px solid #dee2e6; border-radius:4px; }"
+            )
+            hl = QHBoxLayout(row_w)
+            hl.setContentsMargins(8, 5, 6, 5)
+            hl.setSpacing(6)
+
+            num = QLabel(f"{i+1}.")
+            num.setFixedWidth(22)
+            num.setStyleSheet("color:#3498db; font-weight:bold; background:transparent; border:none;")
+
+            # 摘要：What 前 70 字 + 頻率/角色小字
+            summary_main = what[:70] + ("…" if len(what) > 70 else "")
+            tags = []
+            if task_dict.get("who_role"):
+                tags.append(task_dict["who_role"])
+            if task_dict.get("when_frequency"):
+                tags.append(task_dict["when_frequency"])
+            summary_sub = "　".join(tags)
+
+            col = QVBoxLayout()
+            col.setSpacing(1)
+            lbl_main = QLabel(summary_main)
+            lbl_main.setStyleSheet("color:#2c3e50; background:transparent; border:none; font-size:9pt;")
+            col.addWidget(lbl_main)
+            if summary_sub:
+                lbl_sub = QLabel(summary_sub)
+                lbl_sub.setStyleSheet("color:#888; background:transparent; border:none; font-size:8pt;")
+                col.addWidget(lbl_sub)
+
+            btn_del = QPushButton("✕")
+            btn_del.setFixedSize(22, 22)
+            btn_del.setStyleSheet(
+                "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
+                "border-radius:3px; font-weight:bold; background:#fff; font-size:8pt; }"
+                "QPushButton:hover { background:#fdecea; border:none; }"
+            )
+            btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
+
+            hl.addWidget(num)
+            hl.addLayout(col, 1)
+            hl.addWidget(btn_del)
+            self._task_rows_layout.addWidget(row_w)
+
+    def _clear_form(self):
+        """清除全部：任務清單 + 所有表單欄位"""
+        self._added_tasks.clear()
+        self._refresh_task_panel()
+        self._clear_form_fields()
+
+    def _collect_input(self) -> UserInput5W2H:
+        """收集輸入：若表單仍有 What 文字則自動加入清單"""
+        fields = self._collect_form_fields()
+        if fields["what_tasks"]:
+            self._added_tasks.append(fields)
+            self._clear_form_fields()
+            self._refresh_task_panel()
+
+        # 合併所有任務的各欄位
+        task_list    = [t["what_tasks"]        for t in self._added_tasks]
+        outputs      = "、".join(filter(None, (t["what_outputs"]       for t in self._added_tasks)))
+        why          = "、".join(filter(None, (t["why_purpose"]        for t in self._added_tasks)))
+        who_role     = next((t["who_role"]      for t in self._added_tasks if t["who_role"]), "")
+        who_collab   = "、".join(filter(None, (t["who_collaborate"]    for t in self._added_tasks)))
+        when_freq    = "、".join(filter(None, (t["when_frequency"]     for t in self._added_tasks)))
+        where_env    = next((t["where_environment"] for t in self._added_tasks if t["where_environment"]), "")
+        how_skills   = "\n".join(filter(None, (t["how_skills"]         for t in self._added_tasks)))
+        how_much     = "、".join(filter(None, (t["how_much_kpi"]       for t in self._added_tasks)))
+
         return UserInput5W2H(
             task_list=task_list,
             what_tasks=" ".join(task_list),
-            what_outputs=self._what_outputs.text().strip(),
-            why_purpose=self._why_purpose.text().strip(),
-            who_role=self._who_role.text().strip(),
-            who_collaborate=self._who_collaborate.text().strip(),
-            when_frequency="、".join(
-                opt for opt, cb in self._when_checkboxes.items() if cb.isChecked()
-            ),
-            where_environment=self._where_env.text().strip(),
-            how_skills=self._how_skills.toPlainText().strip(),
-            how_much_kpi=self._how_much.text().strip(),
+            what_outputs=outputs,
+            why_purpose=why,
+            who_role=who_role,
+            who_collaborate=who_collab,
+            when_frequency=when_freq,
+            where_environment=where_env,
+            how_skills=how_skills,
+            how_much_kpi=how_much,
         )
 
     def _validate_input(self, ui: "UserInput5W2H") -> bool:
