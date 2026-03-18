@@ -1877,22 +1877,24 @@ class WizardMainWindow(QMainWindow):
                 lbl_sub.setStyleSheet("color:#888; background:transparent; border:none; font-size:8pt;")
                 col.addWidget(lbl_sub)
 
-            btn_edit = QPushButton("✏")
-            btn_edit.setFixedSize(26, 26)
+            btn_edit = QPushButton("編輯")
+            btn_edit.setFixedHeight(26)
+            btn_edit.setFixedWidth(44)
             btn_edit.setToolTip("載回表單編輯")
             btn_edit.setStyleSheet(
                 "QPushButton { color:#2980b9; border:1px solid #2980b9; "
-                "border-radius:3px; font-weight:bold; background:#fff; font-size:9pt; }"
+                "border-radius:3px; font-size:8pt; background:#fff; }"
                 "QPushButton:hover { background:#eaf4fb; }"
             )
             btn_edit.clicked.connect(lambda _, x=i: self._edit_task(x))
 
-            btn_del = QPushButton("✕")
-            btn_del.setFixedSize(26, 26)
+            btn_del = QPushButton("刪除")
+            btn_del.setFixedHeight(26)
+            btn_del.setFixedWidth(44)
             btn_del.setToolTip("刪除此任務")
             btn_del.setStyleSheet(
                 "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
-                "border-radius:3px; font-weight:bold; background:#fff; font-size:8pt; }"
+                "border-radius:3px; font-size:8pt; background:#fff; }"
                 "QPushButton:hover { background:#fdecea; }"
             )
             btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
