@@ -1705,61 +1705,54 @@ class WizardMainWindow(QMainWindow):
             self._fill_form_from_standard(dlg.selected_data)
 
     def _fill_form_from_standard(self, data: dict):
-        """將職能基準 JSON 資料對應預填到 5W2H 表單欄位。"""
-        meta = data.get("metadata", {})
-        bi   = data.get("basic_info", {})
-        tasks    = data.get("competency_tasks", [])
-        skills   = data.get("competency_skills", [])
+        """將職能基準 JSON 每個任務轉為完整 5W2H dict 加入清單。"""
+        meta  = data.get("metadata", {})
+        bi    = data.get("basic_info", {})
+        tasks = data.get("competency_tasks", [])
 
-        # What — 工作任務：將範本任務全部加入清單（每項為獨立 dict）
+        # 建立技能 code → name 對照表
+        skill_map = {s.get("code", ""): s.get("name", "")
+                     for s in data.get("competency_skills", []) if s.get("code")}
+
+        # 共用欄位（各任務通用）
+        std_name   = meta.get("name", "")
+        desc       = bi.get("job_description", "")
+        industry   = bi.get("industry", [])
+        where_env  = industry[0] if isinstance(industry, list) and industry else (
+                     industry if isinstance(industry, str) else "")
+
         self._added_tasks.clear()
         for t in tasks:
-            name = t.get("task_name", "").strip()
-            if name:
-                self._added_tasks.append({
-                    "what_tasks": name,
-                    "what_outputs": "",
-                    "why_purpose": "",
-                    "who_role": "",
-                    "who_collaborate": "",
-                    "when_frequency": "",
-                    "where_environment": "",
-                    "how_skills": "",
-                    "how_much_kpi": "",
-                })
+            task_name = t.get("task_name", "").strip()
+            if not task_name:
+                continue
+
+            # How — 此任務對應的技能名稱
+            task_skill_codes = t.get("skills", [])
+            task_skill_names = [skill_map[c] for c in task_skill_codes if c in skill_map]
+
+            # Why — 使用第一條行為指標作為任務目的
+            behaviors = t.get("behaviors", [])
+            why = behaviors[0] if behaviors else desc[:80]
+
+            # How Much — 使用最後一條行為指標作為績效說明（若有多條）
+            how_much = behaviors[-1] if len(behaviors) > 1 else ""
+
+            self._added_tasks.append({
+                "what_tasks":      task_name,
+                "what_outputs":    t.get("output", ""),
+                "why_purpose":     why,
+                "who_role":        std_name,
+                "who_collaborate": "",          # 讓使用者自填
+                "when_frequency":  "",          # 讓使用者自填
+                "where_environment": where_env,
+                "how_skills":      "、".join(task_skill_names),
+                "how_much_kpi":    how_much,
+            })
+
         self._clear_form_fields()
         self._refresh_task_panel()
-
-        # What — 工作產出（前 3 筆任務產出）
-        outputs = [t.get("output", "") for t in tasks if t.get("output")]
-        self._what_outputs.setText("、".join(outputs[:3]))
-
-        # Why — 工作目的（job_description 前 120 字）
-        desc = bi.get("job_description", "")
-        self._why_purpose.setText(desc[:120])
-
-        # Who — 自身角色（職能基準名稱）
-        self._who_role.setText(meta.get("name", ""))
-
-        # Who — 協作對象（無對應欄位，保留空白讓使用者自填）
-
-        # Where — 工作環境（第一個行業別）
-        industry = bi.get("industry", [])
-        if isinstance(industry, list) and industry:
-            self._where_env.setText(industry[0])
-        elif isinstance(industry, str):
-            self._where_env.setText(industry)
-
-        # How — 技能/工具（所有技能名稱）
-        skill_names = [s.get("name", "") for s in skills if s.get("name")]
-        self._how_skills.setPlainText("、".join(skill_names))
-
-        # How Much — 績效指標（第一項行為指標）
-        for t in tasks:
-            behaviors = t.get("behaviors", [])
-            if behaviors:
-                self._how_much.setText(behaviors[0][:100])
-                break
+        self._form_scroll.verticalScrollBar().setValue(0)
 
     # ─── 表單操作 ─────────────────────────────
 
