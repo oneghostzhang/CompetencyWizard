@@ -841,6 +841,121 @@ class StandardPickerDialog(QDialog):
 
 
 # ─────────────────────────────────────────
+# 任務編輯對話框
+# ─────────────────────────────────────────
+
+class TaskEditDialog(QDialog):
+    """彈出式任務編輯對話框，讓使用者修改已加入清單的任務 5W2H 欄位。"""
+
+    def __init__(self, task_dict: dict, task_index: int, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(f"編輯任務 {task_index + 1}")
+        self.setMinimumWidth(560)
+        self.result_dict: dict | None = None
+        self._when_checkboxes: dict = {}
+        self._build_ui(task_dict)
+
+    def _build_ui(self, d: dict):
+        v = QVBoxLayout(self)
+        v.setContentsMargins(20, 16, 20, 16)
+        v.setSpacing(10)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        inner = QWidget()
+        fv = QVBoxLayout(inner)
+        fv.setSpacing(10)
+        fv.setContentsMargins(0, 0, 4, 0)
+        scroll.setWidget(inner)
+
+        def row(label, widget):
+            f = QFormLayout()
+            f.setContentsMargins(0, 0, 0, 0)
+            f.addRow(label, widget)
+            fv.addLayout(f)
+
+        # What
+        self._what_tasks = QTextEdit()
+        self._what_tasks.setFixedHeight(72)
+        self._what_tasks.setPlainText(d.get("what_tasks", ""))
+        row("任務描述（What）：", self._what_tasks)
+
+        self._what_outputs = QLineEdit(d.get("what_outputs", ""))
+        row("工作產出：", self._what_outputs)
+
+        # Why
+        self._why_purpose = QLineEdit(d.get("why_purpose", ""))
+        row("工作目的（Why）：", self._why_purpose)
+
+        # Who
+        self._who_role = QLineEdit(d.get("who_role", ""))
+        row("自身角色（Who）：", self._who_role)
+
+        self._who_collaborate = QLineEdit(d.get("who_collaborate", ""))
+        row("協作對象：", self._who_collaborate)
+
+        # When
+        freq_str = d.get("when_frequency", "")
+        freq_set = set(freq_str.split("、")) if freq_str else set()
+        freq_widget = QWidget()
+        freq_layout = QHBoxLayout(freq_widget)
+        freq_layout.setContentsMargins(0, 0, 0, 0)
+        freq_layout.setSpacing(12)
+        for opt in ["每日", "每週", "每月", "每季", "專案型（不固定）", "其他"]:
+            cb = QCheckBox(opt)
+            cb.setChecked(opt in freq_set)
+            self._when_checkboxes[opt] = cb
+            freq_layout.addWidget(cb)
+        freq_layout.addStretch()
+        row("執行頻率（When）：", freq_widget)
+
+        # Where
+        self._where_env = QLineEdit(d.get("where_environment", ""))
+        row("工作環境（Where）：", self._where_env)
+
+        # How
+        self._how_skills = QTextEdit()
+        self._how_skills.setFixedHeight(60)
+        self._how_skills.setPlainText(d.get("how_skills", ""))
+        row("技能/工具（How）：", self._how_skills)
+
+        # How Much
+        self._how_much = QLineEdit(d.get("how_much_kpi", ""))
+        row("績效指標（How Much）：", self._how_much)
+
+        v.addWidget(scroll, 1)
+
+        # 按鈕列
+        btn_row = QHBoxLayout()
+        btn_cancel = QPushButton("取消")
+        btn_cancel.clicked.connect(self.reject)
+        btn_save = QPushButton("儲存更新")
+        btn_save.setObjectName("primary")
+        btn_save.clicked.connect(self._on_save)
+        btn_row.addWidget(btn_cancel)
+        btn_row.addStretch()
+        btn_row.addWidget(btn_save)
+        v.addLayout(btn_row)
+
+    def _on_save(self):
+        self.result_dict = {
+            "what_tasks":      self._what_tasks.toPlainText().strip(),
+            "what_outputs":    self._what_outputs.text().strip(),
+            "why_purpose":     self._why_purpose.text().strip(),
+            "who_role":        self._who_role.text().strip(),
+            "who_collaborate": self._who_collaborate.text().strip(),
+            "when_frequency":  "、".join(
+                opt for opt, cb in self._when_checkboxes.items() if cb.isChecked()
+            ),
+            "where_environment": self._where_env.text().strip(),
+            "how_skills":      self._how_skills.toPlainText().strip(),
+            "how_much_kpi":    self._how_much.text().strip(),
+        }
+        self.accept()
+
+
+# ─────────────────────────────────────────
 # 職能基準逐項確認精靈
 # ─────────────────────────────────────────
 
@@ -1807,26 +1922,13 @@ class WizardMainWindow(QMainWindow):
             self._refresh_task_panel()
 
     def _edit_task(self, index: int):
-        """將指定任務從清單移回表單供編輯"""
-        if 0 <= index < len(self._added_tasks):
-            task = self._added_tasks.pop(index)
-            self._load_fields_from_dict(task)
+        """開啟對話框編輯指定任務，儲存後原地更新清單"""
+        if not (0 <= index < len(self._added_tasks)):
+            return
+        dlg = TaskEditDialog(self._added_tasks[index], index, self)
+        if dlg.exec() == QDialog.DialogCode.Accepted and dlg.result_dict:
+            self._added_tasks[index] = dlg.result_dict
             self._refresh_task_panel()
-
-    def _load_fields_from_dict(self, d: dict):
-        """把任務 dict 的所有欄位填回表單"""
-        self._what_tasks.setPlainText(d.get("what_tasks", ""))
-        self._what_outputs.setText(d.get("what_outputs", ""))
-        self._why_purpose.setText(d.get("why_purpose", ""))
-        self._who_role.setText(d.get("who_role", ""))
-        self._who_collaborate.setText(d.get("who_collaborate", ""))
-        freq_str = d.get("when_frequency", "")
-        freq_set = set(freq_str.split("、")) if freq_str else set()
-        for opt, cb in self._when_checkboxes.items():
-            cb.setChecked(opt in freq_set)
-        self._where_env.setText(d.get("where_environment", ""))
-        self._how_skills.setPlainText(d.get("how_skills", ""))
-        self._how_much.setText(d.get("how_much_kpi", ""))
 
     def _refresh_task_panel(self):
         """重新繪製任務清單面板"""
