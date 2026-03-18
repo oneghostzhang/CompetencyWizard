@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.4.3-orange)
+![Version](https://img.shields.io/badge/Version-v1.4.6-orange)
 
 > 以 RAG 技術為核心的職能說明書產生工具。員工以「逐任務填寫完整 5W2H」的方式描述工作內容，系統自動從台灣 ICAP 職能基準資料庫找出最相似標準，再由員工逐項確認形成完整缺口報告，最終輸出格式化 Excel 職能說明書。
 
@@ -64,9 +64,10 @@
 
 | 功能 | 說明 |
 |------|------|
-| 📝 **逐任務 5W2H 輸入** | 每項任務各自填寫完整的 What / Why / Who / When / Where / How / How Much，填完一項按「加入清單 ＋」後繼續填下一項，確保每個任務背景獨立完整 |
-| 📋 **任務清單面板** | 固定顯示在表單頂部，列出所有已加入任務（含 What 摘要、角色、頻率），可隨時刪除任一任務 |
-| 🚀 **職能基準快速填入** | 點選「選擇範本 →」從職能基準載入，自動將所有標準任務加入清單，達到 80–90% 填寫完成度 |
+| 📝 **逐任務 5W2H 輸入** | 每項任務各自填寫完整的 What / Why / Who / When / Where / How / How Much，填完一項按「加入清單 ＋」後自動捲回頂端繼續填下一項 |
+| 📋 **任務清單面板** | 固定顯示在表單頂部，列出所有已加入任務（含 What 摘要、角色、頻率），可隨時編輯或刪除任一任務 |
+| ✏️ **任務編輯對話框** | 點「編輯」開啟 `TaskEditDialog` 彈出視窗，含完整 9 個 5W2H 欄位，儲存後原地更新清單，不影響其他任務 |
+| 🚀 **職能基準快速填入** | 點選「選擇範本 →」從職能基準載入，每個標準任務自動帶入 what/output/behaviors/skills 等欄位加入清單 |
 | 🔍 **語意向量檢索** | `BAAI/bge-base-zh-v1.5` + FAISS，從 900+ 職能基準中找出最相似標準 |
 | 📊 **職能缺口分析** | 自動比對輸入與職能基準，輸出完整度分數（0–100%）與缺口嚴重度分級（高 / 中 / 低） |
 | ✅ **逐項確認精靈（Opt-out）** | 分析完成後自動開啟 `StandardAdoptionWizard`，預勾選全部項目，員工取消不符合的項目；已自動偵測項目綠色標示，未偵測項目藍色標示 |
@@ -197,9 +198,10 @@ python main.py
 - **逐任務輸入架構**：
   - 表單頁頂部固定顯示「已加入任務清單」面板（不隨 5W2H 欄位捲動）
   - `_added_tasks: List[dict]`：每項任務儲存完整 9 欄位 5W2H dict
-  - 「加入清單 ＋」收集全部欄位 → 存入 dict → 清空表單等待下一項
+  - 「加入清單 ＋」在表單底部，填完後收集全部欄位 → 存入 dict → 清空表單 → 自動捲回頂端
   - `_collect_input()` 合併所有 dict 產生 `UserInput5W2H`
-- `StandardSelectorDialog`：從職能基準資料庫選擇範本，自動將所有任務加入清單
+- `TaskEditDialog`：彈出式任務編輯對話框；點「編輯」開啟，含完整 9 個 5W2H 欄位，儲存後原地更新清單
+- `StandardSelectorDialog`：從職能基準資料庫選擇範本，每個標準任務帶入 task_name/output/behaviors/skills 等欄位加入清單
 - `StandardAdoptionWizard`：分析完成後 Opt-out 確認精靈；三分頁（任務／知識／技能），預勾全部，綠色=自動偵測，藍色=預選待確認
 - 結果頁右側 `QTabWidget`：基本資訊 / 工作職能（task_id 下拉）/ 缺口分析
 - `DataManagerDialog`：新增／刪除 PDF、PDF→JSON 解析、搜尋過濾、重建索引
@@ -265,7 +267,10 @@ python main.py
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
-| v1.4.3 | 2026-03-18 | 每項任務儲存完整 5W2H dict；加入清單後清空全部欄位；任務清單面板顯示 What 摘要 + 角色/頻率小字；`_collect_input` 合併所有任務 dict 產生 UserInput5W2H |
+| v1.4.6 | 2026-03-18 | 新增 TaskEditDialog 彈出式任務編輯對話框；點「編輯」開啟，儲存後原地更新清單；移除舊的「載回主表單」編輯方式 |
+| v1.4.5 | 2026-03-18 | 範本載入改為逐任務完整 5W2H dict：task_name/output/behaviors/skills 等欄位自動對應；載入後自動捲回頂端 |
+| v1.4.4 | 2026-03-18 | 「加入清單 ＋」移至表單底部按鈕列；加入後自動捲回頂端；任務清單「編輯」「刪除」按鈕修正為 app 標準樣式 |
+| v1.4.3 | 2026-03-18 | 每項任務儲存完整 5W2H dict；加入清單後清空全部欄位；任務清單面板顯示 What 摘要 + 角色/頻率小字 |
 | v1.4.2 | 2026-03-18 | 任務清單面板移至表單頁固定頂部（不隨 5W2H 欄位捲動），始終可見 |
 | v1.4.1 | 2026-03-18 | 重新設計任務輸入：移除 TaskListWidget 多行輸入，改為單一 QTextEdit + 「加入清單 ＋」按鈕；頂部新增已加入任務清單面板 |
 | v1.4.0 | 2026-03-18 | 整頁一任務架構確立：每次填寫代表一項完整工作任務（含 Why / Who / When / Where / How / How Much），多任務逐項填入後統一分析 |
@@ -283,4 +288,4 @@ python main.py
 
 ---
 
-**版本**：v1.4.3　　**最後更新**：2026-03-18
+**版本**：v1.4.6　　**最後更新**：2026-03-18
