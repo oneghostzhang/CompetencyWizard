@@ -1878,10 +1878,19 @@ class WizardMainWindow(QMainWindow):
                 col.addWidget(lbl_sub)
 
             btn_edit = QPushButton("編輯")
+            btn_edit.setStyleSheet(
+                "QPushButton{background:#3498db;color:white;border:none;"
+                "border-radius:4px;padding:4px 10px;font-size:8pt;}"
+                "QPushButton:hover{background:#2980b9;}"
+            )
             btn_edit.clicked.connect(lambda _, x=i: self._edit_task(x))
 
             btn_del = QPushButton("刪除")
-            btn_del.setObjectName("danger")
+            btn_del.setStyleSheet(
+                "QPushButton{background:#e74c3c;color:white;border:none;"
+                "border-radius:4px;padding:4px 10px;font-size:8pt;}"
+                "QPushButton:hover{background:#c0392b;}"
+            )
             btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
 
             hl.addWidget(num)
