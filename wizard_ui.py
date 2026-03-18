@@ -1879,24 +1879,13 @@ class WizardMainWindow(QMainWindow):
 
             btn_edit = QPushButton("編輯")
             btn_edit.setFixedHeight(26)
-            btn_edit.setFixedWidth(44)
-            btn_edit.setToolTip("載回表單編輯")
-            btn_edit.setStyleSheet(
-                "QPushButton { color:#2980b9; border:1px solid #2980b9; "
-                "border-radius:3px; font-size:8pt; background:#fff; }"
-                "QPushButton:hover { background:#eaf4fb; }"
-            )
+            btn_edit.setFixedWidth(50)
             btn_edit.clicked.connect(lambda _, x=i: self._edit_task(x))
 
             btn_del = QPushButton("刪除")
             btn_del.setFixedHeight(26)
-            btn_del.setFixedWidth(44)
-            btn_del.setToolTip("刪除此任務")
-            btn_del.setStyleSheet(
-                "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
-                "border-radius:3px; font-size:8pt; background:#fff; }"
-                "QPushButton:hover { background:#fdecea; }"
-            )
+            btn_del.setFixedWidth(50)
+            btn_del.setObjectName("danger")
             btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
 
             hl.addWidget(num)
