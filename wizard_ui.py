@@ -1433,10 +1433,22 @@ class WizardMainWindow(QMainWindow):
         )
         self._task_count_lbl = QLabel("（尚未加入任何任務，請在下方填寫後按「加入清單 ＋」）")
         self._task_count_lbl.setStyleSheet("color:#888; font-size:9pt; background:transparent; border:none;")
+
+        self._task_panel_expanded = True
+        self._btn_toggle_panel = QPushButton("收合 ▲")
+        self._btn_toggle_panel.setFixedHeight(22)
+        self._btn_toggle_panel.setStyleSheet(
+            "QPushButton { color:#555; border:1px solid #bbb; border-radius:3px; "
+            "background:#fff; font-size:8pt; padding:0 8px; }"
+            "QPushButton:hover { background:#eee; }"
+        )
+        self._btn_toggle_panel.clicked.connect(self._toggle_task_panel)
+
         tp_title_row.addWidget(tp_icon)
         tp_title_row.addWidget(tp_title)
         tp_title_row.addSpacing(8)
         tp_title_row.addWidget(self._task_count_lbl, 1)
+        tp_title_row.addWidget(self._btn_toggle_panel)
         tp_v.addLayout(tp_title_row)
 
         self._task_rows_widget = QWidget()
@@ -1902,6 +1914,15 @@ class WizardMainWindow(QMainWindow):
         self._how_skills.clear()
         self._how_much.clear()
 
+    def _toggle_task_panel(self):
+        """切換任務清單的展開/收合狀態"""
+        self._task_panel_expanded = not self._task_panel_expanded
+        self._task_rows_widget.setVisible(self._task_panel_expanded)
+        if self._task_panel_expanded:
+            self._btn_toggle_panel.setText("收合 ▲")
+        else:
+            self._btn_toggle_panel.setText("展開 ▼")
+
     def _add_current_task(self):
         """將目前整份表單（完整 5W2H）儲存為一項任務，並清空表單準備下一項"""
         fields = self._collect_form_fields()
@@ -1912,6 +1933,9 @@ class WizardMainWindow(QMainWindow):
         self._added_tasks.append(fields)
         self._clear_form_fields()
         self._refresh_task_panel()
+        # 超過 4 項時自動收合清單，確保表單仍可見
+        if len(self._added_tasks) > 4 and self._task_panel_expanded:
+            self._toggle_task_panel()
         # 加入後自動捲回頂端，讓員工直接填下一項任務
         self._form_scroll.verticalScrollBar().setValue(0)
 
