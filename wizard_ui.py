@@ -1252,16 +1252,14 @@ class WizardMainWindow(QMainWindow):
 
     def _make_form_page(self) -> QWidget:
         """Step 1: 5W2H 輸入表單"""
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        inner = QWidget()
-        inner.setObjectName("formInner")
-        scroll.setWidget(inner)
-        v = QVBoxLayout(inner)
-        v.setContentsMargins(28, 20, 28, 20)
-        v.setSpacing(14)
+        # 外層容器（不可滾動）
+        page = QWidget()
+        page.setObjectName("formPage")
+        page_v = QVBoxLayout(page)
+        page_v.setContentsMargins(20, 12, 20, 12)
+        page_v.setSpacing(8)
 
-        # ── 快速載入提示區塊 ─────────────────────
+        # ── 快速載入提示區塊（固定頂部）────────────
         hint_bar = QFrame()
         hint_bar.setStyleSheet(
             "QFrame { background:#eaf4fb; border:1px solid #aed6f1; border-radius:6px; }"
@@ -1293,13 +1291,13 @@ class WizardMainWindow(QMainWindow):
             "QPushButton:pressed { background:#2471a3; }"
             "QPushButton:disabled { background:#aaa; }"
         )
-        self._btn_load_template.setEnabled(False)   # 初始化完成前禁用
+        self._btn_load_template.setEnabled(False)
         self._btn_load_template.clicked.connect(self._on_load_from_standard)
         hint_h.addWidget(self._btn_load_template)
-        v.addWidget(hint_bar)
+        page_v.addWidget(hint_bar)
 
-        # ── 已加入任務清單面板 ──────────────────────
-        self._added_tasks: list = []          # 儲存已加入的任務字串清單
+        # ── 已加入任務清單面板（固定頂部，始終可見）──
+        self._added_tasks: list = []
 
         self._task_panel = QFrame()
         self._task_panel.setObjectName("taskPanel")
@@ -1308,34 +1306,49 @@ class WizardMainWindow(QMainWindow):
             "border-radius:6px; }"
         )
         tp_v = QVBoxLayout(self._task_panel)
-        tp_v.setContentsMargins(10, 8, 10, 8)
+        tp_v.setContentsMargins(12, 8, 12, 8)
         tp_v.setSpacing(4)
 
         tp_title_row = QHBoxLayout()
+        tp_icon = QLabel("📋")
+        tp_icon.setStyleSheet("font-size:11pt; background:transparent; border:none;")
         tp_title = QLabel("已加入的任務清單")
-        tp_title.setStyleSheet("font-weight:bold; color:#2c3e50; background:transparent;")
-        self._task_count_lbl = QLabel("（尚未加入任何任務）")
-        self._task_count_lbl.setStyleSheet("color:#888; font-size:9pt; background:transparent;")
+        tp_title.setStyleSheet(
+            "font-weight:bold; color:#2c3e50; font-size:10pt; background:transparent; border:none;"
+        )
+        self._task_count_lbl = QLabel("（尚未加入任何任務，請在下方填寫後按「加入清單 ＋」）")
+        self._task_count_lbl.setStyleSheet("color:#888; font-size:9pt; background:transparent; border:none;")
+        tp_title_row.addWidget(tp_icon)
         tp_title_row.addWidget(tp_title)
-        tp_title_row.addWidget(self._task_count_lbl)
-        tp_title_row.addStretch()
+        tp_title_row.addSpacing(8)
+        tp_title_row.addWidget(self._task_count_lbl, 1)
         tp_v.addLayout(tp_title_row)
 
         self._task_rows_widget = QWidget()
         self._task_rows_widget.setStyleSheet("background:transparent;")
         self._task_rows_layout = QVBoxLayout(self._task_rows_widget)
-        self._task_rows_layout.setContentsMargins(0, 2, 0, 2)
+        self._task_rows_layout.setContentsMargins(0, 2, 0, 0)
         self._task_rows_layout.setSpacing(3)
         tp_v.addWidget(self._task_rows_widget)
+        page_v.addWidget(self._task_panel)
 
-        v.addWidget(self._task_panel)
+        # ── 可滾動區域：5W2H 表單欄位 ─────────────
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        inner = QWidget()
+        inner.setObjectName("formInner")
+        scroll.setWidget(inner)
+        v = QVBoxLayout(inner)
+        v.setContentsMargins(8, 10, 8, 10)
+        v.setSpacing(10)
 
         def section(title):
             gb = QGroupBox(title)
             return gb
 
         # What
-        gb_what = section("What — 做什麼（填寫一項任務後按「加入清單」）")
+        gb_what = section("What — 做什麼")
         f = QFormLayout(gb_what)
         f.setSpacing(10)
         f.setContentsMargins(10, 8, 10, 10)
@@ -1343,16 +1356,15 @@ class WizardMainWindow(QMainWindow):
         self._what_tasks.setPlaceholderText(
             "描述這項工作任務的具體內容\n（例：每月編製損益表、資產負債表，核對各科目餘額）"
         )
-        self._what_tasks.setFixedHeight(72)
+        self._what_tasks.setFixedHeight(80)
         self._what_outputs = QLineEdit()
         self._what_outputs.setPlaceholderText("工作產出/交付物（例：企劃書、月報、產品說明頁）")
 
-        # 加入清單按鈕
         btn_add_task = QPushButton("加入清單 ＋")
-        btn_add_task.setFixedHeight(30)
+        btn_add_task.setFixedHeight(32)
         btn_add_task.setStyleSheet(
             "QPushButton { background:#27ae60; color:white; border:none; "
-            "border-radius:4px; font-weight:bold; padding:0 14px; }"
+            "border-radius:5px; font-weight:bold; font-size:10pt; padding:0 16px; }"
             "QPushButton:hover { background:#219a52; }"
             "QPushButton:pressed { background:#1a7a42; }"
         )
@@ -1458,7 +1470,8 @@ class WizardMainWindow(QMainWindow):
         btn_row.addWidget(self._btn_analyze)
         v.addLayout(btn_row)
 
-        return scroll
+        page_v.addWidget(scroll, 1)
+        return page
 
     def _make_result_page(self) -> QWidget:
         """Step 2+3: 結果與缺口"""
