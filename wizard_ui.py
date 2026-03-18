@@ -1360,21 +1360,7 @@ class WizardMainWindow(QMainWindow):
         self._what_outputs = QLineEdit()
         self._what_outputs.setPlaceholderText("工作產出/交付物（例：企劃書、月報、產品說明頁）")
 
-        btn_add_task = QPushButton("加入清單 ＋")
-        btn_add_task.setFixedHeight(32)
-        btn_add_task.setStyleSheet(
-            "QPushButton { background:#27ae60; color:white; border:none; "
-            "border-radius:5px; font-weight:bold; font-size:10pt; padding:0 16px; }"
-            "QPushButton:hover { background:#219a52; }"
-            "QPushButton:pressed { background:#1a7a42; }"
-        )
-        btn_add_task.clicked.connect(self._add_current_task)
-        add_row = QHBoxLayout()
-        add_row.addStretch()
-        add_row.addWidget(btn_add_task)
-
         f.addRow("任務描述：", self._what_tasks)
-        f.addRow("", add_row)
         f.addRow("工作產出：", self._what_outputs)
         v.addWidget(gb_what)
 
@@ -1453,10 +1439,23 @@ class WizardMainWindow(QMainWindow):
         # 按鈕列
         btn_row = QHBoxLayout()
         btn_row.setSpacing(10)
-        btn_clear = QPushButton("清除")
+
+        btn_clear = QPushButton("清除全部")
         btn_clear.setFixedHeight(36)
         btn_clear.setFixedWidth(90)
         btn_clear.clicked.connect(self._clear_form)
+
+        self._btn_add_task = QPushButton("加入清單 ＋")
+        self._btn_add_task.setFixedHeight(38)
+        self._btn_add_task.setFixedWidth(130)
+        self._btn_add_task.setFont(QFont("Microsoft JhengHei", 10, QFont.Weight.Bold))
+        self._btn_add_task.setStyleSheet(
+            "QPushButton { background:#27ae60; color:white; border:none; "
+            "border-radius:5px; font-weight:bold; padding:0 16px; }"
+            "QPushButton:hover { background:#219a52; }"
+            "QPushButton:pressed { background:#1a7a42; }"
+        )
+        self._btn_add_task.clicked.connect(self._add_current_task)
 
         self._btn_analyze = QPushButton("開始分析 →")
         self._btn_analyze.setObjectName("primary")
@@ -1467,6 +1466,7 @@ class WizardMainWindow(QMainWindow):
 
         btn_row.addWidget(btn_clear)
         btn_row.addStretch()
+        btn_row.addWidget(self._btn_add_task)
         btn_row.addWidget(self._btn_analyze)
         v.addLayout(btn_row)
 
@@ -1810,6 +1810,28 @@ class WizardMainWindow(QMainWindow):
             self._added_tasks.pop(index)
             self._refresh_task_panel()
 
+    def _edit_task(self, index: int):
+        """將指定任務從清單移回表單供編輯"""
+        if 0 <= index < len(self._added_tasks):
+            task = self._added_tasks.pop(index)
+            self._load_fields_from_dict(task)
+            self._refresh_task_panel()
+
+    def _load_fields_from_dict(self, d: dict):
+        """把任務 dict 的所有欄位填回表單"""
+        self._what_tasks.setPlainText(d.get("what_tasks", ""))
+        self._what_outputs.setText(d.get("what_outputs", ""))
+        self._why_purpose.setText(d.get("why_purpose", ""))
+        self._who_role.setText(d.get("who_role", ""))
+        self._who_collaborate.setText(d.get("who_collaborate", ""))
+        freq_str = d.get("when_frequency", "")
+        freq_set = set(freq_str.split("、")) if freq_str else set()
+        for opt, cb in self._when_checkboxes.items():
+            cb.setChecked(opt in freq_set)
+        self._where_env.setText(d.get("where_environment", ""))
+        self._how_skills.setPlainText(d.get("how_skills", ""))
+        self._how_much.setText(d.get("how_much_kpi", ""))
+
     def _refresh_task_panel(self):
         """重新繪製任務清單面板"""
         while self._task_rows_layout.count():
@@ -1855,17 +1877,29 @@ class WizardMainWindow(QMainWindow):
                 lbl_sub.setStyleSheet("color:#888; background:transparent; border:none; font-size:8pt;")
                 col.addWidget(lbl_sub)
 
+            btn_edit = QPushButton("✏")
+            btn_edit.setFixedSize(26, 26)
+            btn_edit.setToolTip("載回表單編輯")
+            btn_edit.setStyleSheet(
+                "QPushButton { color:#2980b9; border:1px solid #2980b9; "
+                "border-radius:3px; font-weight:bold; background:#fff; font-size:9pt; }"
+                "QPushButton:hover { background:#eaf4fb; }"
+            )
+            btn_edit.clicked.connect(lambda _, x=i: self._edit_task(x))
+
             btn_del = QPushButton("✕")
-            btn_del.setFixedSize(22, 22)
+            btn_del.setFixedSize(26, 26)
+            btn_del.setToolTip("刪除此任務")
             btn_del.setStyleSheet(
                 "QPushButton { color:#e74c3c; border:1px solid #e74c3c; "
                 "border-radius:3px; font-weight:bold; background:#fff; font-size:8pt; }"
-                "QPushButton:hover { background:#fdecea; border:none; }"
+                "QPushButton:hover { background:#fdecea; }"
             )
             btn_del.clicked.connect(lambda _, x=i: self._remove_task(x))
 
             hl.addWidget(num)
             hl.addLayout(col, 1)
+            hl.addWidget(btn_edit)
             hl.addWidget(btn_del)
             self._task_rows_layout.addWidget(row_w)
 
