@@ -1333,7 +1333,8 @@ class WizardMainWindow(QMainWindow):
         page_v.addWidget(self._task_panel)
 
         # ── 可滾動區域：5W2H 表單欄位 ─────────────
-        scroll = QScrollArea()
+        self._form_scroll = QScrollArea()
+        scroll = self._form_scroll
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         inner = QWidget()
@@ -1803,6 +1804,8 @@ class WizardMainWindow(QMainWindow):
         self._added_tasks.append(fields)
         self._clear_form_fields()
         self._refresh_task_panel()
+        # 加入後自動捲回頂端，讓員工直接填下一項任務
+        self._form_scroll.verticalScrollBar().setValue(0)
 
     def _remove_task(self, index: int):
         """從清單中刪除指定任務"""
