@@ -4,9 +4,10 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.4.6-orange)
+![Version](https://img.shields.io/badge/Version-v1.4.8-orange)
+![AI](https://img.shields.io/badge/AI-LM%20Studio%20%7C%20Local%20LLM-blueviolet)
 
-> 以 RAG 技術為核心的職能說明書產生工具。員工以「逐任務填寫完整 5W2H」的方式描述工作內容，系統自動從台灣 ICAP 職能基準資料庫找出最相似標準，再由員工逐項確認形成完整缺口報告，最終輸出格式化 Excel 職能說明書。
+> 以 RAG 技術為核心的職能說明書產生工具。員工可透過「逐任務填寫完整 5W2H」或「AI 對答式引導」兩種方式描述工作內容，系統自動從台灣 ICAP 職能基準資料庫找出最相似標準，再由員工逐項確認形成完整缺口報告，最終輸出格式化 Excel 職能說明書。
 
 ---
 
@@ -17,6 +18,7 @@
 - [專案結構](#-專案結構)
 - [快速開始](#-快速開始)
 - [使用流程](#-使用流程)
+- [AI 引導填寫](#-ai-引導填寫)
 - [模組說明](#-模組說明)
 - [效能](#-效能)
 - [技術棧](#️-技術棧)
@@ -51,7 +53,9 @@
 ┌─────────────────────────▼───────────────────────────────┐
 │                    介面層                                │
 │   wizard_ui.py (PyQt6 桌面應用程式)                     │
-│   ├── Step 1：逐任務 5W2H 輸入（任務清單面板 + 表單）   │
+│   ├── [輸入方式 A] 逐任務 5W2H 表單（任務清單面板）     │
+│   ├── [輸入方式 B] AI 對答引導（LM Studio 本地 LLM）    │
+│   │     ai_chat.py (LMStudioChat) ← TAIDE / Qwen3       │
 │   ├── Step 2：分析結果 + 職能基準分頁瀏覽               │
 │   ├── Step 3：StandardAdoptionWizard 逐項確認精靈       │
 │   └── Step 4：確認缺口 → 匯出 Excel（6 個 Sheet）      │
@@ -64,6 +68,7 @@
 
 | 功能 | 說明 |
 |------|------|
+| 🤖 **AI 對答式引導填寫** | 點選「開始對話 →」，由本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過自然對話引導員工逐一描述工作任務，完成後自動整理成 5W2H 格式匯入清單；完全離線、資料不外傳 |
 | 📝 **逐任務 5W2H 輸入** | 每項任務各自填寫完整的 What / Why / Who / When / Where / How / How Much，填完一項按「加入清單 ＋」後自動捲回頂端繼續填下一項 |
 | 📋 **任務清單面板** | 固定顯示在表單頂部，列出所有已加入任務（含 What 摘要、角色、頻率），可隨時編輯或刪除任一任務 |
 | ✏️ **任務編輯對話框** | 點「編輯」開啟 `TaskEditDialog` 彈出視窗，含完整 9 個 5W2H 欄位，儲存後原地更新清單，不影響其他任務 |
@@ -84,7 +89,8 @@ CompetencyWizard/
 │
 ├── 🐍 核心模組
 │   ├── main.py              # 程式入口（QApplication 啟動）
-│   ├── wizard_ui.py         # PyQt6 主視窗 UI（三頁 Stack）
+│   ├── wizard_ui.py         # PyQt6 主視窗 UI（四頁 Stack）
+│   ├── ai_chat.py           # LM Studio AI 對話模組（LMStudioChat）
 │   ├── wizard_rag.py        # RAG 核心（Embedding + FAISS 檢索）
 │   ├── gap_analyzer.py      # 5W2H 缺口分析邏輯與資料結構
 │   ├── excel_exporter.py    # openpyxl Excel 輸出（6 Sheet）
@@ -112,7 +118,7 @@ cd CompetencyWizard
 ### 2. 安裝依賴
 
 ```bash
-pip install PyQt6 sentence-transformers faiss-cpu openpyxl
+pip install PyQt6 sentence-transformers faiss-cpu openpyxl openai
 ```
 
 > 首次執行會自動下載 `BAAI/bge-base-zh-v1.5` 模型（約 400 MB），需要網路連線。
@@ -170,6 +176,47 @@ python main.py
 
 ---
 
+## 🤖 AI 引導填寫
+
+不知道怎麼填寫 5W2H？讓 AI 扮演 HR 助理，透過對話引導你完成填寫。
+
+### 前置需求
+
+1. 安裝 [LM Studio](https://lmstudio.ai/)（免費）
+2. 在 LM Studio 下載模型（推薦 `TAIDE-LX-7B-Chat`，繁中效果最好）
+3. 點選左側「Local Server」→ 載入模型 → 按「Start Server」
+
+### 支援模型
+
+| 模型 | 繁中支援 | 說明 |
+|------|----------|------|
+| `TAIDE-LX-7B-Chat` | ★★★★★ | 台灣政府出品，最適合繁中職場語境，首選 |
+| `Qwen3-8B` | ★★★★★ | 阿里巴巴，推理能力強 |
+| `gemma-3n-E4B` | ★★★ | Google，速度較快 |
+
+### 使用流程
+
+```
+LM Studio 開啟 Server
+  ↓
+CompetencyWizard 表單頁點選「開始對話 →」（綠色按鈕）
+  ↓
+AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
+  ↓
+員工輸入每個問題的答案
+  ↓
+所有任務收集完畢，AI 整理成 5W2H 清單
+  ↓
+點選「確認並匯入任務 →」→ 返回表單頁
+  ↓
+任務已出現在清單中，可手動補充或直接「開始分析」
+```
+
+> AI 對話和手動填寫可以**混用**，匯入不會覆蓋已有的手動任務。
+> 所有資料在本機處理，不會上傳至任何外部伺服器。
+
+---
+
 ## 🔧 模組說明
 
 <details>
@@ -191,9 +238,21 @@ python main.py
 </details>
 
 <details>
+<summary><b>ai_chat.py</b> — LM Studio AI 對話模組</summary>
+
+- `LMStudioChat`：管理對話歷史，呼叫 LM Studio OpenAI 相容 API（`http://localhost:1234/v1`）
+- 固定開場白（`GREETING`）瞬間顯示，不佔用 API 額度
+- 系統提示（`SYSTEM_PROMPT`）引導 LLM 依 5W2H 結構逐項訪談
+- `extract_tasks_json()` 偵測 AI 回應中的 `[TASKS_JSON]...[/TASKS_JSON]` 區塊並解析
+- `check_server()` 使用 TCP socket 偵測 LM Studio Server 是否啟動
+- 對話歷史自動截斷（最多 20 輪），防止 context 無限成長
+- `ChatWorker(QThread)`：背景執行緒呼叫 API，避免 UI 凍結
+</details>
+
+<details>
 <summary><b>wizard_ui.py</b> — PyQt6 桌面 UI</summary>
 
-- 三頁 `QStackedWidget`：載入頁 → 輸入表單頁 → 結果頁
+- 四頁 `QStackedWidget`：載入頁 → 輸入表單頁 → 結果頁 → AI 對話頁
 - `InitThread` / `AnalyzeThread`：背景執行緒避免 UI 凍結
 - **逐任務輸入架構**：
   - 表單頁頂部固定顯示「已加入任務清單」面板（不隨 5W2H 欄位捲動）
@@ -247,6 +306,8 @@ python main.py
 | 層級 | 技術 | 用途 |
 |------|------|------|
 | 桌面 UI | PyQt6 | 操作介面 |
+| 本地 LLM | LM Studio + TAIDE / Qwen3 | AI 對答式引導填寫 |
+| LLM API | openai（Python SDK） | LM Studio OpenAI 相容 API 呼叫 |
 | Embedding | sentence-transformers | 文本向量化（bge-base-zh-v1.5） |
 | 向量檢索 | FAISS | 高效相似度搜尋 |
 | Excel 輸出 | openpyxl | 職能說明書格式化輸出 |
@@ -267,6 +328,8 @@ python main.py
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v1.4.8 | 2026-03-21 | 新增 AI 對答式引導填寫：LM Studio 本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過對話引導員工描述工作任務，完成後自動整理 5W2H 格式匯入清單；新增 ai_chat.py 模組；ChatWorker 背景執行緒；固定開場白；TCP socket Server 偵測 |
+| v1.4.7 | 2026-03-18 | 任務清單面板加入收合/展開功能，防止任務過多時覆蓋表單操作區域 |
 | v1.4.6 | 2026-03-18 | 新增 TaskEditDialog 彈出式任務編輯對話框；點「編輯」開啟，儲存後原地更新清單；移除舊的「載回主表單」編輯方式 |
 | v1.4.5 | 2026-03-18 | 範本載入改為逐任務完整 5W2H dict：task_name/output/behaviors/skills 等欄位自動對應；載入後自動捲回頂端 |
 | v1.4.4 | 2026-03-18 | 「加入清單 ＋」移至表單底部按鈕列；加入後自動捲回頂端；任務清單「編輯」「刪除」按鈕修正為 app 標準樣式 |
@@ -288,4 +351,4 @@ python main.py
 
 ---
 
-**版本**：v1.4.6　　**最後更新**：2026-03-18
+**版本**：v1.4.8　　**最後更新**：2026-03-21
