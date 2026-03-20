@@ -23,6 +23,7 @@ from PyQt6.QtGui import QFont, QColor
 from wizard_rag import WizardRAG
 from gap_analyzer import GapAnalyzer, UserInput5W2H, GapReport
 from excel_exporter import export_to_excel
+from ai_chat import LMStudioChat, strip_tasks_json
 
 
 # ─────────────────────────────────────────
@@ -1252,6 +1253,31 @@ class StandardAdoptionWizard(QDialog):
 
 
 # ─────────────────────────────────────────
+# AI 對話 Worker（非同步呼叫 LM Studio）
+# ─────────────────────────────────────────
+
+class ChatWorker(QThread):
+    """在背景執行緒中呼叫 LM Studio，避免 UI 凍結。"""
+    reply   = pyqtSignal(str)   # AI 回應文字
+    error   = pyqtSignal(str)   # 錯誤訊息
+
+    def __init__(self, session: LMStudioChat, user_message: str = ""):
+        super().__init__()
+        self._session = session
+        self._user_message = user_message  # 空字串 = 開始對話（start）
+
+    def run(self):
+        try:
+            if self._user_message == "":
+                text = self._session.start()
+            else:
+                text = self._session.send(self._user_message)
+            self.reply.emit(text)
+        except Exception as e:
+            self.error.emit(str(e))
+
+
+# ─────────────────────────────────────────
 # 主視窗
 # ─────────────────────────────────────────
 
@@ -1289,10 +1315,12 @@ class WizardMainWindow(QMainWindow):
         self._page_loading = self._make_loading_page()
         self._page_form    = self._make_form_page()
         self._page_result  = self._make_result_page()
+        self._page_chat    = self._make_chat_page()
 
         self.stack.addWidget(self._page_loading)  # 0
         self.stack.addWidget(self._page_form)      # 1
         self.stack.addWidget(self._page_result)    # 2
+        self.stack.addWidget(self._page_chat)      # 3
 
     def _make_top_bar(self) -> QWidget:
         bar = QFrame()
@@ -1410,6 +1438,43 @@ class WizardMainWindow(QMainWindow):
         self._btn_load_template.clicked.connect(self._on_load_from_standard)
         hint_h.addWidget(self._btn_load_template)
         page_v.addWidget(hint_bar)
+
+        # ── AI 引導填寫提示區塊 ───────────────────────
+        ai_bar = QFrame()
+        ai_bar.setStyleSheet(
+            "QFrame { background:#eafaf1; border:1px solid #a9dfbf; border-radius:6px; }"
+        )
+        ai_h = QHBoxLayout(ai_bar)
+        ai_h.setContentsMargins(12, 8, 12, 8)
+        ai_h.setSpacing(12)
+        ai_icon = QLabel("🤖")
+        ai_icon.setStyleSheet("font-size:16pt; background:transparent; border:none;")
+        ai_h.addWidget(ai_icon)
+        ai_text = QLabel(
+            "<b>AI 引導填寫</b><br>"
+            "<span style='color:#555; font-size:9pt;'>"
+            "不知道怎麼填？讓 AI 透過對話引導你逐一描述工作任務，"
+            "完成後自動整理成 5W2H 格式匯入表單。"
+            "</span>"
+        )
+        ai_text.setTextFormat(Qt.TextFormat.RichText)
+        ai_text.setWordWrap(True)
+        ai_text.setStyleSheet("background:transparent; border:none;")
+        ai_h.addWidget(ai_text, 1)
+        self._btn_open_chat = QPushButton("開始對話 →")
+        self._btn_open_chat.setFixedHeight(32)
+        self._btn_open_chat.setFixedWidth(110)
+        self._btn_open_chat.setStyleSheet(
+            "QPushButton { background:#27ae60; color:white; border:none; "
+            "border-radius:4px; font-weight:bold; font-size:9pt; padding:0 8px; }"
+            "QPushButton:hover { background:#229954; }"
+            "QPushButton:pressed { background:#1e8449; }"
+            "QPushButton:disabled { background:#aaa; }"
+        )
+        self._btn_open_chat.setEnabled(False)  # 初始化完成後啟用
+        self._btn_open_chat.clicked.connect(self._open_ai_chat)
+        ai_h.addWidget(self._btn_open_chat)
+        page_v.addWidget(ai_bar)
 
         # ── 已加入任務清單面板（固定頂部，始終可見）──
         self._added_tasks: list = []
@@ -1797,6 +1862,97 @@ class WizardMainWindow(QMainWindow):
 
         return w
 
+    def _make_chat_page(self) -> QWidget:
+        """Step AI: LM Studio 對答式引導填寫頁面"""
+        page = QWidget()
+        page.setObjectName("chatPage")
+        v = QVBoxLayout(page)
+        v.setContentsMargins(20, 16, 20, 16)
+        v.setSpacing(10)
+
+        # ── 頁頭 ─────────────────────────────────
+        header = QFrame()
+        header.setStyleSheet(
+            "QFrame { background:#eafaf1; border:1px solid #a9dfbf; border-radius:6px; }"
+        )
+        hh = QHBoxLayout(header)
+        hh.setContentsMargins(12, 8, 12, 8)
+        hh.setSpacing(12)
+
+        btn_back = QPushButton("← 返回表單")
+        btn_back.setFixedHeight(28)
+        btn_back.setStyleSheet(
+            "QPushButton { color:#555; border:1px solid #bbb; border-radius:4px; "
+            "background:#fff; font-size:9pt; padding:0 10px; }"
+            "QPushButton:hover { background:#eee; }"
+        )
+        btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        hh.addWidget(btn_back)
+
+        hh.addWidget(QLabel("模型："))
+        self._chat_model_combo = QComboBox()
+        self._chat_model_combo.setFixedHeight(28)
+        self._chat_model_combo.setFixedWidth(260)
+        self._chat_model_combo.addItem("TAIDE-LX-7B-Chat")
+        self._chat_model_combo.addItem("Qwen3-8B-Q4_K_M")
+        self._chat_model_combo.addItem("gemma-3n-E4B-it-Q4_K_M")
+        hh.addWidget(self._chat_model_combo)
+
+        self._chat_status_lbl = QLabel("請先在 LM Studio 開啟 Local Server 並載入模型")
+        self._chat_status_lbl.setStyleSheet("color:#888; font-size:9pt; background:transparent; border:none;")
+        hh.addWidget(self._chat_status_lbl, 1)
+
+        v.addWidget(header)
+
+        # ── 對話記錄區 ───────────────────────────
+        self._chat_browser = QTextBrowser()
+        self._chat_browser.setOpenExternalLinks(False)
+        self._chat_browser.setStyleSheet(
+            "QTextBrowser { background:#fafafa; border:1px solid #ced4da; "
+            "border-radius:6px; padding:8px; font-size:10pt; }"
+        )
+        v.addWidget(self._chat_browser, 1)
+
+        # ── 輸入區 ───────────────────────────────
+        input_row = QHBoxLayout()
+        input_row.setSpacing(8)
+        self._chat_input = QLineEdit()
+        self._chat_input.setPlaceholderText("輸入你的回答，按 Enter 送出...")
+        self._chat_input.setFixedHeight(34)
+        self._chat_input.returnPressed.connect(self._on_chat_send)
+        input_row.addWidget(self._chat_input, 1)
+
+        self._chat_send_btn = QPushButton("送出")
+        self._chat_send_btn.setFixedHeight(34)
+        self._chat_send_btn.setFixedWidth(70)
+        self._chat_send_btn.setStyleSheet(
+            "QPushButton { background:#3498db; color:white; border:none; "
+            "border-radius:4px; font-weight:bold; }"
+            "QPushButton:hover { background:#2980b9; }"
+            "QPushButton:disabled { background:#aaa; }"
+        )
+        self._chat_send_btn.clicked.connect(self._on_chat_send)
+        input_row.addWidget(self._chat_send_btn)
+        v.addLayout(input_row)
+
+        # ── 匯入按鈕（完成後才顯示）────────────
+        self._chat_import_btn = QPushButton("確認並匯入任務 →")
+        self._chat_import_btn.setFixedHeight(36)
+        self._chat_import_btn.setStyleSheet(
+            "QPushButton { background:#27ae60; color:white; border:none; "
+            "border-radius:4px; font-weight:bold; font-size:10pt; }"
+            "QPushButton:hover { background:#229954; }"
+        )
+        self._chat_import_btn.hide()
+        self._chat_import_btn.clicked.connect(self._import_ai_tasks)
+        v.addWidget(self._chat_import_btn)
+
+        # ── 內部狀態 ─────────────────────────────
+        self._chat_session: Optional[LMStudioChat] = None
+        self._chat_worker: Optional[ChatWorker] = None
+
+        return page
+
     # ─── 初始化流程 ───────────────────────────
 
     def _start_init(self, force_rebuild: bool = False):
@@ -1812,6 +1968,7 @@ class WizardMainWindow(QMainWindow):
             mode = "共用索引" if self.rag.using_shared_engine else "獨立索引"
             self._status_label.setText(f"已就緒（{self.rag.chunk_count} chunks，{mode}）")
             self._btn_load_template.setEnabled(True)
+            self._btn_open_chat.setEnabled(True)
             self.stack.setCurrentIndex(1)
         else:
             self._loading_label.setText(f"初始化失敗：{error_msg}")
@@ -1825,6 +1982,140 @@ class WizardMainWindow(QMainWindow):
         dlg = DataManagerDialog(self.rag, self)
         dlg.rebuild_requested.connect(self._on_force_rebuild)
         dlg.exec()
+
+    # ─── AI 對話引導填寫 ──────────────────────
+
+    def _open_ai_chat(self):
+        """切換到 AI 對話頁並啟動對話。"""
+        from ai_chat import LMStudioChat
+        if not LMStudioChat.check_server():
+            QMessageBox.warning(
+                self, "LM Studio 未啟動",
+                "請先開啟 LM Studio，點擊左側「Local Server」，\n"
+                "載入模型後按「Start Server」，再回來點擊此按鈕。"
+            )
+            return
+
+        # 重置對話介面
+        self._chat_browser.clear()
+        self._chat_input.setEnabled(True)
+        self._chat_send_btn.setEnabled(True)
+        self._chat_import_btn.hide()
+        self._chat_status_lbl.setText("AI 正在思考中...")
+
+        # 取得選擇的模型名稱
+        model_name = self._chat_model_combo.currentText()
+
+        # 建立新對話
+        self._chat_session = LMStudioChat(model=model_name)
+
+        # 切換頁面
+        self.stack.setCurrentIndex(3)
+
+        # 啟動第一句（由 AI 主動問候）
+        self._chat_worker = ChatWorker(self._chat_session, user_message="")
+        self._chat_worker.reply.connect(self._on_chat_reply)
+        self._chat_worker.error.connect(self._on_chat_error)
+        self._chat_worker.start()
+
+    def _on_chat_send(self):
+        """員工送出訊息。"""
+        if not self._chat_session:
+            return
+        text = self._chat_input.text().strip()
+        if not text:
+            return
+
+        # 顯示員工訊息
+        self._chat_browser.append(
+            f"<p style='margin:6px 0;'>"
+            f"<b style='color:#2c3e50;'>你：</b> {text}</p>"
+        )
+        self._chat_input.clear()
+        self._chat_input.setEnabled(False)
+        self._chat_send_btn.setEnabled(False)
+        self._chat_status_lbl.setText("AI 正在思考中...")
+
+        # 非同步送出
+        self._chat_worker = ChatWorker(self._chat_session, user_message=text)
+        self._chat_worker.reply.connect(self._on_chat_reply)
+        self._chat_worker.error.connect(self._on_chat_error)
+        self._chat_worker.start()
+
+    def _on_chat_reply(self, full_reply: str):
+        """收到 AI 回應後更新介面。"""
+        display_text = strip_tasks_json(full_reply)
+
+        self._chat_browser.append(
+            f"<p style='margin:6px 0; background:#f0f8ff; padding:6px; border-radius:4px;'>"
+            f"<b style='color:#27ae60;'>AI：</b> {display_text}</p>"
+        )
+        # 自動捲到底
+        sb = self._chat_browser.verticalScrollBar()
+        sb.setValue(sb.maximum())
+
+        if self._chat_session and self._chat_session.is_done():
+            # AI 已整理完畢
+            self._chat_status_lbl.setText(f"已完成，共整理 {len(self._chat_session.get_tasks())} 個任務")
+            self._chat_input.setEnabled(False)
+            self._chat_send_btn.setEnabled(False)
+            self._chat_import_btn.show()
+        else:
+            self._chat_status_lbl.setText("等待你的回覆...")
+            self._chat_input.setEnabled(True)
+            self._chat_send_btn.setEnabled(True)
+            self._chat_input.setFocus()
+
+    def _on_chat_error(self, error_msg: str):
+        """處理 API 呼叫錯誤。"""
+        self._chat_status_lbl.setText("發生錯誤")
+        self._chat_input.setEnabled(True)
+        self._chat_send_btn.setEnabled(True)
+        QMessageBox.critical(
+            self, "AI 對話錯誤",
+            f"呼叫 LM Studio API 失敗：\n\n{error_msg}\n\n"
+            "請確認 LM Studio Server 是否正在運作，且已載入模型。"
+        )
+
+    def _import_ai_tasks(self):
+        """將 AI 整理的任務匯入 _added_tasks，切換回表單頁。"""
+        if not self._chat_session or not self._chat_session.is_done():
+            return
+
+        tasks = self._chat_session.get_tasks()
+        if not tasks:
+            QMessageBox.warning(self, "匯入失敗", "未能解析任務資料，請重新對話。")
+            return
+
+        # 合併到現有清單（不覆蓋，允許 AI + 手動混用）
+        added = 0
+        for t in tasks:
+            task_dict = {
+                "what_tasks":       t.get("what_tasks", "").strip(),
+                "what_outputs":     t.get("what_outputs", "").strip(),
+                "why_purpose":      t.get("why_purpose", "").strip(),
+                "who_role":         t.get("who_role", "").strip(),
+                "who_collaborate":  t.get("who_collaborate", "").strip(),
+                "when_frequency":   [t.get("when_frequency", "").strip()] if t.get("when_frequency") else [],
+                "where_environment":t.get("where_environment", "").strip(),
+                "how_skills":       t.get("how_skills", "").strip(),
+                "how_much_kpi":     t.get("how_much_kpi", "").strip(),
+            }
+            if task_dict["what_tasks"]:
+                self._added_tasks.append(task_dict)
+                added += 1
+
+        self._refresh_task_panel()
+        self.stack.setCurrentIndex(1)
+
+        # 捲到頂端讓使用者看到任務清單
+        QTimer.singleShot(100, lambda: self._form_scroll.verticalScrollBar().setValue(0))
+
+        QMessageBox.information(
+            self, "匯入成功",
+            f"已成功匯入 {added} 個任務。\n\n"
+            "你可以在表單中繼續補充細節，或直接點擊「開始分析」。"
+        )
 
     def _on_load_from_standard(self):
         dlg = StandardSelectorDialog(self.rag, self)
