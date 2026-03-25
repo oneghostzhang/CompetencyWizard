@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
     QStackedWidget, QGroupBox, QFormLayout, QSplitter,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
-    QDialog, QRadioButton,
+    QDialog, QRadioButton, QTextBrowser,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -23,7 +23,7 @@ from PyQt6.QtGui import QFont, QColor
 from wizard_rag import WizardRAG
 from gap_analyzer import GapAnalyzer, UserInput5W2H, GapReport
 from excel_exporter import export_to_excel
-from ai_chat import LMStudioChat, strip_tasks_json
+from ai_chat import LMStudioChat, strip_output_json
 
 
 # ─────────────────────────────────────────
@@ -278,6 +278,10 @@ class InitThread(QThread):
         self.rag = rag
         self.force_rebuild = force_rebuild
 
+    def cancel(self) -> None:
+        """請求中止初始化。"""
+        self.rag.stop()
+
     def run(self):
         try:
             if self.force_rebuild:
@@ -296,6 +300,11 @@ class AnalyzeThread(QThread):
         super().__init__()
         self.analyzer = analyzer
         self.user_input = user_input
+        self._cancelled = False
+
+    def cancel(self) -> None:
+        """標記取消（分析完成前不會立即中止，但可在外部檢查此狀態）。"""
+        self._cancelled = True
 
     def run(self):
         try:
@@ -317,6 +326,11 @@ class ParseThread(QThread):
         super().__init__()
         self.pdf_paths = pdf_paths
         self.json_dir  = json_dir
+        self._cancelled = False
+
+    def cancel(self) -> None:
+        """請求中止解析，會在處理下一個 PDF 前停止。"""
+        self._cancelled = True
 
     def run(self):
         try:
@@ -328,6 +342,9 @@ class ParseThread(QThread):
 
         ok = err = 0
         for path_str in self.pdf_paths:
+            if self._cancelled:
+                self.progress.emit("⚠ 使用者已取消解析")
+                break
             p   = Path(path_str)
             out = self.json_dir / (p.stem + ".json")
             try:
@@ -612,6 +629,11 @@ class DataManagerDialog(QDialog):
         self._btn_parse.setObjectName("primary")
         self._btn_parse.clicked.connect(self._on_parse)
 
+        self._btn_cancel_parse = QPushButton("取消解析")
+        self._btn_cancel_parse.setObjectName("danger")
+        self._btn_cancel_parse.setVisible(False)
+        self._btn_cancel_parse.clicked.connect(self._on_parse_cancel)
+
         self._btn_rebuild = QPushButton("重建向量索引")
         self._btn_rebuild.setObjectName("success")
         self._btn_rebuild.clicked.connect(self._on_rebuild)
@@ -620,6 +642,7 @@ class DataManagerDialog(QDialog):
         btn_close.clicked.connect(self.close)
 
         row2.addWidget(self._btn_parse)
+        row2.addWidget(self._btn_cancel_parse)
         row2.addWidget(self._btn_rebuild)
         row2.addStretch()
         row2.addWidget(btn_close)
@@ -724,6 +747,7 @@ class DataManagerDialog(QDialog):
             return
         self._btn_parse.setEnabled(False)
         self._btn_rebuild.setEnabled(False)
+        self._btn_cancel_parse.setVisible(True)
         self._log.append(f"\n▶ 開始解析 {len(paths)} 個 PDF...")
         self._parse_thread = ParseThread(paths, self._json_dir)
         self._parse_thread.progress.connect(self._log.append)
@@ -734,7 +758,13 @@ class DataManagerDialog(QDialog):
         self._log.append(f"── 完成：{ok} 成功，{err} 失敗 ──")
         self._btn_parse.setEnabled(True)
         self._btn_rebuild.setEnabled(True)
+        self._btn_cancel_parse.setVisible(False)
         self._refresh_list()
+
+    def _on_parse_cancel(self):
+        if self._parse_thread and self._parse_thread.isRunning():
+            self._parse_thread.cancel()
+        self._btn_cancel_parse.setVisible(False)
 
     def _on_rebuild(self):
         reply = QMessageBox.question(
@@ -1893,9 +1923,9 @@ class WizardMainWindow(QMainWindow):
         self._chat_model_combo = QComboBox()
         self._chat_model_combo.setFixedHeight(28)
         self._chat_model_combo.setFixedWidth(260)
-        self._chat_model_combo.addItem("TAIDE-LX-7B-Chat")
-        self._chat_model_combo.addItem("Qwen3-8B-Q4_K_M")
-        self._chat_model_combo.addItem("gemma-3n-E4B-it-Q4_K_M")
+        self._chat_model_combo.addItem("taide-lx-7b-chat")
+        self._chat_model_combo.addItem("qwen3-8b-q4_k_m")
+        self._chat_model_combo.addItem("gemma-3n-e4b-it-q4_k_m")
         hh.addWidget(self._chat_model_combo)
 
         self._chat_status_lbl = QLabel("請先在 LM Studio 開啟 Local Server 並載入模型")
@@ -2044,7 +2074,7 @@ class WizardMainWindow(QMainWindow):
 
     def _on_chat_reply(self, full_reply: str):
         """收到 AI 回應後更新介面。"""
-        display_text = strip_tasks_json(full_reply)
+        display_text = strip_output_json(full_reply)
 
         self._chat_browser.append(
             f"<p style='margin:6px 0; background:#f0f8ff; padding:6px; border-radius:4px;'>"
@@ -2055,8 +2085,10 @@ class WizardMainWindow(QMainWindow):
         sb.setValue(sb.maximum())
 
         if self._chat_session and self._chat_session.is_done():
-            # AI 已整理完畢
-            self._chat_status_lbl.setText(f"已完成，共整理 {len(self._chat_session.get_tasks())} 個任務")
+            # AI 已整理完畢，計算主要職責數量
+            comp = self._chat_session.get_competency()
+            resp_count = len(comp.get("main_responsibilities", []))
+            self._chat_status_lbl.setText(f"已完成，共整理 {resp_count} 項主要職責")
             self._chat_input.setEnabled(False)
             self._chat_send_btn.setEnabled(False)
             self._chat_import_btn.show()
@@ -2078,31 +2110,20 @@ class WizardMainWindow(QMainWindow):
         )
 
     def _import_ai_tasks(self):
-        """將 AI 整理的任務匯入 _added_tasks，切換回表單頁。"""
+        """將 AI 整理的職能說明書匯入 _added_tasks，切換回表單頁。"""
         if not self._chat_session or not self._chat_session.is_done():
             return
 
-        tasks = self._chat_session.get_tasks()
+        tasks = self._chat_session.get_tasks_for_import()
         if not tasks:
-            QMessageBox.warning(self, "匯入失敗", "未能解析任務資料，請重新對話。")
+            QMessageBox.warning(self, "匯入失敗", "未能解析職能資料，請重新對話。")
             return
 
         # 合併到現有清單（不覆蓋，允許 AI + 手動混用）
         added = 0
         for t in tasks:
-            task_dict = {
-                "what_tasks":       t.get("what_tasks", "").strip(),
-                "what_outputs":     t.get("what_outputs", "").strip(),
-                "why_purpose":      t.get("why_purpose", "").strip(),
-                "who_role":         t.get("who_role", "").strip(),
-                "who_collaborate":  t.get("who_collaborate", "").strip(),
-                "when_frequency":   [t.get("when_frequency", "").strip()] if t.get("when_frequency") else [],
-                "where_environment":t.get("where_environment", "").strip(),
-                "how_skills":       t.get("how_skills", "").strip(),
-                "how_much_kpi":     t.get("how_much_kpi", "").strip(),
-            }
-            if task_dict["what_tasks"]:
-                self._added_tasks.append(task_dict)
+            if t.get("what_tasks"):
+                self._added_tasks.append(t)
                 added += 1
 
         self._refresh_task_panel()
@@ -2113,7 +2134,7 @@ class WizardMainWindow(QMainWindow):
 
         QMessageBox.information(
             self, "匯入成功",
-            f"已成功匯入 {added} 個任務。\n\n"
+            f"已成功匯入 {added} 個工作任務。\n\n"
             "你可以在表單中繼續補充細節，或直接點擊「開始分析」。"
         )
 
