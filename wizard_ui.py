@@ -1287,18 +1287,28 @@ class StandardAdoptionWizard(QDialog):
 # ─────────────────────────────────────────
 
 class ChatWorker(QThread):
-    """在背景執行緒中呼叫 LM Studio，避免 UI 凍結。"""
+    """
+    在背景執行緒中初始化後端並推論，避免 UI 凍結。
+    mode:
+      'start'  — 初始化後端 + 回傳開場白
+      'send'   — 送出員工訊息，取得 AI 回應
+    """
     reply   = pyqtSignal(str)   # AI 回應文字
+    status  = pyqtSignal(str)   # 狀態更新（載入進度）
     error   = pyqtSignal(str)   # 錯誤訊息
 
     def __init__(self, session: LMStudioChat, user_message: str = ""):
         super().__init__()
         self._session = session
-        self._user_message = user_message  # 空字串 = 開始對話（start）
+        self._user_message = user_message  # 空字串 = start 模式
 
     def run(self):
         try:
             if self._user_message == "":
+                # 初始化後端（LlamaCpp 需要數秒載入）
+                self.status.emit("正在載入 AI 模型，請稍候（首次需 10–30 秒）...")
+                backend = self._session.init_backend()
+                logger.info("AI 後端：%s", backend)
                 text = self._session.start()
             else:
                 text = self._session.send(self._user_message)
@@ -2016,35 +2026,39 @@ class WizardMainWindow(QMainWindow):
     # ─── AI 對話引導填寫 ──────────────────────
 
     def _open_ai_chat(self):
-        """切換到 AI 對話頁並啟動對話。"""
-        from ai_chat import LMStudioChat
-        if not LMStudioChat.check_server():
+        """切換到 AI 對話頁並啟動對話（自動選擇後端）。"""
+        from ai_chat import LMStudioChat, TAIDE_MODEL_PATH
+        from pathlib import Path
+
+        # 若 LlamaCpp 不可用，才需要 LM Studio Server
+        use_llamacpp = Path(TAIDE_MODEL_PATH).exists()
+        if not use_llamacpp and not LMStudioChat.check_server():
             QMessageBox.warning(
-                self, "LM Studio 未啟動",
-                "請先開啟 LM Studio，點擊左側「Local Server」，\n"
-                "載入模型後按「Start Server」，再回來點擊此按鈕。"
+                self, "無法啟動 AI",
+                "找不到本地模型檔案，也偵測不到 LM Studio Server。\n\n"
+                "請確認以下其中一項：\n"
+                "• 本地模型路徑存在（自動使用，無需 LM Studio）\n"
+                "• 開啟 LM Studio → Local Server → Start Server"
             )
             return
 
         # 重置對話介面
         self._chat_browser.clear()
-        self._chat_input.setEnabled(True)
-        self._chat_send_btn.setEnabled(True)
+        self._chat_input.setEnabled(False)   # 載入完成前禁用
+        self._chat_send_btn.setEnabled(False)
         self._chat_import_btn.hide()
-        self._chat_status_lbl.setText("AI 正在思考中...")
+        self._chat_status_lbl.setText("正在載入 AI 模型...")
 
-        # 取得選擇的模型名稱
         model_name = self._chat_model_combo.currentText()
-
-        # 建立新對話
         self._chat_session = LMStudioChat(model=model_name)
 
         # 切換頁面
         self.stack.setCurrentIndex(3)
 
-        # 啟動第一句（由 AI 主動問候）
+        # 啟動初始化 + 開場白
         self._chat_worker = ChatWorker(self._chat_session, user_message="")
         self._chat_worker.reply.connect(self._on_chat_reply)
+        self._chat_worker.status.connect(self._chat_status_lbl.setText)
         self._chat_worker.error.connect(self._on_chat_error)
         self._chat_worker.start()
 
