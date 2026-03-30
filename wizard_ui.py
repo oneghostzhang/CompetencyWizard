@@ -1186,10 +1186,19 @@ class WizardMainWindow(QMainWindow):
         checks = []
         if behaviors:
             for b in behaviors:
-                cb = QCheckBox(b)
+                row_w = QWidget()
+                row_h = QHBoxLayout(row_w)
+                row_h.setContentsMargins(0, 0, 0, 0)
+                row_h.setSpacing(6)
+                cb = QCheckBox()
                 cb.setChecked(True)
-                cb.setWordWrap(True)
-                box_v.addWidget(cb)
+                cb.setFixedWidth(20)
+                lbl = QLabel(b)
+                lbl.setWordWrap(True)
+                lbl.mousePressEvent = lambda e, c=cb: c.setChecked(not c.isChecked())
+                row_h.addWidget(cb, 0)
+                row_h.addWidget(lbl, 1)
+                box_v.addWidget(row_w)
                 checks.append(cb)
         else:
             lbl = QLabel("（AI 未能生成行為指標，可手動填寫）")
