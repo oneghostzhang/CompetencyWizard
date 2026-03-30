@@ -844,7 +844,11 @@ class WizardMainWindow(QMainWindow):
         nav_row.addWidget(btn_back)
         btn_rerun = QPushButton("重新 AI 分析")
         btn_rerun.clicked.connect(self._rerun_llm)
+        btn_rerun.setToolTip("使用「填寫工作詳情」頁儲存的描述重新呼叫 LLM\n若需修改描述請先按「← 修改工作詳情」")
         nav_row.addWidget(btn_rerun)
+        self._rerun_hint = QLabel("（依工作詳情頁的描述重新生成）")
+        self._rerun_hint.setStyleSheet("color:#718096; font-size:8pt;")
+        nav_row.addWidget(self._rerun_hint)
         nav_row.addStretch()
         self._btn_confirm_suggest = QPushButton("確認採用  →")
         self._btn_confirm_suggest.setObjectName("success")
@@ -1213,13 +1217,16 @@ class WizardMainWindow(QMainWindow):
                 cb = QCheckBox()
                 cb.setChecked(True)
                 cb.setFixedWidth(20)
-                lbl = QLabel(b)
-                lbl.setWordWrap(True)
-                lbl.mousePressEvent = lambda e, c=cb: c.setChecked(not c.isChecked())
+                le = QLineEdit(b)
+                le.setStyleSheet(
+                    "border:1px solid #cbd5e0; border-radius:3px;"
+                    "padding:3px 6px; background:#fff; font-size:9pt;")
+                # 點擊 checkbox 啟用/停用文字欄
+                cb.toggled.connect(le.setEnabled)
                 row_h.addWidget(cb, 0)
-                row_h.addWidget(lbl, 1)
+                row_h.addWidget(le, 1)
                 box_v.addWidget(row_w)
-                checks.append((cb, b))   # 同時儲存文字，避免 cb.text() 空白
+                checks.append((cb, le))   # 存 (checkbox, lineedit)
         else:
             lbl = QLabel("（AI 未能生成行為指標，可手動填寫）")
             lbl.setStyleSheet("color:#e74c3c; font-style:italic;")
@@ -1258,7 +1265,8 @@ class WizardMainWindow(QMainWindow):
         for idx, entry in enumerate(self._suggest_checks):
             if not isinstance(entry, dict):
                 continue
-            accepted = [text for cb, text in entry.get("checks", []) if cb.isChecked()]
+            accepted = [le.text().strip() for cb, le in entry.get("checks", [])
+                        if cb.isChecked() and le.text().strip()]
             extra_text = entry.get("extra", QTextEdit()).toPlainText().strip()
             if extra_text:
                 accepted.extend([l.strip() for l in extra_text.split("\n") if l.strip()])

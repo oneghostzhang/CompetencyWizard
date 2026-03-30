@@ -411,10 +411,28 @@ def analyze_task(
             data = json.loads(match.group())
             indicators = data.get("behavior_indicators", [])
             if isinstance(indicators, list):
-                return {"behavior_indicators": [str(i) for i in indicators if i], "error": None}
+                return {"behavior_indicators": _split_indicators(indicators), "error": None}
     except Exception as e:
         logger.error("analyze_task 失敗：%s", e)
         return {"behavior_indicators": [], "error": str(e)}
 
-    lines = [l.strip().lstrip("-• ") for l in reply.split("\n") if len(l.strip()) > 5]
-    return {"behavior_indicators": lines[:3], "error": None}
+    lines = [l.strip().lstrip("-•・ ") for l in reply.split("\n") if len(l.strip()) > 8]
+    return {"behavior_indicators": _split_indicators(lines[:6]), "error": None}
+
+
+def _split_indicators(raw: list) -> list:
+    """將 LLM 可能合併成單一字串的多條指標拆開，去除「指標N:」等前綴，限回傳 3 條。"""
+    result = []
+    for item in raw:
+        item = str(item).strip()
+        if not item:
+            continue
+        # 若含換行或「指標N:」模式，視為多條合併，拆開
+        parts = re.split(r'\n|(?:指標\s*\d+\s*[:：])', item)
+        for p in parts:
+            p = p.strip().lstrip("-•・ ")
+            # 去除行首的「N.」「N、」「N)」等編號
+            p = re.sub(r'^\d+[\.、\)）]\s*', '', p)
+            if len(p) > 5:
+                result.append(p)
+    return result[:3]
