@@ -1105,7 +1105,12 @@ class WizardMainWindow(QMainWindow):
         self._detail_desc.setText(row.get("user_description", ""))
         self._detail_output.setText(row.get("user_output", ""))
 
-        self._btn_detail_prev.setEnabled(idx > 0)
+        if idx == 0:
+            self._btn_detail_prev.setText("← 返回編輯器")
+            self._btn_detail_prev.setEnabled(True)
+        else:
+            self._btn_detail_prev.setText("← 上一個任務")
+            self._btn_detail_prev.setEnabled(True)
         is_last = (idx == total - 1)
         if is_last:
             self._btn_detail_next.setText("完成，進行 AI 分析  →")
@@ -1124,8 +1129,11 @@ class WizardMainWindow(QMainWindow):
 
     def _detail_prev(self):
         self._detail_save_current()
-        self._current_task_idx -= 1
-        self._detail_update_display()
+        if self._current_task_idx == 0:
+            self.stack.setCurrentIndex(2)
+        else:
+            self._current_task_idx -= 1
+            self._detail_update_display()
 
     def _detail_next(self):
         self._detail_save_current()
