@@ -413,34 +413,54 @@ class DataManagerDialog(QDialog):
 
 def _rows_from_standard(std_data: dict) -> List[Dict]:
     """將職能基準 JSON 展開為每任務一列的 row list。"""
+    import re as _re
     rows = []
     tasks = std_data.get("competency_tasks") or []
+
+    # 建立 code→name 對照表
+    k_map = {k["code"]: k["name"] for k in std_data.get("competency_knowledge", []) if "code" in k}
+    s_map = {s["code"]: s["name"] for s in std_data.get("competency_skills", []) if "code" in s}
+
     for task in tasks:
-        task_id  = task.get("task_id", "")
+        task_id   = task.get("task_id", "")
         resp_code = task_id.split(".")[0] if "." in task_id else task_id
+
+        # 主責名稱去除開頭的 T-code 前綴（如 "T1製作與..." → "製作與..."）
+        resp_raw  = task.get("main_responsibility", "")
+        resp_name = _re.sub(r'^T\d+', '', resp_raw).strip()
 
         outputs = task.get("output") or []
         if isinstance(outputs, list) and outputs:
             out_str = "；".join(
                 o.get("name", "") if isinstance(o, dict) else str(o)
-                for o in outputs[:2]
+                for o in outputs[:3]
             )
         elif isinstance(outputs, str):
             out_str = outputs
         else:
             out_str = ""
 
+        # 知識/技能展開為 {code, name} dict，讓 exporter 能輸出名稱
+        knowledge = [
+            {"code": code, "name": k_map.get(code, "")}
+            for code in (task.get("knowledge") or [])
+        ]
+        skills = [
+            {"code": code, "name": s_map.get(code, "")}
+            for code in (task.get("skills") or [])
+        ]
+
         rows.append({
             "resp_code":        resp_code,
-            "resp_name":        task.get("main_responsibility", ""),
+            "resp_name":        resp_name,
             "task_code":        task_id,
             "task_name":        task.get("task_name", ""),
             "output":           out_str,
             "level":            task.get("level", 3),
             # 隱藏欄：供 LLM 使用
             "_behaviors":       task.get("behaviors") or [],
-            "_knowledge":       task.get("knowledge") or [],
-            "_skills":          task.get("skills") or [],
+            "_knowledge":       knowledge,
+            "_skills":          skills,
             # Step 3 填入
             "user_description": "",
             "user_output":      "",
@@ -1199,7 +1219,7 @@ class WizardMainWindow(QMainWindow):
                 row_h.addWidget(cb, 0)
                 row_h.addWidget(lbl, 1)
                 box_v.addWidget(row_w)
-                checks.append(cb)
+                checks.append((cb, b))   # 同時儲存文字，避免 cb.text() 空白
         else:
             lbl = QLabel("（AI 未能生成行為指標，可手動填寫）")
             lbl.setStyleSheet("color:#e74c3c; font-style:italic;")
@@ -1238,7 +1258,7 @@ class WizardMainWindow(QMainWindow):
         for idx, entry in enumerate(self._suggest_checks):
             if not isinstance(entry, dict):
                 continue
-            accepted = [cb.text() for cb in entry.get("checks", []) if cb.isChecked()]
+            accepted = [text for cb, text in entry.get("checks", []) if cb.isChecked()]
             extra_text = entry.get("extra", QTextEdit()).toPlainText().strip()
             if extra_text:
                 accepted.extend([l.strip() for l in extra_text.split("\n") if l.strip()])
