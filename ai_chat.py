@@ -59,19 +59,28 @@ GREETING = """\
 
 # ── 系統提示（精簡版，降低 token 消耗）──────────────────────────────────────
 
-SYSTEM_PROMPT = """\
-你是親切的HR助理，用繁體中文引導員工完成職能說明書。依序進行以下5個步驟，每次只問一個問題：
+SYSTEM_PROMPT = """你是親切的HR助理，用繁體中文引導員工完成職能說明書。依序進行以下5個步驟，每次只問一個問題：
 
 步驟1【基本資訊】依序詢問：職位名稱→公司/部門（可略）→工作內容描述→職能等級(1-5,不知道填3)。收集完說「謝謝，我將為您比對職能基準」。
 
 步驟2【確認基準】若收到【STANDARD_DATA】，向員工說明找到的職能基準名稱與工作描述，問是否符合。符合→步驟3；不符合→記錄差異後仍進步驟3。
 
-步驟3【確認職責】列出標準的主要職責(T1,T2...)，請員工對照自己實際職責增刪修改，確認最終清單後進步驟4。
+步驟3【確認職責】列出標準的主要職責，請員工對照增刪修改，用表格格式呈現：
+| 代碼 | 主要職責名稱 |
+|------|------------|
+| T1 | 職責名稱 |
+確認清單後進步驟4。
 
 步驟4【逐項訪談】針對每個主要職責依序：
   A. 問員工描述這個職責實際做什麼
-  B. 整理出2-4個子任務(Tx.1,Tx.2...)請員工確認
-  C. 每個子任務問：①產出成果 ②成效例子(情境→行動→結果) ③需要哪些知識 ④需要哪些技能
+  B. 整理子任務，用表格請員工確認：| 子任務 | 說明 | 例：| T1.1 | 說明 |
+  C. 問産出成果、成效例子、知識、技能，收集完用表格摘要：
+     | 項目 | 內容 |
+     |------|------|
+     | 工作產出 | ... |
+     | 行為指標 | ... |
+     | 知識 | ... |
+     | 技能 | ... |
   全部職責完成後進步驟5。
 
 步驟5【輸出】說「職能說明書已整理完成，請系統輸出Excel。」然後輸出：
@@ -80,8 +89,7 @@ SYSTEM_PROMPT = """\
 {"basic_info":{"position":"","company":"","department":"","description":"","level":3,"matched_standard_code":"","matched_standard_name":""},"main_responsibilities":[{"code":"T1","name":"","tasks":[{"code":"T1.1","name":"","output_code":"O1.1.1","output":"","behavior_indicator":"","level":3,"knowledge":[],"skills":[]}]}]}
 [/COMPETENCY_JSON]
 
-規則：員工說不確定/沒有→空白繼續；每步驟結束先摘要確認；不向員工說明步驟編號。\
-"""
+規則：員工說不確定/沒有→空白繼續；摘要用表格；不向員工說明步驟編號。"""
 
 # ── 工具函式 ─────────────────────────────────────────────────────────────────
 
@@ -327,3 +335,83 @@ class LMStudioChat:
             return True
         except ImportError:
             return False
+
+
+# ── 模組級別行為指標分析（單次呼叫，非對話）─────────────────────────────────
+
+_analyze_backend = None   # 延遲初始化，跨呼叫共用
+
+
+def _get_analyze_backend():
+    """取得或建立分析用後端（延遲初始化）。"""
+    global _analyze_backend
+    if _analyze_backend is not None:
+        return _analyze_backend
+    if Path(TAIDE_MODEL_PATH).exists():
+        try:
+            _analyze_backend = _LlamaCppBackend(TAIDE_MODEL_PATH)
+            logger.info("analyze_task 後端：LlamaCpp")
+            return _analyze_backend
+        except Exception as e:
+            logger.warning("analyze_task: LlamaCpp 失敗（%s），改用 LM Studio", e)
+    _analyze_backend = _LMStudioBackend()
+    logger.info("analyze_task 後端：LM Studio")
+    return _analyze_backend
+
+
+def analyze_task(
+    position: str,
+    task_name: str,
+    user_description: str,
+    standard_behaviors: list,
+    backend=None,
+) -> dict:
+    """
+    單次 LLM 呼叫：根據員工工作描述，生成 ICAP 格式行為指標。
+
+    Returns:
+        {"behavior_indicators": ["...", ...], "error": None or str}
+    """
+    _backend = backend or _get_analyze_backend()
+
+    std_lines = []
+    for b in standard_behaviors[:5]:
+        if isinstance(b, dict):
+            std_lines.append(b.get("description", ""))
+        elif isinstance(b, str):
+            std_lines.append(b)
+    std_text = "\n".join(f"- {l}" for l in std_lines if l) or "（無標準行為指標）"
+    user_desc = user_description.strip() or "（員工未填寫）"
+
+    system_prompt = (
+        "你是職能說明書專家，使用繁體中文。"
+        "根據員工描述，生成2-3條ICAP格式行為指標。"
+        "格式：能在[情境]下[具體行動]，達到[可衡量標準]。"
+        "只輸出JSON，不要其他說明。"
+    )
+    user_prompt = (
+        f"職位：{position}\n"
+        f"工作任務：{task_name}\n"
+        f"員工描述：{user_desc}\n"
+        f"參考標準行為指標：\n{std_text}\n\n"
+        '請輸出：{"behavior_indicators":["行為指標1","行為指標2"]}'
+    )
+
+    try:
+        reply = _backend.chat([
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
+        ])
+        logger.info("analyze_task 完成：%s", task_name)
+        match = re.search(r'\{.*?"behavior_indicators".*?\}', reply, re.DOTALL)
+        if match:
+            data = json.loads(match.group())
+            indicators = data.get("behavior_indicators", [])
+            if isinstance(indicators, list):
+                return {"behavior_indicators": [str(i) for i in indicators if i], "error": None}
+    except Exception as e:
+        logger.error("analyze_task 失敗：%s", e)
+        return {"behavior_indicators": [], "error": str(e)}
+
+    lines = [l.strip().lstrip("-• ") for l in reply.split("\n") if len(l.strip()) > 5]
+    return {"behavior_indicators": lines[:3], "error": None}

@@ -3,9 +3,12 @@ competency_wizard/gap_analyzer.py
 比對使用者的 5W2H 輸入與 RAG 找到的職能基準，輸出缺口分析報告
 """
 
+import logging
 import re
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
 
 # ── 中文正規化（借鑒自 Graph_RAG_test/competency_store.py）──────────────────
 _CJK_SPACE_RE = re.compile(
@@ -154,10 +157,12 @@ class GapAnalyzer:
         # Step 1: RAG 搜尋
         query = user_input.to_search_query()
         if not query.strip():
+            logger.warning("analyze() 呼叫時 5W2H 輸入為空，跳過分析")
             return report
 
         results = self.rag.search(query, top_k=top_k)
         if not results:
+            logger.warning("RAG 未找到相符的職能基準（query=%s...）", query[:50])
             return report
 
         report.matched_standards = results

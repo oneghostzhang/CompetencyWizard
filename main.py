@@ -5,6 +5,7 @@ competency_wizard/main.py
   或：python competency_wizard/main.py
 """
 
+import logging
 import sys
 from pathlib import Path
 
@@ -15,10 +16,15 @@ if str(_here) not in sys.path:
 
 from PyQt6.QtWidgets import QApplication
 
+import logger as _logger
 from wizard_ui import WizardMainWindow, APP_STYLE
 
 
 def main():
+    _logger.setup(
+        log_dir=_here / "logs",
+        level=logging.INFO,
+    )
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     app.setStyleSheet(APP_STYLE)

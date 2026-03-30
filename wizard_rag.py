@@ -7,6 +7,7 @@ competency_wizard/wizard_rag.py
 """
 
 import json
+import logging
 import pickle
 import numpy as np
 from pathlib import Path
@@ -24,6 +25,8 @@ except ImportError:
 _DEFAULT_JSON_DIR = Path(__file__).parent / "data" / "parsed_json_v2"
 _DEFAULT_INDEX_DIR = Path(__file__).parent / "_index_cache"
 _EMBEDDING_MODEL = "BAAI/bge-base-zh-v1.5"
+
+logger = logging.getLogger(__name__)
 
 
 class WizardRAG:
@@ -48,6 +51,7 @@ class WizardRAG:
         self._standards: Dict[str, Dict] = {}  # standard_code -> raw JSON dict
 
         self.initialized = False
+        self._stop_requested = False
 
     @property
     def chunk_count(self) -> int:
@@ -61,12 +65,19 @@ class WizardRAG:
     # 初始化
     # ─────────────────────────────────────────
 
+    def stop(self) -> None:
+        """請求中止初始化（用於取消長時間的背景操作）。"""
+        self._stop_requested = True
+
     def initialize(self, progress_cb=None):
         """載入模型與向量索引。
 
         優先嘗試從 engine 復用（若有提供）；否則退回獨立快取/建立流程。
         """
+        self._stop_requested = False
+        logger.info("開始初始化 WizardRAG...")
         if not DEPS_AVAILABLE:
+            logger.error("缺少依賴套件：faiss-cpu 或 sentence-transformers")
             raise RuntimeError("缺少依賴套件：faiss-cpu 或 sentence-transformers")
 
         if self._engine is not None and self._try_init_from_engine(progress_cb):
@@ -88,6 +99,7 @@ class WizardRAG:
             self._save_cache()
 
         self.initialized = True
+        logger.info("WizardRAG 初始化完成（%d chunks，%d 個標準）", len(self._chunks), len(self._standards))
 
     # ─── 從 engine 復用 ─────────────────────────
 
@@ -153,7 +165,8 @@ class WizardRAG:
             if meta.get("embedding_model", "") != _EMBEDDING_MODEL:
                 return False
             return True
-        except Exception:
+        except Exception as e:
+            logger.warning("快取載入失敗（%s），將重新建立索引", e)
             return False
 
     def _save_cache(self):
@@ -174,7 +187,8 @@ class WizardRAG:
         for fpath in json_files:
             try:
                 data = json.loads(fpath.read_text(encoding="utf-8"))
-            except Exception:
+            except Exception as e:
+                logger.warning("跳過無效 JSON 檔 %s：%s", fpath.name, e)
                 continue
 
             std_code = (
@@ -223,6 +237,8 @@ class WizardRAG:
         total = len(texts)
         all_embeddings = []
         for start in range(0, total, batch_size):
+            if self._stop_requested:
+                raise RuntimeError("使用者已取消初始化")
             batch = texts[start:start + batch_size]
             batch_emb = self._model.encode(batch, show_progress_bar=False)
             all_embeddings.append(batch_emb)
@@ -248,7 +264,8 @@ class WizardRAG:
                 )
                 if std_code:
                     standards[std_code] = data
-            except Exception:
+            except Exception as e:
+                logger.warning("跳過無效 JSON 檔 %s：%s", fpath.name, e)
                 continue
         return standards
 

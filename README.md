@@ -4,10 +4,10 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.4.8-orange)
-![AI](https://img.shields.io/badge/AI-LM%20Studio%20%7C%20Local%20LLM-blueviolet)
+![Version](https://img.shields.io/badge/Version-v2.0.0-orange)
+![AI](https://img.shields.io/badge/AI-LlamaCpp%20%7C%20LM%20Studio-blueviolet)
 
-> 以 RAG 技術為核心的職能說明書產生工具。員工可透過「逐任務填寫完整 5W2H」或「AI 對答式引導」兩種方式描述工作內容，系統自動從台灣 ICAP 職能基準資料庫找出最相似標準，再由員工逐項確認形成完整缺口報告，最終輸出格式化 Excel 職能說明書。
+> 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
 
 ---
 
@@ -68,7 +68,7 @@
 
 | 功能 | 說明 |
 |------|------|
-| 🤖 **AI 對答式引導填寫** | 點選「開始對話 →」，由本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過自然對話引導員工逐一描述工作任務，完成後自動整理成 5W2H 格式匯入清單；完全離線、資料不外傳 |
+| 🤖 **AI 對答式引導填寫（5 階段）** | 點選「開始對話 →」，由本地 LLM 扮演 HR 助理，透過 5 階段對話（基本資訊 → ICAP 基準確認 → 主要職責 → 逐職責深度訪談 → 輸出職能說明書 JSON）引導員工完成職能說明書；支援 LlamaCpp 直接推論（無 timeout）或 LM Studio REST API；完全離線、資料不外傳 |
 | 📝 **逐任務 5W2H 輸入** | 每項任務各自填寫完整的 What / Why / Who / When / Where / How / How Much，填完一項按「加入清單 ＋」後自動捲回頂端繼續填下一項 |
 | 📋 **任務清單面板** | 固定顯示在表單頂部，列出所有已加入任務（含 What 摘要、角色、頻率），可隨時編輯或刪除任一任務 |
 | ✏️ **任務編輯對話框** | 點「編輯」開啟 `TaskEditDialog` 彈出視窗，含完整 9 個 5W2H 欄位，儲存後原地更新清單，不影響其他任務 |
@@ -90,9 +90,10 @@ CompetencyWizard/
 ├── 🐍 核心模組
 │   ├── main.py              # 程式入口（QApplication 啟動）
 │   ├── wizard_ui.py         # PyQt6 主視窗 UI（四頁 Stack）
-│   ├── ai_chat.py           # LM Studio AI 對話模組（LMStudioChat）
+│   ├── ai_chat.py           # AI 對話模組 v2.1（5 階段職能說明書引導）
 │   ├── wizard_rag.py        # RAG 核心（Embedding + FAISS 檢索）
 │   ├── gap_analyzer.py      # 5W2H 缺口分析邏輯與資料結構
+│   ├── logger.py            # 集中式日誌設定（RotatingFileHandler）
 │   ├── excel_exporter.py    # openpyxl Excel 輸出（6 Sheet）
 │   └── pdf_parser_v2.py     # PDF 職能基準解析工具
 │
@@ -149,67 +150,75 @@ python main.py
 ```
 啟動 → 自動載入 Embedding 模型 + 建立 FAISS 索引
   ↓
-逐任務填寫 5W2H（可重複多次）
-  ├── 填寫第一項任務的完整 What / Why / Who / When / Where / How / How Much
-  ├── 按「加入清單 ＋」→ 任務加入頂部清單，表單清空
-  ├── 繼續填寫下一項任務...
-  └── （或點選「選擇範本 →」從職能基準自動預填全部任務）
+Step 1：填寫職業名稱 → 系統向量搜尋 Top-3 最相近職能基準
+  └── 選擇符合的基準（或不使用基準，從空白填寫）
   ↓
-點選「開始分析 →」（系統合併所有任務 5W2H 進行 RAG 查詢）
+Step 2：職能基準書編輯器
+  ├── 系統預填：主責代碼 / 主責名稱 / 任務代碼 / 任務名稱 / 工作產出 / 職能等級
+  └── 員工可新增、刪除、直接點格子修改任一欄位
   ↓
-【自動開啟】職能基準逐項確認精靈（Opt-out 模式）：
-  ├── 📋 工作任務頁：依主責分組，預勾全部 → 員工取消不符合的任務
-  ├── 📖 知識頁：預勾全部 → 員工取消不具備的知識
-  ├── 🔧 技能頁：預勾全部 → 員工取消不具備的技能
-  └── 確認採用 → 系統重新計算完整度與缺口
+Step 3：逐任務填寫工作詳情
+  ├── 每個任務填寫：「您實際如何執行此任務？」
+  └── 每個任務填寫：「主要工作成果或產出？」
   ↓
-結果頁：
-  ├── 左側：選擇匹配職能基準（下拉選單）
-  │          「📋 重新確認職能」按鈕 → 隨時重開精靈調整
-  └── 右側：
-        ├── [基本資訊] metadata + basic_info
-        ├── [工作職能] 依 task_id 瀏覽任務 + 知識/技能對應
-        └── [缺口分析] 完整度分數 + 缺口嚴重度（高/中/低）
+Step 4：LLM 自動生成行為指標
+  ├── 每個任務 → LLM 根據描述生成 2-3 條 ICAP 格式行為指標
+  ├── 員工勾選採用或手動補充修改
+  └── 可按「重新 AI 分析」重跑
   ↓
-勾選確認核取方塊 → 點選「匯出 Excel」
+Step 5：填寫說明與補充事項（選填）
+  └── 員工姓名 + 備注說明
+  ↓
+匯出 Excel 職能說明書（3 個 Sheet）
 ```
 
 ---
 
-## 🤖 AI 引導填寫
+## 🤖 LLM 行為指標生成
 
-不知道怎麼填寫 5W2H？讓 AI 扮演 HR 助理，透過對話引導你完成填寫。
+員工填寫工作任務的描述後，系統呼叫本地 LLM **自動生成 ICAP 格式行為指標**，員工勾選採用或手動修改。
 
-### 前置需求
+### AI 推論後端（自動選擇）
 
-1. 安裝 [LM Studio](https://lmstudio.ai/)（免費）
-2. 在 LM Studio 下載模型（推薦 `TAIDE-LX-7B-Chat`，繁中效果最好）
-3. 點選左側「Local Server」→ 載入模型 → 按「Start Server」
+| 後端 | 優先順序 | 說明 |
+|------|----------|------|
+| **LlamaCpp** | ✅ 優先 | 直接載入 GGUF 模型，無 HTTP timeout，推薦 |
+| **LM Studio REST API** | Fallback | 需在 LM Studio 開啟 Server |
+
+**LlamaCpp（建議）**：將 GGUF 模型放至預設路徑，系統啟動時自動載入：
+```
+C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf
+```
+
+**LM Studio（備用）**：安裝 [LM Studio](https://lmstudio.ai/) 後開啟 Local Server。
 
 ### 支援模型
 
 | 模型 | 繁中支援 | 說明 |
 |------|----------|------|
 | `TAIDE-LX-7B-Chat` | ★★★★★ | 台灣政府出品，最適合繁中職場語境，首選 |
-| `Qwen3-8B` | ★★★★★ | 阿里巴巴，推理能力強 |
+| `Qwen3-8B` | ★★★★☆ | 阿里巴巴，推理能力強 |
 | `gemma-3n-E4B` | ★★★ | Google，速度較快 |
 
-### 使用流程
+### 5 階段對話流程
 
 ```
-LM Studio 開啟 Server
+表單頁點選「開始對話 →」（綠色按鈕）
+  ↓（首次載入模型約 10–30 秒）
+【Phase 1】AI 詢問基本資訊
+  職位名稱 → 公司/部門 → 工作內容描述 → 職能等級(1–5)
   ↓
-CompetencyWizard 表單頁點選「開始對話 →」（綠色按鈕）
+【Phase 2】ICAP 職能基準確認
+  系統自動 RAG 搜尋最相似標準 → AI 介紹基準並確認是否符合
   ↓
-AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
+【Phase 3】主要職責清單確認
+  AI 列出標準職責（表格格式），員工增刪修改
   ↓
-員工輸入每個問題的答案
+【Phase 4】逐職責深度訪談
+  每項職責：描述實際工作 → 確認子任務（表格）→ 產出/知識/技能摘要（表格）
   ↓
-所有任務收集完畢，AI 整理成 5W2H 清單
-  ↓
-點選「確認並匯入任務 →」→ 返回表單頁
-  ↓
-任務已出現在清單中，可手動補充或直接「開始分析」
+【Phase 5】輸出職能說明書
+  AI 輸出完整 JSON → 點選「確認並匯入任務 →」返回清單
 ```
 
 > AI 對話和手動填寫可以**混用**，匯入不會覆蓋已有的手動任務。
@@ -238,15 +247,17 @@ AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
 </details>
 
 <details>
-<summary><b>ai_chat.py</b> — LM Studio AI 對話模組</summary>
+<summary><b>ai_chat.py v2.1</b> — AI 對話模組（5 階段職能說明書引導）</summary>
 
-- `LMStudioChat`：管理對話歷史，呼叫 LM Studio OpenAI 相容 API（`http://localhost:1234/v1`）
-- 固定開場白（`GREETING`）瞬間顯示，不佔用 API 額度
-- 系統提示（`SYSTEM_PROMPT`）引導 LLM 依 5W2H 結構逐項訪談
-- `extract_tasks_json()` 偵測 AI 回應中的 `[TASKS_JSON]...[/TASKS_JSON]` 區塊並解析
-- `check_server()` 使用 TCP socket 偵測 LM Studio Server 是否啟動
+- **雙後端自動選擇**：`_LlamaCppBackend`（優先，直接載入 GGUF，無 HTTP timeout）→ `_LMStudioBackend`（fallback，OpenAI 相容 API）
+- TAIDE Llama2 chat template：`[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{user} [/INST]`
+- 固定開場白（`GREETING`）瞬間顯示，不呼叫 LLM
+- `SYSTEM_PROMPT`：5 階段狀態機，含 markdown 表格格式指令
+- `inject_standard()`：Phase 2 將 RAG 搜尋結果注入對話歷史，觸發 AI 介紹基準
+- `extract_competency_json()` 偵測 `[COMPETENCY_JSON]...[/COMPETENCY_JSON]` 區塊並解析
+- `competency_to_task_list()`：職能 JSON → 5W2H dict 清單，供表單匯入
 - 對話歷史自動截斷（最多 20 輪），防止 context 無限成長
-- `ChatWorker(QThread)`：背景執行緒呼叫 API，避免 UI 凍結
+- `llamacpp_available()` / `check_server()`：後端可用性偵測
 </details>
 
 <details>
@@ -259,6 +270,11 @@ AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
   - `_added_tasks: List[dict]`：每項任務儲存完整 9 欄位 5W2H dict
   - 「加入清單 ＋」在表單底部，填完後收集全部欄位 → 存入 dict → 清空表單 → 自動捲回頂端
   - `_collect_input()` 合併所有 dict 產生 `UserInput5W2H`
+- **AI 對話頁**：
+  - `ChatWorker(QThread)`：背景執行緒，含 `reply / status / error` 三個 Signal
+  - 自動偵測並初始化後端（LlamaCpp 優先，首次載入 10–30 秒）
+  - `_markdown_to_html()`：AI 回覆中的 markdown 表格自動轉為 HTML，在 `QTextBrowser` 視覺化渲染
+  - 對話完成後顯示「確認並匯入任務 →」按鈕
 - `TaskEditDialog`：彈出式任務編輯對話框；點「編輯」開啟，含完整 9 個 5W2H 欄位，儲存後原地更新清單
 - `StandardSelectorDialog`：從職能基準資料庫選擇範本，每個標準任務帶入 task_name/output/behaviors/skills 等欄位加入清單
 - `StandardAdoptionWizard`：分析完成後 Opt-out 確認精靈；三分頁（任務／知識／技能），預勾全部，綠色=自動偵測，藍色=預選待確認
@@ -306,8 +322,8 @@ AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
 | 層級 | 技術 | 用途 |
 |------|------|------|
 | 桌面 UI | PyQt6 | 操作介面 |
-| 本地 LLM | LM Studio + TAIDE / Qwen3 | AI 對答式引導填寫 |
-| LLM API | openai（Python SDK） | LM Studio OpenAI 相容 API 呼叫 |
+| 本地 LLM | LlamaCpp / LM Studio + TAIDE | 行為指標自動生成（analyze_task） |
+| LLM API | openai（Python SDK） | LM Studio OpenAI 相容 API 呼叫（fallback） |
 | Embedding | sentence-transformers | 文本向量化（bge-base-zh-v1.5） |
 | 向量檢索 | FAISS | 高效相似度搜尋 |
 | Excel 輸出 | openpyxl | 職能說明書格式化輸出 |
@@ -328,6 +344,7 @@ AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.0.0 | 2026-03-30 | 全面重新設計系統流程：UI 改為 6 頁流程（搜索→編輯器→逐任務填寫→LLM建議確認→補充→匯出）；移除 5W2H 表單，改為直接填寫職能基準書格式；新增 `analyze_task()` 單次 LLM 呼叫自動生成行為指標；`excel_exporter.py` 全新格式對齊 ICAP 職能基準書欄位（3 Sheet：職能說明書/知識清單/技能清單） |
 | v1.4.8 | 2026-03-21 | 新增 AI 對答式引導填寫：LM Studio 本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過對話引導員工描述工作任務，完成後自動整理 5W2H 格式匯入清單；新增 ai_chat.py 模組；ChatWorker 背景執行緒；固定開場白；TCP socket Server 偵測 |
 | v1.4.7 | 2026-03-18 | 任務清單面板加入收合/展開功能，防止任務過多時覆蓋表單操作區域 |
 | v1.4.6 | 2026-03-18 | 新增 TaskEditDialog 彈出式任務編輯對話框；點「編輯」開啟，儲存後原地更新清單；移除舊的「載回主表單」編輯方式 |
@@ -351,4 +368,4 @@ AI 主動問好，引導員工逐一描述工作任務（5W2H 各欄位）
 
 ---
 
-**版本**：v1.4.8　　**最後更新**：2026-03-21
+**版本**：v2.0.0　　**最後更新**：2026-03-30
