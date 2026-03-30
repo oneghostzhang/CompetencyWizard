@@ -22,7 +22,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
 
 from wizard_rag import WizardRAG
-from ai_chat import analyze_task
+from ai_chat import analyze_task, analyze_tasks_batch
 
 
 # ─────────────────────────────────────────
@@ -160,32 +160,66 @@ class SearchThread(QThread):
 
 
 class LLMAnalyzeThread(QThread):
-    """逐任務呼叫 analyze_task()，每完成一個 emit task_done。"""
+    """
+    批次呼叫 analyze_tasks_batch()，透過子 process 隔離 llama.cpp abort。
+    每完成一個任務 emit task_done；子 process 崩潰時 emit error 並繼續顯示已完成部分。
+    """
     task_done = pyqtSignal(int, list)   # index, behavior_indicators
     all_done  = pyqtSignal()
     status    = pyqtSignal(str)
     error     = pyqtSignal(str)
 
+    _TASK_TIMEOUT = 120   # 每個任務最長等待秒數
+
     def __init__(self, rows: list, position: str):
         super().__init__()
         self.rows     = rows
         self.position = position
+        self._stop    = False
+
+    def stop(self):
+        self._stop = True
 
     def run(self):
-        try:
-            for i, row in enumerate(self.rows):
-                task_name = row.get("task_name", "")
-                self.status.emit(f"AI 分析中：{row.get('task_code','')} {task_name}（{i+1}/{len(self.rows)}）")
-                result = analyze_task(
-                    position=self.position,
-                    task_name=task_name,
-                    user_description=row.get("user_description", ""),
-                    standard_behaviors=row.get("_behaviors", []),
-                )
-                self.task_done.emit(i, result.get("behavior_indicators", []))
+        total = len(self.rows)
+        self.status.emit(f"啟動 AI 分析（共 {total} 個任務）...")
+
+        proc, q = analyze_tasks_batch(self.rows, self.position,
+                                      result_cb=None, done_cb=None, error_cb=None)
+        received = 0
+        while received < total and not self._stop:
+            try:
+                item = q.get(timeout=self._TASK_TIMEOUT)
+            except Exception:
+                # timeout 或 Queue 空：子 process 可能已崩潰
+                if not proc.is_alive():
+                    self.error.emit(
+                        f"AI 子程序意外中止（已完成 {received}/{total} 個任務）\n"
+                        "未完成的任務行為指標為空，可手動補充或重新分析。"
+                    )
+                    # emit 空結果給未完成的任務
+                    for i in range(total):
+                        self.task_done.emit(i, [])
+                    break
+                continue   # process 還活著，繼續等
+
+            if item is None:   # sentinel：全部完成
+                break
+            idx, indicators = item
+            row = self.rows[idx] if idx < total else {}
+            self.status.emit(
+                f"AI 分析完成：{row.get('task_code','')} {row.get('task_name','')} "
+                f"（{received + 1}/{total}）"
+            )
+            self.task_done.emit(idx, indicators)
+            received += 1
+
+        if not self._stop:
             self.all_done.emit()
-        except Exception as e:
-            self.error.emit(str(e))
+        try:
+            proc.kill()
+        except Exception:
+            pass
 
 
 class ParseThread(QThread):

@@ -35,4 +35,6 @@ def main():
 
 
 if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.freeze_support()   # Windows 打包時必要
     main()

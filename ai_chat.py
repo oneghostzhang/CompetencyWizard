@@ -337,43 +337,14 @@ class LMStudioChat:
             return False
 
 
-# ── 模組級別行為指標分析（單次呼叫，非對話）─────────────────────────────────
+# ── 模組級別行為指標分析（子 process 隔離，防止 llama.cpp abort 崩潰）────────
 
-_analyze_backend = None   # 延遲初始化，跨呼叫共用
-
-
-def _get_analyze_backend():
-    """取得或建立分析用後端（延遲初始化）。"""
-    global _analyze_backend
-    if _analyze_backend is not None:
-        return _analyze_backend
-    if Path(TAIDE_MODEL_PATH).exists():
-        try:
-            _analyze_backend = _LlamaCppBackend(TAIDE_MODEL_PATH)
-            logger.info("analyze_task 後端：LlamaCpp")
-            return _analyze_backend
-        except Exception as e:
-            logger.warning("analyze_task: LlamaCpp 失敗（%s），改用 LM Studio", e)
-    _analyze_backend = _LMStudioBackend()
-    logger.info("analyze_task 後端：LM Studio")
-    return _analyze_backend
+_WORKER_TIMEOUT = 120   # 每個任務最長等待秒數
 
 
-def analyze_task(
-    position: str,
-    task_name: str,
-    user_description: str,
-    standard_behaviors: list,
-    backend=None,
-) -> dict:
-    """
-    單次 LLM 呼叫：根據員工工作描述，生成 ICAP 格式行為指標。
-
-    Returns:
-        {"behavior_indicators": ["...", ...], "error": None or str}
-    """
-    _backend = backend or _get_analyze_backend()
-
+def _build_prompt_messages(position: str, task_name: str,
+                            user_description: str, standard_behaviors: list):
+    """組裝 system/user prompt messages（供 worker process 使用）。"""
     std_lines = []
     for b in standard_behaviors[:5]:
         if isinstance(b, dict):
@@ -399,25 +370,109 @@ def analyze_task(
         f"參考標準行為指標（僅供風格參考，勿照抄）：\n{std_text}\n\n"
         '只輸出 JSON，格式：{"behavior_indicators":["指標1","指標2","指標3"]}'
     )
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "user",   "content": user_prompt},
+    ]
 
+
+def _worker_main(tasks: list, q):
+    """
+    子 process 入口：依序處理所有任務，每完成一個往 Queue 放 (idx, indicators)。
+    結束後放 None 作為 sentinel。llama.cpp abort 只殺死此 process。
+    """
+    import re as _re, json as _json
+    from pathlib import Path as _Path
+
+    # 建立後端（子 process 內獨立初始化）
+    backend = None
+    if _Path(TAIDE_MODEL_PATH).exists():
+        try:
+            backend = _LlamaCppBackend(TAIDE_MODEL_PATH)
+        except Exception:
+            pass
+    if backend is None:
+        backend = _LMStudioBackend()
+
+    for idx, task_args in tasks:
+        try:
+            messages = _build_prompt_messages(**task_args)
+            reply = backend.chat(messages)
+            match = _re.search(r'\{.*?"behavior_indicators".*?\}', reply, _re.DOTALL)
+            if match:
+                data = _json.loads(match.group())
+                indicators = data.get("behavior_indicators", [])
+                if isinstance(indicators, list):
+                    q.put((idx, _split_indicators(indicators)))
+                    continue
+            lines = [l.strip().lstrip("-•・ ")
+                     for l in reply.split("\n") if len(l.strip()) > 8]
+            q.put((idx, _split_indicators(lines[:6])))
+        except Exception as e:
+            q.put((idx, []))
+    q.put(None)   # sentinel
+
+
+def analyze_task(
+    position: str,
+    task_name: str,
+    user_description: str,
+    standard_behaviors: list,
+    backend=None,
+) -> dict:
+    """
+    單次 LLM 呼叫（子 process 隔離版）：生成 ICAP 格式行為指標。
+    llama.cpp abort 時子 process 崩潰，主程式不受影響。
+    """
+    import multiprocessing as _mp
+    task_args = dict(position=position, task_name=task_name,
+                     user_description=user_description,
+                     standard_behaviors=standard_behaviors)
+    q = _mp.Queue()
+    p = _mp.Process(target=_worker_main, args=([(0, task_args)], q), daemon=True)
+    p.start()
     try:
-        reply = _backend.chat([
-            {"role": "system", "content": system_prompt},
-            {"role": "user",   "content": user_prompt},
-        ])
+        item = q.get(timeout=_WORKER_TIMEOUT)
+        if item is None:
+            return {"behavior_indicators": [], "error": "worker 無回應"}
+        _, indicators = item
         logger.info("analyze_task 完成：%s", task_name)
-        match = re.search(r'\{.*?"behavior_indicators".*?\}', reply, re.DOTALL)
-        if match:
-            data = json.loads(match.group())
-            indicators = data.get("behavior_indicators", [])
-            if isinstance(indicators, list):
-                return {"behavior_indicators": _split_indicators(indicators), "error": None}
+        return {"behavior_indicators": indicators, "error": None}
     except Exception as e:
         logger.error("analyze_task 失敗：%s", e)
         return {"behavior_indicators": [], "error": str(e)}
+    finally:
+        p.kill()
 
-    lines = [l.strip().lstrip("-•・ ") for l in reply.split("\n") if len(l.strip()) > 8]
-    return {"behavior_indicators": _split_indicators(lines[:6]), "error": None}
+
+def analyze_tasks_batch(
+    rows: list,
+    position: str,
+    result_cb,
+    done_cb,
+    error_cb,
+):
+    """
+    批次分析（子 process 隔離版）：一次啟動一個子 process 處理所有任務。
+    每完成一個任務呼叫 result_cb(idx, indicators)；
+    全部完成呼叫 done_cb()；子 process 意外崩潰時呼叫 error_cb(msg)。
+
+    回傳 (Process, Queue)，呼叫端可監控。
+    """
+    import multiprocessing as _mp
+    tasks = [
+        (i, dict(
+            position=position,
+            task_name=row.get("task_name", ""),
+            user_description=row.get("user_description", ""),
+            standard_behaviors=row.get("_behaviors", []),
+        ))
+        for i, row in enumerate(rows)
+    ]
+    q = _mp.Queue()
+    p = _mp.Process(target=_worker_main, args=(tasks, q), daemon=True)
+    p.start()
+    return p, q
 
 
 def _split_indicators(raw: list) -> list:
