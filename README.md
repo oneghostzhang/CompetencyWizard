@@ -5,7 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
 ![Version](https://img.shields.io/badge/Version-v2.0.3-orange)
-![AI](https://img.shields.io/badge/AI-LlamaCpp%20%7C%20LM%20Studio-blueviolet)
+![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
 
@@ -53,9 +53,11 @@
 ┌─────────────────────────▼───────────────────────────────┐
 │                    介面層                                │
 │   wizard_ui.py (PyQt6 桌面應用程式)                     │
-│   ├── [輸入方式 A] 逐任務 5W2H 表單（任務清單面板）     │
-│   ├── [輸入方式 B] AI 對答引導（LM Studio 本地 LLM）    │
-│   │     ai_chat.py (LMStudioChat) ← TAIDE / Qwen3       │
+│   ├── Search：職業名稱搜尋 → Top-3 職能基準             │
+│   ├── Editor：職能基準書編輯（主責/任務/產出/等級）     │
+│   ├── Detail：逐任務填寫工作描述                        │
+│   ├── LLMSuggest：LLM 自動生成行為指標（可編輯）        │
+│   ├── Supplement：補充說明                              │
 │   ├── Step 2：分析結果 + 職能基準分頁瀏覽               │
 │   ├── Step 3：StandardAdoptionWizard 逐項確認精靈       │
 │   └── Step 4：確認缺口 → 匯出 Excel（6 個 Sheet）      │
@@ -68,7 +70,7 @@
 
 | 功能 | 說明 |
 |------|------|
-| 🤖 **AI 對答式引導填寫（5 階段）** | 點選「開始對話 →」，由本地 LLM 扮演 HR 助理，透過 5 階段對話（基本資訊 → ICAP 基準確認 → 主要職責 → 逐職責深度訪談 → 輸出職能說明書 JSON）引導員工完成職能說明書；支援 LlamaCpp 直接推論（無 timeout）或 LM Studio REST API；完全離線、資料不外傳 |
+| 🤖 **LLM 行為指標自動生成** | 員工填寫工作任務描述後，系統呼叫本地 LlamaCpp（TAIDE GGUF）自動生成 2–3 條 ICAP 格式行為指標；員工可直接編輯、勾選採用或重新分析；完全離線、資料不外傳 |
 | 📝 **逐任務 5W2H 輸入** | 每項任務各自填寫完整的 What / Why / Who / When / Where / How / How Much，填完一項按「加入清單 ＋」後自動捲回頂端繼續填下一項 |
 | 📋 **任務清單面板** | 固定顯示在表單頂部，列出所有已加入任務（含 What 摘要、角色、頻率），可隨時編輯或刪除任一任務 |
 | ✏️ **任務編輯對話框** | 點「編輯」開啟 `TaskEditDialog` 彈出視窗，含完整 9 個 5W2H 欄位，儲存後原地更新清單，不影響其他任務 |
@@ -178,19 +180,14 @@ Step 5：填寫說明與補充事項（選填）
 
 員工填寫工作任務的描述後，系統呼叫本地 LLM **自動生成 ICAP 格式行為指標**，員工勾選採用或手動修改。
 
-### AI 推論後端（自動選擇）
+### AI 推論後端
 
-| 後端 | 優先順序 | 說明 |
-|------|----------|------|
-| **LlamaCpp** | ✅ 優先 | 直接載入 GGUF 模型，無 HTTP timeout，推薦 |
-| **LM Studio REST API** | Fallback | 需在 LM Studio 開啟 Server |
+使用 **LlamaCpp** 直接載入 GGUF 模型，無 HTTP timeout，完全離線推論。
 
-**LlamaCpp（建議）**：將 GGUF 模型放至預設路徑，系統啟動時自動載入：
+將 GGUF 模型放至預設路徑，系統啟動時自動載入：
 ```
 C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf
 ```
-
-**LM Studio（備用）**：安裝 [LM Studio](https://lmstudio.ai/) 後開啟 Local Server。
 
 ### 支援模型
 
@@ -249,7 +246,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 <details>
 <summary><b>ai_chat.py v2.1</b> — AI 對話模組（5 階段職能說明書引導）</summary>
 
-- **雙後端自動選擇**：`_LlamaCppBackend`（優先，直接載入 GGUF，無 HTTP timeout）→ `_LMStudioBackend`（fallback，OpenAI 相容 API）
+- **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰
 - TAIDE Llama2 chat template：`[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{user} [/INST]`
 - 固定開場白（`GREETING`）瞬間顯示，不呼叫 LLM
 - `SYSTEM_PROMPT`：5 階段狀態機，含 markdown 表格格式指令
@@ -272,7 +269,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
   - `_collect_input()` 合併所有 dict 產生 `UserInput5W2H`
 - **AI 對話頁**：
   - `ChatWorker(QThread)`：背景執行緒，含 `reply / status / error` 三個 Signal
-  - 自動偵測並初始化後端（LlamaCpp 優先，首次載入 10–30 秒）
+  - 自動初始化 LlamaCpp 後端（首次載入 10–30 秒）
   - `_markdown_to_html()`：AI 回覆中的 markdown 表格自動轉為 HTML，在 `QTextBrowser` 視覺化渲染
   - 對話完成後顯示「確認並匯入任務 →」按鈕
 - `TaskEditDialog`：彈出式任務編輯對話框；點「編輯」開啟，含完整 9 個 5W2H 欄位，儲存後原地更新清單
@@ -322,8 +319,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 | 層級 | 技術 | 用途 |
 |------|------|------|
 | 桌面 UI | PyQt6 | 操作介面 |
-| 本地 LLM | LlamaCpp / LM Studio + TAIDE | 行為指標自動生成（analyze_task） |
-| LLM API | openai（Python SDK） | LM Studio OpenAI 相容 API 呼叫（fallback） |
+| 本地 LLM | LlamaCpp + TAIDE GGUF | 行為指標自動生成（analyze_task，子 process 隔離） |
 | Embedding | sentence-transformers | 文本向量化（bge-base-zh-v1.5） |
 | 向量檢索 | FAISS | 高效相似度搜尋 |
 | Excel 輸出 | openpyxl | 職能說明書格式化輸出 |
@@ -348,7 +344,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 | v2.0.2 | 2026-03-30 | 修正 `WizardRAG` 快取命中時仍讀取舊版 standards 的問題：改為每次從 JSON 重新載入，確保重新解析 PDF 後資料立即生效；修正逐任務填寫頁第一筆任務無法返回編輯器（按鈕改顯示「← 返回編輯器」並始終啟用）；全量重解析 908 份職能基準 PDF，補齊先前解析器 bug 遺漏的中間任務 |
 | v2.0.0 | 2026-03-30 | 全面重新設計系統流程：UI 改為 6 頁流程（搜索→編輯器→逐任務填寫→LLM建議確認→補充→匯出）；移除 5W2H 表單，改為直接填寫職能基準書格式；新增 `analyze_task()` 單次 LLM 呼叫自動生成行為指標；`excel_exporter.py` 全新格式對齊 ICAP 職能基準書欄位（3 Sheet：職能說明書/知識清單/技能清單） |
 | v1.4.11 | 2026-03-27 | 修正 `pdf_parser_v2.py` 主要職責只抓到最後一筆的 bug：新職責覆蓋前未先儲存 `current_task`，導致 T1~T3 任務全部遺失。現在解析完整（如會計助理：T1.1~T4.1 皆正確輸出） |
-| v1.4.8 | 2026-03-21 | 新增 AI 對答式引導填寫：LM Studio 本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過對話引導員工描述工作任務，完成後自動整理 5W2H 格式匯入清單；新增 ai_chat.py 模組；ChatWorker 背景執行緒；固定開場白；TCP socket Server 偵測 |
+| v1.4.8 | 2026-03-21 | 新增 AI 對答式引導填寫：本地 LLM 扮演 HR 助理，透過對話引導員工描述工作任務，完成後自動整理 5W2H 格式匯入清單；新增 ai_chat.py 模組；ChatWorker 背景執行緒；固定開場白 |
 | v1.4.7 | 2026-03-18 | 任務清單面板加入收合/展開功能，防止任務過多時覆蓋表單操作區域 |
 | v1.4.6 | 2026-03-18 | 新增 TaskEditDialog 彈出式任務編輯對話框；點「編輯」開啟，儲存後原地更新清單；移除舊的「載回主表單」編輯方式 |
 | v1.4.5 | 2026-03-18 | 範本載入改為逐任務完整 5W2H dict：task_name/output/behaviors/skills 等欄位自動對應；載入後自動捲回頂端 |
