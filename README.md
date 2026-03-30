@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.0.0-orange)
+![Version](https://img.shields.io/badge/Version-v2.0.1-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20%7C%20LM%20Studio-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -345,6 +345,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
 | v2.0.0 | 2026-03-30 | 全面重新設計系統流程：UI 改為 6 頁流程（搜索→編輯器→逐任務填寫→LLM建議確認→補充→匯出）；移除 5W2H 表單，改為直接填寫職能基準書格式；新增 `analyze_task()` 單次 LLM 呼叫自動生成行為指標；`excel_exporter.py` 全新格式對齊 ICAP 職能基準書欄位（3 Sheet：職能說明書/知識清單/技能清單） |
+| v1.4.11 | 2026-03-27 | 修正 `pdf_parser_v2.py` 主要職責只抓到最後一筆的 bug：新職責覆蓋前未先儲存 `current_task`，導致 T1~T3 任務全部遺失。現在解析完整（如會計助理：T1.1~T4.1 皆正確輸出） |
 | v1.4.8 | 2026-03-21 | 新增 AI 對答式引導填寫：LM Studio 本地 LLM（TAIDE / Qwen3）扮演 HR 助理，透過對話引導員工描述工作任務，完成後自動整理 5W2H 格式匯入清單；新增 ai_chat.py 模組；ChatWorker 背景執行緒；固定開場白；TCP socket Server 偵測 |
 | v1.4.7 | 2026-03-18 | 任務清單面板加入收合/展開功能，防止任務過多時覆蓋表單操作區域 |
 | v1.4.6 | 2026-03-18 | 新增 TaskEditDialog 彈出式任務編輯對話框；點「編輯」開啟，儲存後原地更新清單；移除舊的「載回主表單」編輯方式 |
