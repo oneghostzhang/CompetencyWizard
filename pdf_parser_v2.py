@@ -354,7 +354,11 @@ class CompetencyPDFParser:
                 if col_resp and re.match(r'T\d+', col_resp):
                     t_match = re.match(r'(T\d+)(.+)', col_resp)
                     if t_match:
-                        if current_resp and current_resp.get("工作任務"):
+                        # 先把當前任務存入當前職責，再存入職責列表
+                        if current_task and current_resp:
+                            current_resp["工作任務"].append(current_task)
+                            current_task = None
+                        if current_resp:
                             responsibilities.append(current_resp)
 
                         current_resp = {
