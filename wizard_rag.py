@@ -161,9 +161,10 @@ class WizardRAG:
             with open(meta_file, "rb") as f:
                 meta = pickle.load(f)
             self._chunks = meta["chunks"]
-            self._standards = meta["standards"]
             if meta.get("embedding_model", "") != _EMBEDDING_MODEL:
                 return False
+            # 每次都從 JSON 重新載入 standards，確保資料是最新的
+            self._standards = self._load_standards_from_json()
             return True
         except Exception as e:
             logger.warning("快取載入失敗（%s），將重新建立索引", e)
