@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.0.2-orange)
+![Version](https://img.shields.io/badge/Version-v2.0.3-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20%7C%20LM%20Studio-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -344,6 +344,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.0.3 | 2026-03-30 | **防閃退**：LLM 分析改用子 process 隔離，llama.cpp `GGML_ASSERT abort` 只殺子 process，主程式不受影響，已完成任務保留結果；**LLM建議頁**：行為指標改為可直接編輯的 `QLineEdit`、新增 `_split_indicators()` 自動拆分合併格式、重新分析按鈕加資料來源說明；**Excel 新增態度清單 Sheet**（A代碼）、K/S 對應任務欄顯示全部來源任務；**Log** 改為每次啟動產生獨立時間戳記檔，保留最近 30 份 |
 | v2.0.2 | 2026-03-30 | 修正 `WizardRAG` 快取命中時仍讀取舊版 standards 的問題：改為每次從 JSON 重新載入，確保重新解析 PDF 後資料立即生效；修正逐任務填寫頁第一筆任務無法返回編輯器（按鈕改顯示「← 返回編輯器」並始終啟用）；全量重解析 908 份職能基準 PDF，補齊先前解析器 bug 遺漏的中間任務 |
 | v2.0.0 | 2026-03-30 | 全面重新設計系統流程：UI 改為 6 頁流程（搜索→編輯器→逐任務填寫→LLM建議確認→補充→匯出）；移除 5W2H 表單，改為直接填寫職能基準書格式；新增 `analyze_task()` 單次 LLM 呼叫自動生成行為指標；`excel_exporter.py` 全新格式對齊 ICAP 職能基準書欄位（3 Sheet：職能說明書/知識清單/技能清單） |
 | v1.4.11 | 2026-03-27 | 修正 `pdf_parser_v2.py` 主要職責只抓到最後一筆的 bug：新職責覆蓋前未先儲存 `current_task`，導致 T1~T3 任務全部遺失。現在解析完整（如會計助理：T1.1~T4.1 皆正確輸出） |
