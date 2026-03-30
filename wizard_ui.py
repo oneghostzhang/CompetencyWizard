@@ -1294,6 +1294,8 @@ class WizardMainWindow(QMainWindow):
                     "metadata", {}).get("name", ""),
                 "supplement": self._supplement_text.toPlainText().strip(),
                 "rows": self._competency_rows,
+                "attitudes": (self._matched_std or {}).get(
+                    "competency_attitudes", []),
             }
             out = export_competency(data, Path(path), role_name)
             QMessageBox.information(self, "匯出完成", f"已儲存至：\n{out}")

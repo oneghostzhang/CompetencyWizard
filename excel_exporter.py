@@ -155,37 +155,48 @@ def _sheet_competency(wb, data: dict, role_name: str):
 # Sheet 2: 知識清單
 # ─────────────────────────────────────────
 
+def _collect_ks(rows: list, field: str):
+    """彙整知識或技能：{key: {code, name, tasks:[...]}}，保留插入順序。"""
+    from collections import OrderedDict
+    items: dict = OrderedDict()
+    for r in rows:
+        task_code = r.get("task_code", "")
+        for entry in r.get(field, []):
+            if isinstance(entry, dict):
+                code = entry.get("code", "")
+                name = entry.get("name", "")
+            elif isinstance(entry, str):
+                code = entry; name = entry
+            else:
+                continue
+            key = code or name
+            if not key:
+                continue
+            if key not in items:
+                items[key] = {"code": code, "name": name, "tasks": []}
+            if task_code and task_code not in items[key]["tasks"]:
+                items[key]["tasks"].append(task_code)
+    return list(items.values())
+
+
 def _sheet_knowledge(wb, data: dict):
     ws = wb.create_sheet("知識清單")
     ws.column_dimensions["A"].width = 16
     ws.column_dimensions["B"].width = 40
-    ws.column_dimensions["C"].width = 20
+    ws.column_dimensions["C"].width = 28
 
-    _header_row(ws, 1, ["知識代碼", "知識名稱", "來源任務"])
+    _header_row(ws, 1, ["知識代碼", "知識名稱", "對應任務"])
     row = 2
 
-    seen = set()
-    for r in data.get("rows", []):
-        task_code = r.get("task_code", "")
-        for k in r.get("_knowledge", []):
-            if isinstance(k, dict):
-                code = k.get("code", "")
-                name = k.get("name", "")
-            elif isinstance(k, str):
-                code = ""; name = k
-            else:
-                continue
-            key = code or name
-            if not key or key in seen:
-                continue
-            seen.add(key)
-            ws.cell(row=row, column=1, value=code)
-            _style(ws.cell(row=row, column=1), bg=C_KNOWLEDGE_BG, align="center")
-            ws.cell(row=row, column=2, value=name)
-            _style(ws.cell(row=row, column=2), bg=C_KNOWLEDGE_BG)
-            ws.cell(row=row, column=3, value=task_code)
-            _style(ws.cell(row=row, column=3), bg=C_KNOWLEDGE_BG, align="center")
-            row += 1
+    items = _collect_ks(data.get("rows", []), "_knowledge")
+    for item in items:
+        ws.cell(row=row, column=1, value=item["code"])
+        _style(ws.cell(row=row, column=1), bg=C_KNOWLEDGE_BG, align="center")
+        ws.cell(row=row, column=2, value=item["name"])
+        _style(ws.cell(row=row, column=2), bg=C_KNOWLEDGE_BG)
+        ws.cell(row=row, column=3, value="、".join(item["tasks"]))
+        _style(ws.cell(row=row, column=3), bg=C_KNOWLEDGE_BG, align="center")
+        row += 1
 
     if row == 2:
         ws.merge_cells("A2:C2")
@@ -200,33 +211,20 @@ def _sheet_skills(wb, data: dict):
     ws = wb.create_sheet("技能清單")
     ws.column_dimensions["A"].width = 16
     ws.column_dimensions["B"].width = 40
-    ws.column_dimensions["C"].width = 20
+    ws.column_dimensions["C"].width = 28
 
-    _header_row(ws, 1, ["技能代碼", "技能名稱", "來源任務"])
+    _header_row(ws, 1, ["技能代碼", "技能名稱", "對應任務"])
     row = 2
 
-    seen = set()
-    for r in data.get("rows", []):
-        task_code = r.get("task_code", "")
-        for s in r.get("_skills", []):
-            if isinstance(s, dict):
-                code = s.get("code", "")
-                name = s.get("name", "")
-            elif isinstance(s, str):
-                code = ""; name = s
-            else:
-                continue
-            key = code or name
-            if not key or key in seen:
-                continue
-            seen.add(key)
-            ws.cell(row=row, column=1, value=code)
-            _style(ws.cell(row=row, column=1), bg=C_SKILL_BG, align="center")
-            ws.cell(row=row, column=2, value=name)
-            _style(ws.cell(row=row, column=2), bg=C_SKILL_BG)
-            ws.cell(row=row, column=3, value=task_code)
-            _style(ws.cell(row=row, column=3), bg=C_SKILL_BG, align="center")
-            row += 1
+    items = _collect_ks(data.get("rows", []), "_skills")
+    for item in items:
+        ws.cell(row=row, column=1, value=item["code"])
+        _style(ws.cell(row=row, column=1), bg=C_SKILL_BG, align="center")
+        ws.cell(row=row, column=2, value=item["name"])
+        _style(ws.cell(row=row, column=2), bg=C_SKILL_BG)
+        ws.cell(row=row, column=3, value="、".join(item["tasks"]))
+        _style(ws.cell(row=row, column=3), bg=C_SKILL_BG, align="center")
+        row += 1
 
     if row == 2:
         ws.merge_cells("A2:C2")
@@ -234,7 +232,45 @@ def _sheet_skills(wb, data: dict):
 
 
 # ─────────────────────────────────────────
-# Sheet 4: 補充說明
+# ─────────────────────────────────────────
+# Sheet 4: 態度清單
+# ─────────────────────────────────────────
+
+C_ATTITUDE_BG = "FFE4E1"   # 淺粉紅（態度）
+
+def _sheet_attitudes(wb, data: dict):
+    ws = wb.create_sheet("態度清單")
+    ws.column_dimensions["A"].width = 16
+    ws.column_dimensions["B"].width = 24
+    ws.column_dimensions["C"].width = 60
+
+    _header_row(ws, 1, ["態度代碼", "態度名稱", "說明"])
+    row = 2
+
+    for a in data.get("attitudes", []):
+        if not isinstance(a, dict):
+            continue
+        code = a.get("code", "")
+        name = a.get("name", "")
+        desc = a.get("description", "")
+        if not (code or name):
+            continue
+        ws.cell(row=row, column=1, value=code)
+        _style(ws.cell(row=row, column=1), bg=C_ATTITUDE_BG, align="center")
+        ws.cell(row=row, column=2, value=name)
+        _style(ws.cell(row=row, column=2), bg=C_ATTITUDE_BG, bold=True)
+        ws.cell(row=row, column=3, value=desc)
+        _style(ws.cell(row=row, column=3), bg=C_ATTITUDE_BG, wrap=True)
+        ws.row_dimensions[row].height = max(18, len(desc) // 30 * 16)
+        row += 1
+
+    if row == 2:
+        ws.merge_cells("A2:C2")
+        _write(ws, "A2", "（無態度職能內涵資料）", bg=C_META_BG, align="center")
+
+
+# ─────────────────────────────────────────
+# Sheet 5: 補充說明
 # ─────────────────────────────────────────
 
 def _sheet_supplement(wb, data: dict, role_name: str):
@@ -315,6 +351,7 @@ def export_competency(
     _sheet_competency(wb, data, role_name)
     _sheet_knowledge(wb, data)
     _sheet_skills(wb, data)
+    _sheet_attitudes(wb, data)
     _sheet_supplement(wb, data, role_name)
 
     wb.save(str(output_path))
