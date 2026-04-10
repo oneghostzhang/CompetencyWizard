@@ -1,1 +1,0 @@
-# competency_wizard package
