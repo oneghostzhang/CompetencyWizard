@@ -1,14 +1,20 @@
+# 日誌
+logs/
+
+# Excel 暫存
+excel_ai_dump.txt
+
 # Python
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
+.env
 
-# 向量索引快取（可重建，不入版控）
+# 資料（不納入版控）
+data/raw_pdf/
+data/parsed_json_v2/
 _index_cache/
 
-# 原始資料（體積大）
-data/raw_pdf/
-
-# 輸出檔案
-*.xlsx
-outputs/
+# 模型
+*.gguf
+*.bin
