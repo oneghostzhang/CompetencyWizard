@@ -345,9 +345,9 @@ class CompetencyPDFParser:
                 col_skills = ""
                 for i, cell in enumerate(row):
                     cell_text = self._clean_cell(cell)
-                    if re.search(r'K\d{2}', cell_text):
+                    if re.search(r'K\d+', cell_text):
                         col_knowledge = cell_text
-                    if re.search(r'S\d{2}', cell_text):
+                    if re.search(r'S\d+', cell_text):
                         col_skills = cell_text
 
                 # 解析主要職責
@@ -410,7 +410,7 @@ class CompetencyPDFParser:
 
                 # 解析知識
                 if col_knowledge:
-                    for k_match in re.finditer(r'(K\d{2})([^\nK]*)', col_knowledge):
+                    for k_match in re.finditer(r'(K\d+)([^\nK]*)', col_knowledge):
                         code = k_match.group(1)
                         name = k_match.group(2).strip()
                         if name and code not in all_knowledge:
@@ -420,7 +420,7 @@ class CompetencyPDFParser:
 
                 # 解析技能
                 if col_skills:
-                    for s_match in re.finditer(r'(S\d{2})([^\nS]*)', col_skills):
+                    for s_match in re.finditer(r'(S\d+)([^\nS]*)', col_skills):
                         code = s_match.group(1)
                         name = s_match.group(2).strip()
                         if name.endswith('能') or name.endswith('選用'):
