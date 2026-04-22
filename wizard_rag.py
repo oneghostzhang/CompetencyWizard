@@ -134,6 +134,7 @@ class WizardRAG:
                 "text": cm.get("chunk_content", ""),
                 "standard_code": cm.get("standard_code", ""),
                 "standard_name": cm.get("standard_name", ""),
+                "standard_category": cm.get("standard_category", ""),
                 "chunk_type": cm.get("chunk_type", ""),
                 "task_id": cm.get("task_id", ""),
             })
@@ -162,6 +163,9 @@ class WizardRAG:
                 meta = pickle.load(f)
             self._chunks = meta["chunks"]
             if meta.get("embedding_model", "") != _EMBEDDING_MODEL:
+                return False
+            # 舊快取沒有 standard_category 欄位時強制重建
+            if self._chunks and "standard_category" not in self._chunks[0]:
                 return False
             # 每次都從 JSON 重新載入 standards，確保資料是最新的
             self._standards = self._load_standards_from_json()
@@ -200,6 +204,7 @@ class WizardRAG:
                 data.get("metadata", {}).get("name")
                 or data.get("basic_info", {}).get("name", "")
             )
+            std_category = data.get("basic_info", {}).get("category", "")
             if not std_code:
                 continue
 
@@ -226,6 +231,7 @@ class WizardRAG:
                     "text": content,
                     "standard_code": std_code,
                     "standard_name": std_name,
+                    "standard_category": std_category,
                     "chunk_type": ct,
                     "task_id": meta.get("task_id", ""),
                 })
@@ -298,6 +304,7 @@ class WizardRAG:
             results.append({
                 "standard_code": code,
                 "standard_name": chunk["standard_name"],
+                "standard_category": chunk.get("standard_category", ""),
                 "score": float(score),
                 "chunk_type": chunk["chunk_type"],
                 "matched_text": chunk["text"][:200],

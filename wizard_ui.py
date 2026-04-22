@@ -1033,6 +1033,7 @@ class WizardMainWindow(QMainWindow):
             score_pct = int(r.get("score", 0) * 100)
             name      = r.get("standard_name", "（未知）")
             code      = r.get("standard_code", "")
+            category  = r.get("standard_category", "")
             preview   = r.get("matched_text", "")[:120].replace("\n", " ")
 
             cb = QCheckBox(f"[{code}] {name}  （相似度 {score_pct}%）")
@@ -1040,6 +1041,15 @@ class WizardMainWindow(QMainWindow):
             cb.setStyleSheet("font-weight:bold; color:#1a5276;")
             cb.stateChanged.connect(lambda state, idx=i, _cb=cb: self._on_result_selected(idx, _cb))
             self._result_layout.addWidget(cb)
+
+            if category:
+                cat_lbl = QLabel(f"  🏷 {category}")
+                cat_lbl.setStyleSheet(
+                    "color:#fff; background:#2980b9; border-radius:3px;"
+                    "font-size:8pt; padding:1px 6px; margin-left:24px;"
+                )
+                cat_lbl.setFixedHeight(18)
+                self._result_layout.addWidget(cat_lbl)
 
             lbl = QLabel(f"  {preview}...")
             lbl.setStyleSheet("color:#666; font-size:9pt; padding-left:24px;")
