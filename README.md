@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.0.4-orange)
+![Version](https://img.shields.io/badge/Version-v2.0.6-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -178,7 +178,7 @@ Step 4：LLM 自動生成行為指標
 Step 5：填寫說明與補充事項（選填）
   └── 員工姓名 + 備注說明
   ↓
-匯出 Excel 職能說明書（3 個 Sheet）
+匯出 Excel 職能說明書（5 個 Sheet）
 ```
 
 ---
@@ -242,52 +242,38 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 
 <details>
-<summary><b>ai_chat.py v2.1</b> — AI 對話模組（5 階段職能說明書引導）</summary>
+<summary><b>ai_chat.py</b> — LLM 行為指標生成</summary>
 
 - **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰
+- `analyze_task()`：根據員工填寫的任務描述，生成 2–3 條 ICAP 格式行為指標
 - TAIDE Llama2 chat template：`[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{user} [/INST]`
-- 固定開場白（`GREETING`）瞬間顯示，不呼叫 LLM
-- `SYSTEM_PROMPT`：5 階段狀態機，含 markdown 表格格式指令
-- `inject_standard()`：Phase 2 將 RAG 搜尋結果注入對話歷史，觸發 AI 介紹基準
-- `extract_competency_json()` 偵測 `[COMPETENCY_JSON]...[/COMPETENCY_JSON]` 區塊並解析
-- `competency_to_task_list()`：職能 JSON → 5W2H dict 清單，供表單匯入
-- 對話歷史自動截斷（最多 20 輪），防止 context 無限成長
-- `llamacpp_available()` / `check_server()`：後端可用性偵測
+- 模型路徑與 LLM 參數（n_ctx、temperature 等）從 `config.toml` 讀取，可自訂
+- `llamacpp_available()`：後端可用性偵測，無模型時 LLM 功能優雅降級
 </details>
 
 <details>
 <summary><b>wizard_ui.py</b> — PyQt6 桌面 UI</summary>
 
-- 四頁 `QStackedWidget`：載入頁 → 輸入表單頁 → 結果頁 → AI 對話頁
-- `InitThread` / `AnalyzeThread`：背景執行緒避免 UI 凍結
-- **逐任務輸入架構**：
-  - 表單頁頂部固定顯示「已加入任務清單」面板（不隨 5W2H 欄位捲動）
-  - `_added_tasks: List[dict]`：每項任務儲存完整 9 欄位 5W2H dict
-  - 「加入清單 ＋」在表單底部，填完後收集全部欄位 → 存入 dict → 清空表單 → 自動捲回頂端
-  - `_collect_input()` 合併所有 dict 產生 `UserInput5W2H`
-- **AI 對話頁**：
-  - `ChatWorker(QThread)`：背景執行緒，含 `reply / status / error` 三個 Signal
-  - 自動初始化 LlamaCpp 後端（首次載入 10–30 秒）
-  - `_markdown_to_html()`：AI 回覆中的 markdown 表格自動轉為 HTML，在 `QTextBrowser` 視覺化渲染
-  - 對話完成後顯示「確認並匯入任務 →」按鈕
-- `TaskEditDialog`：彈出式任務編輯對話框；點「編輯」開啟，含完整 9 個 5W2H 欄位，儲存後原地更新清單
-- `StandardSelectorDialog`：從職能基準資料庫選擇範本，每個標準任務帶入 task_name/output/behaviors/skills 等欄位加入清單
-- `StandardAdoptionWizard`：分析完成後 Opt-out 確認精靈；三分頁（任務／知識／技能），預勾全部，綠色=自動偵測，藍色=預選待確認
-- 結果頁右側 `QTabWidget`：基本資訊 / 工作職能（task_id 下拉）/ 缺口分析
+- 六頁 `QStackedWidget`：載入 → 搜尋 → 編輯器 → 逐任務填寫 → LLM 建議確認 → 補充說明
+- `InitThread`：背景執行緒載入 Embedding 模型 + FAISS 索引，啟動時偵測 TAIDE 模型路徑
+- **搜尋頁**：向量搜尋 Top-3 職能基準，結果卡片顯示職類標籤（`standard_category`）
+- **編輯器頁**：`QTableWidget` 可直接點格子修改主責 / 任務 / 工作產出 / 等級，支援新增/刪除列
+- **逐任務填寫**：每個任務分頁填寫實際工作描述與工作成果
+- **LLM 建議頁**：`LLMWorker(QThread)` 背景呼叫 `analyze_task()` 生成行為指標，以可編輯 `QLineEdit` 呈現，可勾選採用、手動修改或重新生成
 - `DataManagerDialog`：新增／刪除 PDF、PDF→JSON 解析、搜尋過濾、重建索引
+- `_rows_from_standard()`：將職能基準 JSON 展開為每任務一列的 row list，供編輯器與 Excel 匯出使用
 </details>
 
 <details>
-<summary><b>excel_exporter.py</b> — Excel 匯出（6 Sheet）</summary>
+<summary><b>excel_exporter.py</b> — Excel 匯出（5 Sheet）</summary>
 
 | Sheet | 內容 |
 |-------|------|
-| 職能說明書摘要 | 員工姓名、建立日期、匹配基準、完整度、5W2H 輸入摘要 |
-| 我的職能確認 | 員工確認的任務／知識／技能清單（含代碼，綠色樣式） |
-| 工作任務對照 | 確認任務 vs 缺口任務對照（含嚴重度色彩：高=紅、中=橘、低=黃） |
-| 知識技能對照 | 確認知識技能 vs 缺口對照（含代碼與嚴重度） |
-| 缺口分析報告 | 缺口摘要、建議補強方向 |
-| 完整職能基準資料 | 匹配職能基準的完整任務、知識、技能清單 |
+| 職能說明書 | 主責代碼 / 主責名稱 / 任務代碼 / 任務名稱 / 工作產出 / 行為指標 / 職能等級（深藍表頭） |
+| 知識清單 | 知識代碼 / 知識名稱 / 對應任務（所有任務彙整，同代碼合併） |
+| 技能清單 | 技能代碼 / 技能名稱 / 對應任務 |
+| 態度清單 | 態度代碼 / 態度名稱 / 說明（A 代碼） |
+| 補充說明 | 員工姓名、建立日期、職能基準名稱、補充說明、各任務行為指標摘要 |
 
 </details>
 
@@ -338,7 +324,9 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
-| v2.0.4 | 2026-04-22 | 導入 uv 環境管理：新增 `pyproject.toml` 與 `uv.lock`、固定 Python 3.13、修正 `dependency-groups` 以支援 `uv sync`；更新 `.gitignore`；README 新增 uv 安裝與啟動流程（保留 pip 方式） |
+| v2.0.6 | 2026-04-22 | 修正 `pdf_parser_v2.py` 知識/技能代碼正規表達式（`\d{2}` → `\d+`），正確解析 ICAP 3 位數代碼（K004、S301）；修正前代碼截斷（code=K00, name=4工藝...）導致 Excel 知識/技能清單空白的問題 |
+| v2.0.5 | 2026-04-22 | 導入 uv 環境管理（`pyproject.toml` + `uv sync`）；模型路徑改為 `config.toml` 設定檔；啟動時偵測 TAIDE 模型路徑是否存在並提示；搜尋結果加入職類標籤（`standard_category`）方便辨識行業 |
+| v2.0.4 | 2026-04-22 | 導入 uv 環境管理：新增 `pyproject.toml` 與 `uv.lock`、修正 `dependency-groups` 以支援 `uv sync`；更新 `.gitignore`；README 新增 uv 安裝與啟動流程（保留 pip 方式） |
 | v2.0.3 | 2026-03-30 | **防閃退**：LLM 分析改用子 process 隔離，llama.cpp `GGML_ASSERT abort` 只殺子 process，主程式不受影響，已完成任務保留結果；**LLM建議頁**：行為指標改為可直接編輯的 `QLineEdit`、新增 `_split_indicators()` 自動拆分合併格式、重新分析按鈕加資料來源說明；**Excel 新增態度清單 Sheet**（A代碼）、K/S 對應任務欄顯示全部來源任務；**Log** 改為每次啟動產生獨立時間戳記檔，保留最近 30 份 |
 | v2.0.2 | 2026-03-30 | 修正 `WizardRAG` 快取命中時仍讀取舊版 standards 的問題：改為每次從 JSON 重新載入，確保重新解析 PDF 後資料立即生效；修正逐任務填寫頁第一筆任務無法返回編輯器（按鈕改顯示「← 返回編輯器」並始終啟用）；全量重解析 908 份職能基準 PDF，補齊先前解析器 bug 遺漏的中間任務 |
 | v2.0.0 | 2026-03-30 | 全面重新設計系統流程：UI 改為 6 頁流程（搜索→編輯器→逐任務填寫→LLM建議確認→補充→匯出）；移除 5W2H 表單，改為直接填寫職能基準書格式；新增 `analyze_task()` 單次 LLM 呼叫自動生成行為指標；`excel_exporter.py` 全新格式對齊 ICAP 職能基準書欄位（3 Sheet：職能說明書/知識清單/技能清單） |
@@ -366,4 +354,4 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 ---
 
-**版本**：v2.0.4　　**最後更新**：2026-04-22
+**版本**：v2.0.6　　**最後更新**：2026-04-22
