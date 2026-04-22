@@ -117,6 +117,20 @@ cd CompetencyWizard
 
 ### 2. 安裝依賴
 
+#### 方式 A（推薦）：使用 uv
+
+```bash
+uv sync
+```
+
+若需啟用 AI 對話 / 行為指標生成功能（LlamaCpp / OpenAI fallback）：
+
+```bash
+uv sync --extra ai
+```
+
+#### 方式 B：使用 pip
+
 ```bash
 pip install PyQt6 sentence-transformers faiss-cpu openpyxl openai
 ```
@@ -137,6 +151,14 @@ CompetencyWizard/
 ```
 
 ### 4. 啟動程式
+
+使用 uv：
+
+```bash
+uv run python main.py
+```
+
+或（已啟用虛擬環境時）：
 
 ```bash
 python main.py
