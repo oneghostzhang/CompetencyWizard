@@ -136,9 +136,21 @@ class InitThread(QThread):
             if self.force_rebuild:
                 self.rag.invalidate_cache()
             self.rag.initialize(progress_cb=lambda msg: self.progress.emit(msg))
+            self._check_model()
             self.finished.emit(True, "")
         except Exception as e:
             self.finished.emit(False, str(e))
+
+    def _check_model(self):
+        try:
+            from ai_chat import TAIDE_MODEL_PATH
+            if not Path(TAIDE_MODEL_PATH).exists():
+                self.progress.emit(
+                    "⚠️ 找不到 TAIDE 模型，AI 行為指標生成將無法使用。"
+                    f"請確認路徑：{TAIDE_MODEL_PATH}"
+                )
+        except Exception:
+            pass
 
 
 class SearchThread(QThread):
