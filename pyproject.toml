@@ -23,6 +23,8 @@ ai = [
 	"langchain-community>=0.2",
 	"llama-cpp-python>=0.2",
 ]
+
+[dependency-groups]
 dev = [
 	"pytest>=8.0",
 	"ruff>=0.5",
