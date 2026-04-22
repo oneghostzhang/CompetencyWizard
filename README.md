@@ -43,24 +43,13 @@
 └─────────────────────────┬───────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
-│                    分析引擎層                            │
-│   gap_analyzer.py (GapAnalyzer)                         │
-│   ├── 逐任務 5W2H → 搜尋查詢字串轉換                   │
-│   ├── Layer 1：語義相似度排名（Top-K 匹配職能基準）     │
-│   └── 完整度分數計算 + 缺口嚴重度分級                  │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────┐
 │                    介面層                                │
 │   wizard_ui.py (PyQt6 桌面應用程式)                     │
 │   ├── Search：職業名稱搜尋 → Top-3 職能基準             │
 │   ├── Editor：職能基準書編輯（主責/任務/產出/等級）     │
 │   ├── Detail：逐任務填寫工作描述                        │
 │   ├── LLMSuggest：LLM 自動生成行為指標（可編輯）        │
-│   ├── Supplement：補充說明                              │
-│   ├── Step 2：分析結果 + 職能基準分頁瀏覽               │
-│   ├── Step 3：StandardAdoptionWizard 逐項確認精靈       │
-│   └── Step 4：確認缺口 → 匯出 Excel（6 個 Sheet）      │
+│   └── Supplement：補充說明 → 匯出 Excel（5 Sheet）     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -88,12 +77,11 @@ CompetencyWizard/
 │
 ├── 🐍 核心模組
 │   ├── main.py              # 程式入口（QApplication 啟動）
-│   ├── wizard_ui.py         # PyQt6 主視窗 UI（四頁 Stack）
-│   ├── ai_chat.py           # AI 對話模組 v2.1（5 階段職能說明書引導）
+│   ├── wizard_ui.py         # PyQt6 主視窗 UI（六頁 Stack）
+│   ├── ai_chat.py           # LLM 行為指標生成（LlamaCpp + 子 process 隔離）
 │   ├── wizard_rag.py        # RAG 核心（Embedding + FAISS 檢索）
-│   ├── gap_analyzer.py      # 5W2H 缺口分析邏輯與資料結構
-│   ├── logger.py            # 集中式日誌設定（RotatingFileHandler）
-│   ├── excel_exporter.py    # openpyxl Excel 輸出（6 Sheet）
+│   ├── logger.py            # 集中式日誌設定（每次啟動獨立 log 檔）
+│   ├── excel_exporter.py    # openpyxl Excel 輸出（5 Sheet）
 │   └── pdf_parser_v2.py     # PDF 職能基準解析工具
 │
 ├── 📂 data/
@@ -252,15 +240,6 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 - 索引自動快取至 `_index_cache/`，避免每次啟動重建
 </details>
 
-<details>
-<summary><b>gap_analyzer.py</b> — 缺口分析</summary>
-
-- `UserInput5W2H` 資料類別：結構化儲存 9 個面向的使用者輸入，`task_list` 保留各任務獨立字串清單
-- `to_search_query()` 將所有任務的 5W2H 合併為語義搜尋查詢字串
-- `GapAnalyzer.analyze()` 執行 RAG 檢索 + 完整度評分 + 缺口嚴重度分級
-- 缺口嚴重度分級：核心製程關鍵字 → 高；衛生/行政/清潔關鍵字 → 低；其餘 → 中
-- `GapReport` 含 `matched_standards`（排名列表）、`completeness_score`、`gap_items`（含嚴重度）
-</details>
 
 <details>
 <summary><b>ai_chat.py v2.1</b> — AI 對話模組（5 階段職能說明書引導）</summary>
