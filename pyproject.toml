@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "competencywizard"
+version = "2.0.4"
+description = "職能說明書精靈"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PyQt6>=6.6",
+    "numpy>=1.26",
+    "faiss-cpu>=1.8",
+    "sentence-transformers>=3.0",
+    "openpyxl>=3.1",
+    "pdfplumber>=0.11",
+]
+
+[project.optional-dependencies]
+ai = [
+    "llama-cpp-python>=0.2",
+]
+
+[project.scripts]
+competency-wizard = "main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[tool.setuptools]
+py-modules = [
+    "ai_chat",
+    "excel_exporter",
+    "logger",
+    "main",
+    "pdf_parser_v2",
+    "wizard_rag",
+    "wizard_ui",
+]
+
+[tool.uv]
+default-groups = ["dev"]

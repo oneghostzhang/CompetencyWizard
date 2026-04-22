@@ -17,27 +17,39 @@ ai_chat.py  v2.1
 import json
 import logging
 import re
+import tomllib
 from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# ── 模型路徑（借鑑 Graph_RAG_test/config.py）────────────────────────────────
+# ── 從 config.toml 讀取設定 ──────────────────────────────────────────────────
 
-TAIDE_MODEL_PATH = (
+def _load_config() -> dict:
+    cfg_path = Path(__file__).parent / "config.toml"
+    if cfg_path.exists():
+        with open(cfg_path, "rb") as f:
+            return tomllib.load(f)
+    return {}
+
+_cfg = _load_config()
+
+TAIDE_MODEL_PATH: str = _cfg.get("model", {}).get(
+    "taide_path",
     r"C:\Users\User\.lmstudio\models\ZoneTwelve"
-    r"\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf"
+    r"\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf",
 )
 
-# ── LLM 參數（借鑑 Graph_RAG_test）─────────────────────────────────────────
+# ── LLM 參數 ─────────────────────────────────────────────────────────────────
 
-N_CTX        = 4096
-N_THREADS    = 8
-TEMPERATURE  = 0.3   # 對話比 RAG 需要稍高一點的創造性
-MAX_TOKENS   = 512   # 嚴格限制，避免推論過久
+_llm_cfg     = _cfg.get("llm", {})
+N_CTX        = _llm_cfg.get("n_ctx",       4096)
+N_THREADS    = _llm_cfg.get("n_threads",   8)
+TEMPERATURE  = _llm_cfg.get("temperature", 0.3)
+MAX_TOKENS   = _llm_cfg.get("max_tokens",  512)
 STOP_TOKENS  = ["\n使用者:", "\n員工:", "\n問題:", "使用者：", "員工："]
 
-DEFAULT_MODEL = "taide-lx-7b-chat"   # LM Studio fallback 用
+DEFAULT_MODEL = "taide-lx-7b-chat"
 
 _MAX_HISTORY_TURNS = 20
 

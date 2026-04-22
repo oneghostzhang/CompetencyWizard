@@ -21,3 +21,19 @@ _index_cache/
 
 # 論文草稿（本地保留）
 paper_draft.md
+
+# uv / venv
+.venv/
+uv.lock
+
+# 開發工具
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# 設定（含模型路徑，不納入版控）
+config.toml
