@@ -1,5 +1,6 @@
 # 日誌
 logs/
+*.log
 
 # Excel 暫存
 excel_ai_dump.txt
@@ -8,6 +9,14 @@ excel_ai_dump.txt
 __pycache__/
 *.pyc
 *.pyo
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
 .env
 
 # 資料（不納入版控）
