@@ -919,16 +919,6 @@ class WizardMainWindow(QMainWindow):
         title.setStyleSheet("color:#2c3e50;")
         v.addWidget(title)
 
-        # 員工名稱
-        name_row = QHBoxLayout()
-        name_row.addWidget(QLabel("員工姓名（選填）："))
-        self._employee_name = QLineEdit()
-        self._employee_name.setPlaceholderText("請輸入姓名...")
-        self._employee_name.setMaximumWidth(300)
-        name_row.addWidget(self._employee_name)
-        name_row.addStretch()
-        v.addLayout(name_row)
-
         # 補充說明
         v.addWidget(QLabel("說明與補充事項（選填）："))
         self._supplement_text = QTextEdit()
@@ -1341,9 +1331,8 @@ class WizardMainWindow(QMainWindow):
         self.stack.setCurrentIndex(5)
 
     def _on_export(self):
-        role_name = self._employee_name.text().strip() or self._position
         path, _ = QFileDialog.getSaveFileName(
-            self, "儲存職能說明書", f"{role_name}_職能說明書.xlsx",
+            self, "儲存職能說明書", f"{self._position}_職能說明書.xlsx",
             "Excel 檔案 (*.xlsx)")
         if not path:
             return
@@ -1361,7 +1350,7 @@ class WizardMainWindow(QMainWindow):
                 "attitudes": (self._matched_std or {}).get(
                     "competency_attitudes", []),
             }
-            out = export_competency(data, Path(path), role_name)
+            out = export_competency(data, Path(path))
             QMessageBox.information(self, "匯出完成", f"已儲存至：\n{out}")
         except Exception as e:
             QMessageBox.critical(self, "匯出失敗", str(e))

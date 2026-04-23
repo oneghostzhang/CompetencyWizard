@@ -77,7 +77,7 @@ def _write(ws, coord, value, **kwargs):
 # Sheet 1: 職能說明書
 # ─────────────────────────────────────────
 
-def _sheet_competency(wb, data: dict, role_name: str):
+def _sheet_competency(wb, data: dict):
     ws = wb.active
     ws.title = "職能說明書"
 
@@ -93,7 +93,6 @@ def _sheet_competency(wb, data: dict, role_name: str):
         ("職能等級",   str(data.get("level", ""))),
         ("職能基準",   data.get("standard_name", "（未使用基準）")),
         ("基準代碼",   data.get("standard_code", "")),
-        ("員工姓名",   role_name),
         ("建立日期",   datetime.now().strftime("%Y-%m-%d")),
     ]
     row = 1
@@ -273,7 +272,7 @@ def _sheet_attitudes(wb, data: dict):
 # Sheet 5: 補充說明
 # ─────────────────────────────────────────
 
-def _sheet_supplement(wb, data: dict, role_name: str):
+def _sheet_supplement(wb, data: dict):
     ws = wb.create_sheet("補充說明")
     ws.column_dimensions["A"].width = 18
     ws.column_dimensions["B"].width = 60
@@ -283,7 +282,6 @@ def _sheet_supplement(wb, data: dict, role_name: str):
            align="center", font_color=C_HEADER_FONT, font_size=12)
 
     pairs = [
-        ("員工姓名",    role_name),
         ("職業名稱",    data.get("position", "")),
         ("職能等級",    str(data.get("level", ""))),
         ("職能基準名稱", data.get("standard_name", "")),
@@ -322,7 +320,6 @@ def _sheet_supplement(wb, data: dict, role_name: str):
 def export_competency(
     data: dict,
     output_path: Optional[Path] = None,
-    role_name: str = "",
 ) -> Path:
     """
     輸出職能說明書 Excel（v2.0 格式）。
@@ -334,7 +331,6 @@ def export_competency(
                     level, _knowledge, _skills, behavior_accepted}]
         }
         output_path: 輸出路徑（None 則自動命名）
-        role_name:   員工姓名（用於檔名）
 
     Returns:
         實際輸出的 Path
@@ -344,15 +340,15 @@ def export_competency(
 
     if output_path is None:
         ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe = (role_name or data.get("position", "職能說明書")).replace("/", "_")
+        safe = data.get("position", "職能說明書").replace("/", "_")
         output_path = Path.cwd() / f"{safe}_{ts}.xlsx"
 
     wb = openpyxl.Workbook()
-    _sheet_competency(wb, data, role_name)
+    _sheet_competency(wb, data)
     _sheet_knowledge(wb, data)
     _sheet_skills(wb, data)
     _sheet_attitudes(wb, data)
-    _sheet_supplement(wb, data, role_name)
+    _sheet_supplement(wb, data)
 
     wb.save(str(output_path))
     return output_path
