@@ -15,7 +15,7 @@ _MAX_KEEP = 30          # 最多保留幾份 log
 _initialized = False
 
 
-def setup(log_dir: Path = None, level: int = logging.INFO) -> None:
+def setup(log_dir: Path | None = None, level: int = logging.INFO) -> None:
     """初始化 logging，輸出至 console 與每次啟動獨立的 log 檔。
     多次呼叫無副作用。
     """
