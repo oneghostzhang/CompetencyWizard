@@ -55,7 +55,7 @@ class CompetencyPDFParser:
         if not PDFPLUMBER_AVAILABLE:
             raise ImportError("pdfplumber 未安裝")
 
-    def parse(self, pdf_path: str) -> ParsedCompetencyStandard:
+    def parse(self, pdf_path: str | Path) -> ParsedCompetencyStandard:
         """解析 PDF 檔案"""
         result = ParsedCompetencyStandard()
         pdf_path = Path(pdf_path)
@@ -776,7 +776,11 @@ class CompetencyPDFParser:
         }
 
 
-def parse_pdf_to_json(pdf_path: str, output_path: str = None, legacy_format: bool = False) -> Dict:
+def parse_pdf_to_json(
+    pdf_path: str,
+    output_path: str | None = None,
+    legacy_format: bool = False,
+) -> Dict:
     """
     便利函數：解析 PDF 並輸出 JSON
 
