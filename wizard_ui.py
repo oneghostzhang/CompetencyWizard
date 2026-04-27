@@ -449,6 +449,14 @@ class DataManagerDialog(QDialog):
         self._btn_parse.setEnabled(True); self._btn_rebuild.setEnabled(True)
         self._btn_cancel_parse.setVisible(False)
         self._refresh_list()
+        # 有失敗時主動彈出警告，避免使用者遺漏 log 訊息（P10）
+        if err > 0:
+            QMessageBox.warning(
+                self, "PDF 解析部分失敗",
+                f"共 {ok + err} 個檔案，{err} 個解析失敗。\n"
+                "請查看下方日誌確認失敗原因，\n"
+                "問題排除後可重新選取該 PDF 再次解析。"
+            )
 
     def _on_parse_cancel(self):
         if self._parse_thread and self._parse_thread.isRunning():
@@ -836,6 +844,27 @@ class WizardMainWindow(QMainWindow):
         self._detail_desc.setFixedHeight(110)
         v.addWidget(self._detail_desc)
 
+        _DESC_LIMIT = 800
+        _OUTPUT_LIMIT = 400
+        self._detail_desc_count = QLabel(f"0 / {_DESC_LIMIT}")
+        self._detail_desc_count.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self._detail_desc_count.setStyleSheet("color:#888; font-size:8pt;")
+        v.addWidget(self._detail_desc_count)
+
+        def _enforce_desc_limit():
+            txt = self._detail_desc.toPlainText()
+            if len(txt) > _DESC_LIMIT:
+                cur = self._detail_desc.textCursor()
+                pos = min(cur.position(), _DESC_LIMIT)
+                self._detail_desc.blockSignals(True)
+                self._detail_desc.setPlainText(txt[:_DESC_LIMIT])
+                self._detail_desc.blockSignals(False)
+                cur.setPosition(pos)
+                self._detail_desc.setTextCursor(cur)
+            self._detail_desc_count.setText(f"{len(self._detail_desc.toPlainText())} / {_DESC_LIMIT}")
+
+        self._detail_desc.textChanged.connect(_enforce_desc_limit)
+
         lbl2 = QLabel("此任務的主要工作成果或產出：")
         lbl2.setStyleSheet("font-weight:bold; color:#2c3e50;")
         v.addWidget(lbl2)
@@ -843,6 +872,25 @@ class WizardMainWindow(QMainWindow):
         self._detail_output.setPlaceholderText("例：每週庫存盤點報告、異常差異通報紀錄...")
         self._detail_output.setFixedHeight(80)
         v.addWidget(self._detail_output)
+
+        self._detail_output_count = QLabel(f"0 / {_OUTPUT_LIMIT}")
+        self._detail_output_count.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self._detail_output_count.setStyleSheet("color:#888; font-size:8pt;")
+        v.addWidget(self._detail_output_count)
+
+        def _enforce_output_limit():
+            txt = self._detail_output.toPlainText()
+            if len(txt) > _OUTPUT_LIMIT:
+                cur = self._detail_output.textCursor()
+                pos = min(cur.position(), _OUTPUT_LIMIT)
+                self._detail_output.blockSignals(True)
+                self._detail_output.setPlainText(txt[:_OUTPUT_LIMIT])
+                self._detail_output.blockSignals(False)
+                cur.setPosition(pos)
+                self._detail_output.setTextCursor(cur)
+            self._detail_output_count.setText(f"{len(self._detail_output.toPlainText())} / {_OUTPUT_LIMIT}")
+
+        self._detail_output.textChanged.connect(_enforce_output_limit)
 
         v.addStretch()
 
@@ -1154,7 +1202,7 @@ class WizardMainWindow(QMainWindow):
                 "task_code":        task_code,
                 "task_name":        cell(3),
                 "output":           cell(4),
-                "level":            int(cell(5)) if cell(5).isdigit() else 3,
+                "level":            max(1, min(5, int(cell(5)))) if cell(5).isdigit() else 3,
                 "_behaviors":       orig.get("_behaviors", []),
                 "_knowledge":       orig.get("_knowledge", []),
                 "_skills":          orig.get("_skills", []),
@@ -1169,6 +1217,26 @@ class WizardMainWindow(QMainWindow):
         if not rows:
             QMessageBox.information(self, "提示", "請至少填寫一列工作任務（任務代碼欄不可為空）")
             return
+        # 檢查 task_code 重複（P7）
+        seen: set = set()
+        dups: list = []
+        for r in rows:
+            tc = r.get("task_code", "")
+            if tc in seen:
+                dups.append(tc)
+            seen.add(tc)
+        if dups:
+            dup_str = "、".join(sorted(set(dups)))
+            reply = QMessageBox.warning(
+                self, "任務代碼重複",
+                f"以下任務代碼重複出現：{dup_str}\n"
+                "重複的代碼在 Excel 匯出時行為指標可能互相覆蓋。\n\n"
+                "是否仍要繼續？",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
         self._competency_rows = rows
         self._level = self._level_spin.value()
         self._current_task_idx = 0
