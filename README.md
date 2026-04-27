@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.0.6-orange)
+![Version](https://img.shields.io/badge/Version-v2.0.8-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -308,6 +308,8 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 | 向量檢索 | FAISS | 高效相似度搜尋 |
 | Excel 輸出 | openpyxl | 職能說明書格式化輸出 |
 | PDF 解析 | pdfplumber | ICAP 職能基準 PDF 轉 JSON |
+| OpenAI 相容 | openai | LM Studio / OpenAI API 推論後端 |
+| LangChain | langchain-community | 擴充 LLM 工具鏈整合 |
 
 ---
 
@@ -324,6 +326,8 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.0.8 | 2026-04-27 | 修正多模組 Pylance 型別註記（`ChatCompletionMessageParam`、`SuggestEntry` TypedDict、多處 None guard）；新增 `openai>=2.32.0` 與 `langchain-community>=0.4.1` 依賴 |
+| v2.0.7 | 2026-04-23 | 移除員工姓名輸入欄位，匯出 Excel 檔名改以職業名稱（第一頁輸入值）命名 |
 | v2.0.6 | 2026-04-22 | 修正 `pdf_parser_v2.py` 知識/技能代碼正規表達式（`\d{2}` → `\d+`），正確解析 ICAP 3 位數代碼（K004、S301）；修正前代碼截斷（code=K00, name=4工藝...）導致 Excel 知識/技能清單空白的問題 |
 | v2.0.5 | 2026-04-22 | 導入 uv 環境管理（`pyproject.toml` + `uv sync`）；模型路徑改為 `config.toml` 設定檔；啟動時偵測 TAIDE 模型路徑是否存在並提示；搜尋結果加入職類標籤（`standard_category`）方便辨識行業 |
 | v2.0.4 | 2026-04-22 | 導入 uv 環境管理：新增 `pyproject.toml` 與 `uv.lock`、修正 `dependency-groups` 以支援 `uv sync`；更新 `.gitignore`；README 新增 uv 安裝與啟動流程（保留 pip 方式） |
@@ -354,4 +358,4 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 ---
 
-**版本**：v2.0.6　　**最後更新**：2026-04-22
+**版本**：v2.0.8　　**最後更新**：2026-04-27
