@@ -562,6 +562,8 @@ class WizardMainWindow(QMainWindow):
         self._level:    int = 3
         self._search_results: List[Dict] = []   # RAG 候選清單
         self._matched_std:    Optional[Dict] = None
+        self._last_std_code:  str = ""          # 上次載入編輯器使用的基準代碼（P2）
+        self._std_radio_group: List[QCheckBox] = []  # 搜尋結果選擇器（P1）
         self._competency_rows: List[Dict] = []  # 主要資料
         self._current_task_idx: int = 0
         self._suggest_checks: list[SuggestEntry | None] = []
@@ -1087,11 +1089,11 @@ class WizardMainWindow(QMainWindow):
     def _goto_editor(self):
         """從搜尋頁進入編輯器頁，預填或清空 Table。"""
         self._level = self._level_spin.value()
-        if self._matched_std:
-            rows = _rows_from_standard(self._matched_std)
-        else:
-            rows = []
-        self._competency_rows = rows
+        new_code = (self._matched_std or {}).get("metadata", {}).get("code", "")
+        # 只有基準改變或目前無任何任務時才重新載入，避免覆蓋使用者的編輯（P2）
+        if not self._competency_rows or new_code != self._last_std_code:
+            self._competency_rows = _rows_from_standard(self._matched_std) if self._matched_std else []
+            self._last_std_code = new_code
         self._refresh_editor_table()
         self.stack.setCurrentIndex(2)
 
@@ -1260,6 +1262,15 @@ class WizardMainWindow(QMainWindow):
         self._suggest_progress.setMaximum(len(self._competency_rows))
         self._suggest_progress.setValue(0)
         self._btn_confirm_suggest.setEnabled(False)
+
+        # 停止舊執行緒，避免新舊結果交錯（P3）
+        if self._llm_thread is not None and self._llm_thread.isRunning():
+            self._llm_thread.stop()
+            self._llm_thread.task_done.disconnect()
+            self._llm_thread.all_done.disconnect()
+            self._llm_thread.status.disconnect()
+            self._llm_thread.error.disconnect()
+            self._llm_thread.wait(2000)
 
         self._llm_thread = LLMAnalyzeThread(self._competency_rows, self._position)
         self._llm_thread.task_done.connect(self._on_llm_task_done)
