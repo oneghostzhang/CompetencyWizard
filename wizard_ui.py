@@ -7,7 +7,7 @@ competency_wizard/wizard_ui.py
 import shutil
 import sys
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, TypedDict
 
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -23,6 +23,11 @@ from PyQt6.QtGui import QFont, QColor
 
 from wizard_rag import WizardRAG
 from ai_chat import analyze_task, analyze_tasks_batch
+
+
+class SuggestEntry(TypedDict):
+    checks: list[tuple[QCheckBox, QLineEdit]]
+    extra: QTextEdit
 
 
 # ─────────────────────────────────────────
@@ -362,6 +367,8 @@ class DataManagerDialog(QDialog):
         result = []
         for i in range(self._list.count()):
             item = self._list.item(i)
+            if item is None:
+                continue
             if item.checkState() == Qt.CheckState.Checked:
                 p = item.data(Qt.ItemDataRole.UserRole)
                 if p:
@@ -371,17 +378,23 @@ class DataManagerDialog(QDialog):
     def _check_all(self):
         for i in range(self._list.count()):
             item = self._list.item(i)
+            if item is None:
+                continue
             if item.data(Qt.ItemDataRole.UserRole):
                 item.setCheckState(Qt.CheckState.Checked)
 
     def _check_none(self):
         for i in range(self._list.count()):
-            self._list.item(i).setCheckState(Qt.CheckState.Unchecked)
+            item = self._list.item(i)
+            if item is not None:
+                item.setCheckState(Qt.CheckState.Unchecked)
 
     def _on_search(self, text: str):
         kw = text.strip().lower()
         for i in range(self._list.count()):
             item = self._list.item(i)
+            if item is None:
+                continue
             item.setHidden(bool(kw) and kw not in item.text().lower())
 
     def _on_add(self):
@@ -551,7 +564,7 @@ class WizardMainWindow(QMainWindow):
         self._matched_std:    Optional[Dict] = None
         self._competency_rows: List[Dict] = []  # 主要資料
         self._current_task_idx: int = 0
-        self._suggest_checks: List[List[QCheckBox]] = []  # page 4 checkboxes
+        self._suggest_checks: list[SuggestEntry | None] = []
 
         self._build_ui()
         self._start_init()
@@ -737,12 +750,13 @@ class WizardMainWindow(QMainWindow):
         self._editor_table.setHorizontalHeaderLabels(
             ["主責代碼", "主責名稱", "任務代碼", "任務名稱", "工作產出", "等級"])
         hh = self._editor_table.horizontalHeader()
-        hh.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        hh.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        hh.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        hh.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
-        hh.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
-        hh.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+        if hh is not None:
+            hh.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            hh.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            hh.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            hh.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+            hh.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
+            hh.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
         self._editor_table.setAlternatingRowColors(True)
         self._editor_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         v.addWidget(self._editor_table, 1)
@@ -990,8 +1004,11 @@ class WizardMainWindow(QMainWindow):
         # 清空舊結果
         while self._result_layout.count():
             item = self._result_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item is None:
+                continue
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
         self._search_results = []
         self._search_thread = SearchThread(self._rag, query)
         self._search_thread.finished.connect(self._on_search_done)
@@ -1102,8 +1119,10 @@ class WizardMainWindow(QMainWindow):
         t.insertRow(r)
         # 繼承上一列的主責代碼/名稱
         if r > 0:
-            t.setItem(r, 0, QTableWidgetItem(t.item(r-1, 0).text() if t.item(r-1, 0) else ""))
-            t.setItem(r, 1, QTableWidgetItem(t.item(r-1, 1).text() if t.item(r-1, 1) else ""))
+            prev_resp_code = t.item(r - 1, 0)
+            prev_resp_name = t.item(r - 1, 1)
+            t.setItem(r, 0, QTableWidgetItem(prev_resp_code.text() if prev_resp_code else ""))
+            t.setItem(r, 1, QTableWidgetItem(prev_resp_name.text() if prev_resp_name else ""))
         t.setItem(r, 5, QTableWidgetItem("3"))
         t.scrollToBottom()
         t.setCurrentCell(r, 2)
@@ -1118,7 +1137,9 @@ class WizardMainWindow(QMainWindow):
         t = self._editor_table
         rows = []
         for r in range(t.rowCount()):
-            def cell(c): return (t.item(r, c).text() if t.item(r, c) else "").strip()
+            def cell(c):
+                item = t.item(r, c)
+                return (item.text() if item else "").strip()
             task_code = cell(2)
             if not task_code:
                 continue
@@ -1188,8 +1209,10 @@ class WizardMainWindow(QMainWindow):
         else:
             self._btn_detail_next.setText("下一個任務  →")
             self._btn_detail_next.setObjectName("primary")
-        self._btn_detail_next.style().unpolish(self._btn_detail_next)
-        self._btn_detail_next.style().polish(self._btn_detail_next)
+        style = self._btn_detail_next.style()
+        if style is not None:
+            style.unpolish(self._btn_detail_next)
+            style.polish(self._btn_detail_next)
 
     def _detail_save_current(self):
         """把目前的輸入存回 _competency_rows。"""
@@ -1225,9 +1248,12 @@ class WizardMainWindow(QMainWindow):
         # 清空舊內容
         while self._suggest_layout.count():
             item = self._suggest_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-        self._suggest_checks = [[] for _ in self._competency_rows]
+            if item is None:
+                continue
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        self._suggest_checks = [None for _ in self._competency_rows]
         self._suggest_status_lbl.setText("AI 分析中...")
         self._suggest_status_lbl.setStyleSheet(
             "color:#ffffff; background:#e67e22; border-radius:4px; padding:3px 10px; font-size:9pt;")
@@ -1253,7 +1279,7 @@ class WizardMainWindow(QMainWindow):
         box_v = QVBoxLayout(box)
         box_v.setSpacing(4)
 
-        checks = []
+        checks: list[tuple[QCheckBox, QLineEdit]] = []
         if behaviors:
             for b in behaviors:
                 row_w = QWidget()
@@ -1309,11 +1335,11 @@ class WizardMainWindow(QMainWindow):
     def _goto_supplement(self):
         """從 LLM 建議頁收集採用的行為指標，進入補充頁。"""
         for idx, entry in enumerate(self._suggest_checks):
-            if not isinstance(entry, dict):
+            if entry is None:
                 continue
-            accepted = [le.text().strip() for cb, le in entry.get("checks", [])
+            accepted = [le.text().strip() for cb, le in entry["checks"]
                         if cb.isChecked() and le.text().strip()]
-            extra_text = entry.get("extra", QTextEdit()).toPlainText().strip()
+            extra_text = entry["extra"].toPlainText().strip()
             if extra_text:
                 accepted.extend([l.strip() for l in extra_text.split("\n") if l.strip()])
             self._competency_rows[idx]["behavior_accepted"] = accepted

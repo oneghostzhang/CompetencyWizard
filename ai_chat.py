@@ -21,6 +21,8 @@ import tomllib
 from pathlib import Path
 from typing import Optional
 
+from openai.types.chat import ChatCompletionMessageParam
+
 logger = logging.getLogger(__name__)
 
 # ── 從 config.toml 讀取設定 ──────────────────────────────────────────────────
@@ -160,7 +162,7 @@ class _LlamaCppBackend:
         )
         logger.info("LlamaCpp 載入完成")
 
-    def chat(self, messages: list[dict]) -> str:
+    def chat(self, messages: list[ChatCompletionMessageParam]) -> str:
         """將對話歷史轉為 TAIDE chat template 格式後推論。"""
         prompt = _build_taide_prompt(messages)
         result = self._llm.invoke(prompt)
@@ -171,7 +173,7 @@ class _LlamaCppBackend:
         return str(result).strip()
 
 
-def _build_taide_prompt(messages: list[dict]) -> str:
+def _build_taide_prompt(messages: list[ChatCompletionMessageParam]) -> str:
     """
     將 OpenAI 格式的 messages 轉為 TAIDE llama chat template。
     TAIDE 使用 [INST] ... [/INST] 格式（和 Llama 2 相容）。
@@ -181,7 +183,9 @@ def _build_taide_prompt(messages: list[dict]) -> str:
 
     for msg in messages:
         role = msg["role"]
-        content = msg["content"]
+        content = msg.get("content", "")
+        if not isinstance(content, str):
+            content = str(content)
         if role == "system":
             system_content = content
         elif role == "user":
@@ -206,7 +210,7 @@ class _LMStudioBackend:
         self._client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
         self._model = model
 
-    def chat(self, messages: list[dict]) -> str:
+    def chat(self, messages: list[ChatCompletionMessageParam]) -> str:
         resp = self._client.chat.completions.create(
             model=self._model,
             messages=messages,
@@ -229,7 +233,7 @@ class LMStudioChat:
         self._model      = model
         self._model_path = model_path
         self._backend    = None          # 延遲初始化（在 ChatWorker 執行緒中載入）
-        self.history: list[dict] = [
+        self.history: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": SYSTEM_PROMPT}
         ]
         self._competency: Optional[dict] = None
@@ -354,8 +358,12 @@ class LMStudioChat:
 _WORKER_TIMEOUT = 120   # 每個任務最長等待秒數
 
 
-def _build_prompt_messages(position: str, task_name: str,
-                            user_description: str, standard_behaviors: list):
+def _build_prompt_messages(
+    position: str,
+    task_name: str,
+    user_description: str,
+    standard_behaviors: list,
+) -> list[ChatCompletionMessageParam]:
     """組裝 system/user prompt messages（供 worker process 使用）。"""
     std_lines = []
     for b in standard_behaviors[:5]:

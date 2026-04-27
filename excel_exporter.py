@@ -49,7 +49,7 @@ def _thin_border() -> Border:
     return Border(left=s, right=s, top=s, bottom=s)
 
 
-def _style(cell, bg: str = None, bold: bool = False,
+def _style(cell, bg: str | None = None, bold: bool = False,
            align: str = "left", wrap: bool = False, font_size: int = 10,
            font_color: str = "000000"):
     if bg:

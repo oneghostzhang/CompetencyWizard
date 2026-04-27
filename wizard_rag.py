@@ -11,7 +11,7 @@ import logging
 import pickle
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional, cast
 
 try:
     import faiss
@@ -37,7 +37,7 @@ class WizardRAG:
     不傳入 engine 時，使用獨立的索引快取（_index_cache/）正常初始化。
     """
 
-    def __init__(self, json_dir: Path = None, index_dir: Path = None, engine=None):
+    def __init__(self, json_dir: Path | None = None, index_dir: Path | None = None, engine=None):
         self.json_dir = Path(json_dir) if json_dir else _DEFAULT_JSON_DIR
         self.index_dir = Path(index_dir) if index_dir else _DEFAULT_INDEX_DIR
         self.index_dir.mkdir(parents=True, exist_ok=True)
@@ -106,6 +106,8 @@ class WizardRAG:
     def _try_init_from_engine(self, progress_cb=None) -> bool:
         """嘗試從 GraphRAGQueryEngine 復用 embedding_model 與 vector_index。"""
         engine = self._engine
+        if engine is None:
+            return False
 
         if getattr(engine, 'embedding_model', None) is None:
             if progress_cb:
@@ -185,6 +187,8 @@ class WizardRAG:
 
     def _build_index(self, progress_cb=None):
         """從 parsed_json_v2 JSON 檔案建立 FAISS 索引（獨立模式用）。"""
+        if self._model is None:
+            raise RuntimeError("Embedding 模型尚未初始化")
         json_files = list(self.json_dir.glob("*.json"))
         texts = []
         self._chunks = []
@@ -253,11 +257,11 @@ class WizardRAG:
                 done = min(start + batch_size, total)
                 progress_cb(f"向量化中 {done}/{total} chunks...")
 
-        embeddings = np.vstack(all_embeddings).astype("float32")
+        embeddings = np.asarray(np.vstack(all_embeddings), dtype="float32")
         faiss.normalize_L2(embeddings)
 
         self._index = faiss.IndexFlatIP(embeddings.shape[1])
-        self._index.add(embeddings)
+        cast(Any, self._index).add(embeddings)
 
     def _load_standards_from_json(self) -> Dict[str, Dict]:
         """從原始 JSON 檔載入職能基準資料（raw dict，格式與 gap_analyzer 預期一致）。"""
@@ -284,12 +288,14 @@ class WizardRAG:
         """向量搜尋最相似的職能基準，回傳 top_k 個不重複標準。"""
         if not self.initialized:
             raise RuntimeError("WizardRAG 尚未初始化，請先呼叫 initialize()")
+        if self._model is None or self._index is None:
+            raise RuntimeError("WizardRAG 內部狀態未完成初始化")
 
         vec = self._model.encode([query], show_progress_bar=False)
         vec = np.array(vec, dtype="float32")
         faiss.normalize_L2(vec)
 
-        scores, indices = self._index.search(vec, top_k * 4)
+        scores, indices = cast(Any, self._index).search(vec, top_k * 4)
 
         seen_codes: set = set()
         results = []
@@ -332,7 +338,7 @@ class WizardRAG:
             return -1, 0.0
 
         texts = [query] + task_names
-        embs = self._model.encode(texts, show_progress_bar=False).astype("float32")
+        embs = np.asarray(self._model.encode(texts, show_progress_bar=False), dtype="float32")
         faiss.normalize_L2(embs)
 
         # 查詢向量 vs. 各任務向量的點積（= 正規化後的餘弦相似度）
