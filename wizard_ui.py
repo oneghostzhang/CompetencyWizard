@@ -233,6 +233,11 @@ class LLMAnalyzeThread(QThread):
 
         if not self._stop:
             self.all_done.emit()
+        # T2：先釋放 Queue 背景執行緒，再終止 process，避免 join 卡住
+        try:
+            q.cancel_join_thread()
+        except Exception:
+            pass
         try:
             proc.kill()
         except Exception:
@@ -564,6 +569,8 @@ class WizardMainWindow(QMainWindow):
         self._init_thread: Optional[InitThread] = None
         self._search_thread: Optional[SearchThread] = None
         self._llm_thread: Optional[LLMAnalyzeThread] = None
+        self._init_timer: Optional[QTimer] = None    # T1：初始化逾時計時器
+        self._search_timer: Optional[QTimer] = None  # T3：搜尋逾時計時器
 
         # 跨頁資料
         self._position: str = ""
@@ -656,6 +663,13 @@ class WizardMainWindow(QMainWindow):
         self._btn_force_rebuild.setFixedWidth(160)
         self._btn_force_rebuild.clicked.connect(lambda: self._start_init(force=True))
         v.addWidget(self._btn_force_rebuild, 0, Qt.AlignmentFlag.AlignCenter)
+
+        self._btn_cancel_init = QPushButton("取消初始化")
+        self._btn_cancel_init.setFixedWidth(160)
+        self._btn_cancel_init.setObjectName("danger")
+        self._btn_cancel_init.setVisible(False)
+        self._btn_cancel_init.clicked.connect(self._on_cancel_init)
+        v.addWidget(self._btn_cancel_init, 0, Qt.AlignmentFlag.AlignCenter)
         return w
 
     # ── Page 1: 搜索頁 ──────────────────────────────────────────────────────
@@ -1018,17 +1032,59 @@ class WizardMainWindow(QMainWindow):
     # 初始化（Page 0）
     # ─────────────────────────────────────
 
+    _INIT_TIMEOUT_MS = 5 * 60 * 1000   # 5 分鐘
+
     def _start_init(self, force: bool = False):
         self.stack.setCurrentIndex(0)
         self._loading_label.setText("正在載入 Embedding 模型，請稍候...")
         self._loading_bar.setRange(0, 0)
         self._btn_force_rebuild.setEnabled(False)
+        self._btn_cancel_init.setVisible(True)
+        self._btn_cancel_init.setEnabled(True)
+
         self._init_thread = InitThread(self._rag, force_rebuild=force)
         self._init_thread.progress.connect(self._loading_label.setText)
         self._init_thread.finished.connect(self._on_init_done)
         self._init_thread.start()
 
+        # T1：啟動逾時計時器，超過 5 分鐘自動取消
+        if self._init_timer is not None:
+            self._init_timer.stop()
+        self._init_timer = QTimer(self)
+        self._init_timer.setSingleShot(True)
+        self._init_timer.timeout.connect(self._on_init_timeout)
+        self._init_timer.start(self._INIT_TIMEOUT_MS)
+
+    def _on_cancel_init(self):
+        """使用者手動取消初始化。"""
+        if self._init_timer is not None:
+            self._init_timer.stop()
+        if self._init_thread is not None:
+            self._init_thread.cancel()
+        self._btn_cancel_init.setEnabled(False)
+        self._loading_label.setText("已取消初始化，請點擊「強制重建索引」重試。")
+        self._loading_bar.setRange(0, 1)
+        self._loading_bar.setValue(0)
+        self._btn_force_rebuild.setEnabled(True)
+        self._btn_cancel_init.setVisible(False)
+
+    def _on_init_timeout(self):
+        """初始化超過 5 分鐘，自動取消並提示使用者。"""
+        if self._init_thread is not None:
+            self._init_thread.cancel()
+        self._loading_label.setText(
+            "初始化逾時（超過 5 分鐘），可能是模型載入或索引建立過慢。\n"
+            "請確認磁碟空間充足後，點擊「強制重建索引」重試。"
+        )
+        self._loading_bar.setRange(0, 1)
+        self._loading_bar.setValue(0)
+        self._btn_force_rebuild.setEnabled(True)
+        self._btn_cancel_init.setVisible(False)
+
     def _on_init_done(self, ok: bool, err: str):
+        if self._init_timer is not None:
+            self._init_timer.stop()
+        self._btn_cancel_init.setVisible(False)
         self._loading_bar.setRange(0, 1)
         self._loading_bar.setValue(1)
         self._btn_force_rebuild.setEnabled(True)
@@ -1065,7 +1121,30 @@ class WizardMainWindow(QMainWindow):
         self._search_thread.error.connect(self._on_search_error)
         self._search_thread.start()
 
+        # T3：30 秒搜尋逾時，恢復按鈕並顯示錯誤（不強制終止執行緒）
+        if self._search_timer is not None:
+            self._search_timer.stop()
+        self._search_timer = QTimer(self)
+        self._search_timer.setSingleShot(True)
+        self._search_timer.timeout.connect(self._on_search_timeout)
+        self._search_timer.start(30_000)
+
+    def _on_search_timeout(self):
+        """搜尋逾時：斷開舊執行緒信號，恢復 UI。"""
+        if self._search_thread is not None:
+            try:
+                self._search_thread.finished.disconnect(self._on_search_done)
+                self._search_thread.error.disconnect(self._on_search_error)
+            except Exception:
+                pass
+        self._btn_search.setEnabled(True)
+        self._search_result_label.setText(
+            "搜尋逾時（超過 30 秒），請確認 Embedding 模型是否正常載入後重試。"
+        )
+
     def _on_search_done(self, results: list):
+        if self._search_timer is not None:
+            self._search_timer.stop()
         self._btn_search.setEnabled(True)
         self._search_results = results
 
@@ -1131,6 +1210,8 @@ class WizardMainWindow(QMainWindow):
             self._matched_std = None
 
     def _on_search_error(self, msg: str):
+        if self._search_timer is not None:
+            self._search_timer.stop()
         self._btn_search.setEnabled(True)
         self._search_result_label.setText(f"搜尋失敗：{msg}")
 
