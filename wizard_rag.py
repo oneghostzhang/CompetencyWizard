@@ -169,6 +169,15 @@ class WizardRAG:
             # 舊快取沒有 standard_category 欄位時強制重建
             if self._chunks and "standard_category" not in self._chunks[0]:
                 return False
+            # 向量維度不匹配時強制重建，防止模型更新後 search() crash（C4）
+            if self._model is not None:
+                expected_dim = self._model.get_sentence_embedding_dimension()
+                if expected_dim is not None and cast(Any, self._index).d != expected_dim:
+                    logger.warning(
+                        "快取維度 %d ≠ 模型維度 %d，強制重建索引",
+                        cast(Any, self._index).d, expected_dim,
+                    )
+                    return False
             # 每次都從 JSON 重新載入 standards，確保資料是最新的
             self._standards = self._load_standards_from_json()
             return True
