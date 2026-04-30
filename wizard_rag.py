@@ -198,6 +198,12 @@ class WizardRAG:
         """從 parsed_json_v2 JSON 檔案建立 FAISS 索引（獨立模式用）。"""
         if self._model is None:
             raise RuntimeError("Embedding 模型尚未初始化")
+        # 提前檢查目錄是否存在，給出友善提示（O2）
+        if not self.json_dir.exists():
+            raise RuntimeError(
+                f"找不到職能基準資料夾：{self.json_dir}\n"
+                "請先透過「資料管理 → 解析 PDF」建立資料，或確認路徑設定是否正確。"
+            )
         json_files = list(self.json_dir.glob("*.json"))
         texts = []
         self._chunks = []

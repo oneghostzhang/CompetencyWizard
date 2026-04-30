@@ -40,6 +40,15 @@ C_META_BG      = "F8F9FA"   # 基本資訊區（淺灰）
 # 共用工具
 # ─────────────────────────────────────────
 
+_FORMULA_PREFIXES = ("=", "+", "-", "@")
+
+def _safe_str(value: str) -> str:
+    """防止字串被 Excel 誤判為公式（O6）：以特殊字元開頭時前置空格。"""
+    if isinstance(value, str) and value.startswith(_FORMULA_PREFIXES):
+        return " " + value
+    return value
+
+
 def _fill(hex_color: str) -> PatternFill:
     return PatternFill("solid", fgColor=hex_color)
 
@@ -81,8 +90,8 @@ def _sheet_competency(wb, data: dict):
     ws = wb.active
     ws.title = "職能說明書"
 
-    # 欄寬
-    col_widths = [10, 14, 10, 28, 36, 40, 10]
+    # 欄寬（中文字符約佔 2 個 ASCII 單位，各欄已調整）
+    col_widths = [12, 22, 12, 36, 42, 50, 10]
     headers    = ["主責代碼", "主責名稱", "任務代碼", "任務名稱", "工作產出", "行為指標", "職能等級"]
     for i, (w, h) in enumerate(zip(col_widths, headers), 1):
         ws.column_dimensions[get_column_letter(i)].width = w
@@ -121,7 +130,7 @@ def _sheet_competency(wb, data: dict):
     rows_data = data.get("rows", [])
     for r in rows_data:
         behaviors = r.get("behavior_accepted") or []
-        behavior_str = "\n".join(f"・{b}" for b in behaviors) if behaviors else ""
+        behavior_str = "\n".join(f"・{_safe_str(b)}" for b in behaviors) if behaviors else ""
 
         # 一行一個任務（行為指標合併在同格，換行顯示）
         values = [
@@ -304,7 +313,7 @@ def _sheet_supplement(wb, data: dict):
     for r in data.get("rows", []):
         behaviors = r.get("behavior_accepted") or []
         label_txt = f"{r.get('task_code','')}  {r.get('task_name','')}"
-        behaviors_txt = "；".join(behaviors) if behaviors else "（未生成行為指標）"
+        behaviors_txt = "；".join(_safe_str(b) for b in behaviors) if behaviors else "（未生成行為指標）"
         ws[f"A{row}"] = label_txt
         _style(ws[f"A{row}"], bg=C_TASK_BG, bold=True)
         ws[f"B{row}"] = behaviors_txt

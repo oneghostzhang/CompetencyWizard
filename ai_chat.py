@@ -38,8 +38,7 @@ _cfg = _load_config()
 
 TAIDE_MODEL_PATH: str = _cfg.get("model", {}).get(
     "taide_path",
-    r"C:\Users\User\.lmstudio\models\ZoneTwelve"
-    r"\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf",
+    "",   # 未設定時為空字串，程式啟動時自動 fallback 至 LM Studio API
 )
 
 # ── LLM 參數 ─────────────────────────────────────────────────────────────────

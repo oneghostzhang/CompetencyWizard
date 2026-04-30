@@ -62,14 +62,14 @@ class CompetencyPDFParser:
 
         try:
             with pdfplumber.open(pdf_path) as pdf:
-                all_text = ""
+                _text_parts: list[str] = []
                 all_tables = []
 
                 for page in pdf.pages:
-                    text = page.extract_text() or ""
-                    all_text += text + "\n"
-                    tables = page.extract_tables()
-                    all_tables.extend(tables)
+                    _text_parts.append(page.extract_text() or "")
+                    all_tables.extend(page.extract_tables())
+
+                all_text = "\n".join(_text_parts)
 
                 # 1. 解析元資料（版本資訊）
                 result.metadata = self._parse_metadata(all_text, pdf_path)
