@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
     QDialog, QTextBrowser, QTableWidget, QTableWidgetItem,
     QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem,
-    QSpinBox, QSplitter,
+    QSpinBox, QSplitter, QRadioButton, QButtonGroup,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -188,10 +188,11 @@ class LLMAnalyzeThread(QThread):
 
     _TASK_TIMEOUT = 120   # 每個任務最長等待秒數
 
-    def __init__(self, rows: list, position: str):
+    def __init__(self, rows: list, position: str, template: str = "ABCD"):
         super().__init__()
         self.rows     = rows
         self.position = position
+        self.template = template
         self._stop    = False
 
     def stop(self):
@@ -199,10 +200,11 @@ class LLMAnalyzeThread(QThread):
 
     def run(self):
         total = len(self.rows)
-        self.status.emit(f"啟動 AI 分析（共 {total} 個任務）...")
+        self.status.emit(f"啟動 AI 分析（共 {total} 個任務，模板：{self.template}）...")
 
         proc, q = analyze_tasks_batch(self.rows, self.position,
-                                      result_cb=None, done_cb=None, error_cb=None)
+                                      result_cb=None, done_cb=None, error_cb=None,
+                                      template=self.template)
         received = 0
         while received < total and not self._stop:
             try:
@@ -571,6 +573,7 @@ class WizardMainWindow(QMainWindow):
         self._llm_thread: Optional[LLMAnalyzeThread] = None
         self._init_timer: Optional[QTimer] = None    # T1：初始化逾時計時器
         self._search_timer: Optional[QTimer] = None  # T3：搜尋逾時計時器
+        self._analysis_template: str = "ABCD"        # 使用者選擇的分析模板
 
         # 跨頁資料
         self._position: str = ""
@@ -690,6 +693,27 @@ class WizardMainWindow(QMainWindow):
         subtitle = QLabel("請輸入您的職業名稱，系統將自動搜尋最相近的 ICAP 職能基準。")
         subtitle.setStyleSheet("color:#7f8c8d;")
         outer.addWidget(subtitle)
+
+        # AI 分析模板選擇
+        tpl_box = QGroupBox("AI 分析模板")
+        tpl_h = QHBoxLayout(tpl_box)
+        tpl_h.setSpacing(16)
+        self._tpl_btn_group = QButtonGroup(self)
+        _TPL_OPTIONS = [
+            ("ABCD", "ABCD｜適合財務／品管／技術職（條件＋行動＋標準）"),
+            ("5W2H", "5W2H｜適合行政／生產／後勤（完整操作情境）"),
+            ("STAR", "STAR｜適合主管／專案／問題解決（情境＋行動＋成果）"),
+        ]
+        for key, label in _TPL_OPTIONS:
+            rb = QRadioButton(label)
+            rb.setChecked(key == "ABCD")
+            rb.toggled.connect(
+                lambda checked, k=key: self._on_template_changed(k) if checked else None
+            )
+            self._tpl_btn_group.addButton(rb)
+            tpl_h.addWidget(rb)
+        tpl_h.addStretch()
+        outer.addWidget(tpl_box)
 
         # 輸入列
         input_row = QHBoxLayout()
@@ -947,6 +971,12 @@ class WizardMainWindow(QMainWindow):
         subtitle.setStyleSheet("color:#7f8c8d; font-size:9pt;")
         v.addWidget(subtitle)
 
+        self._tpl_label = QLabel()
+        self._tpl_label.setStyleSheet(
+            "color:#1a3a5c; background:#d9e1f2; border-radius:4px;"
+            " padding:2px 10px; font-size:9pt;")
+        v.addWidget(self._tpl_label)
+
         self._suggest_progress = QProgressBar()
         self._suggest_progress.setFixedHeight(8)
         v.addWidget(self._suggest_progress)
@@ -1141,6 +1171,9 @@ class WizardMainWindow(QMainWindow):
         self._search_result_label.setText(
             "搜尋逾時（超過 30 秒），請確認 Embedding 模型是否正常載入後重試。"
         )
+
+    def _on_template_changed(self, key: str):
+        self._analysis_template = key
 
     def _on_search_done(self, results: list):
         if self._search_timer is not None:
@@ -1412,6 +1445,15 @@ class WizardMainWindow(QMainWindow):
         self._suggest_progress.setValue(0)
         self._btn_confirm_suggest.setEnabled(False)
 
+        _TPL_DESC = {
+            "ABCD": "ABCD｜條件＋行動＋標準",
+            "5W2H": "5W2H｜完整操作情境",
+            "STAR": "STAR｜情境＋行動＋成果",
+        }
+        self._tpl_label.setText(
+            f"目前模板：{_TPL_DESC.get(self._analysis_template, self._analysis_template)}"
+        )
+
         # 停止舊執行緒，避免新舊結果交錯（P3）
         if self._llm_thread is not None and self._llm_thread.isRunning():
             self._llm_thread.stop()
@@ -1421,7 +1463,9 @@ class WizardMainWindow(QMainWindow):
             self._llm_thread.error.disconnect()
             self._llm_thread.wait(2000)
 
-        self._llm_thread = LLMAnalyzeThread(self._competency_rows, self._position)
+        self._llm_thread = LLMAnalyzeThread(
+            self._competency_rows, self._position, self._analysis_template
+        )
         self._llm_thread.task_done.connect(self._on_llm_task_done)
         self._llm_thread.all_done.connect(self._on_llm_all_done)
         self._llm_thread.status.connect(self._suggest_status_lbl.setText)
