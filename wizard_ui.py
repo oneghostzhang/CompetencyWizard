@@ -181,7 +181,7 @@ class LLMAnalyzeThread(QThread):
     批次呼叫 analyze_tasks_batch()，透過子 process 隔離 llama.cpp abort。
     每完成一個任務 emit task_done；子 process 崩潰時 emit error 並繼續顯示已完成部分。
     """
-    task_done = pyqtSignal(int, list)   # index, behavior_indicators
+    task_done = pyqtSignal(int, list, str)  # index, behavior_indicators, template_used
     all_done  = pyqtSignal()
     status    = pyqtSignal(str)
     error     = pyqtSignal(str)
@@ -218,19 +218,20 @@ class LLMAnalyzeThread(QThread):
                     )
                     # emit 空結果給未完成的任務
                     for i in range(total):
-                        self.task_done.emit(i, [])
+                        self.task_done.emit(i, [], "")
                     break
                 continue   # process 還活著，繼續等
 
             if item is None:   # sentinel：全部完成
                 break
-            idx, indicators = item
+            idx, indicators, template_used = item
             row = self.rows[idx] if idx < total else {}
+            tpl_hint = f" → {template_used}" if self.template == "AUTO" and template_used else ""
             self.status.emit(
-                f"AI 分析完成：{row.get('task_code','')} {row.get('task_name','')} "
-                f"（{received + 1}/{total}）"
+                f"AI 分析完成：{row.get('task_code','')} {row.get('task_name','')}"
+                f"{tpl_hint}（{received + 1}/{total}）"
             )
-            self.task_done.emit(idx, indicators)
+            self.task_done.emit(idx, indicators, template_used)
             received += 1
 
         if not self._stop:
@@ -573,7 +574,7 @@ class WizardMainWindow(QMainWindow):
         self._llm_thread: Optional[LLMAnalyzeThread] = None
         self._init_timer: Optional[QTimer] = None    # T1：初始化逾時計時器
         self._search_timer: Optional[QTimer] = None  # T3：搜尋逾時計時器
-        self._analysis_template: str = "ABCD"        # 使用者選擇的分析模板
+        self._analysis_template: str = "AUTO"         # 使用者選擇的分析模板
 
         # 跨頁資料
         self._position: str = ""
@@ -700,13 +701,14 @@ class WizardMainWindow(QMainWindow):
         tpl_h.setSpacing(16)
         self._tpl_btn_group = QButtonGroup(self)
         _TPL_OPTIONS = [
-            ("ABCD", "ABCD｜適合財務／品管／技術職（條件＋行動＋標準）"),
-            ("5W2H", "5W2H｜適合行政／生產／後勤（完整操作情境）"),
-            ("STAR", "STAR｜適合主管／專案／問題解決（情境＋行動＋成果）"),
+            ("AUTO", "自動｜由 AI 依任務性質自動選擇（推薦）"),
+            ("ABCD", "ABCD｜財務／品管／技術職"),
+            ("5W2H", "5W2H｜行政／生產／後勤"),
+            ("STAR", "STAR｜主管／專案／問題解決"),
         ]
         for key, label in _TPL_OPTIONS:
             rb = QRadioButton(label)
-            rb.setChecked(key == "ABCD")
+            rb.setChecked(key == "AUTO")
             rb.toggled.connect(
                 lambda checked, k=key: self._on_template_changed(k) if checked else None
             )
@@ -1446,6 +1448,7 @@ class WizardMainWindow(QMainWindow):
         self._btn_confirm_suggest.setEnabled(False)
 
         _TPL_DESC = {
+            "AUTO": "自動｜AI 依任務性質自動選擇（各任務框架見下方標籤）",
             "ABCD": "ABCD｜條件＋行動＋標準",
             "5W2H": "5W2H｜完整操作情境",
             "STAR": "STAR｜情境＋行動＋成果",
@@ -1475,13 +1478,29 @@ class WizardMainWindow(QMainWindow):
     def _rerun_llm(self):
         self._run_llm()
 
-    def _on_llm_task_done(self, idx: int, behaviors: list):
+    _TPL_BADGE: dict[str, tuple[str, str]] = {
+        "5W2H": ("#e8f5e9", "#2e7d32"),
+        "ABCD": ("#e3f2fd", "#1565c0"),
+        "STAR": ("#fff3e0", "#e65100"),
+    }
+
+    def _on_llm_task_done(self, idx: int, behaviors: list, template_used: str):
         row = self._competency_rows[idx]
         self._suggest_progress.setValue(idx + 1)
 
         box = QGroupBox(f"{row.get('task_code','')}  {row.get('task_name','')}")
         box_v = QVBoxLayout(box)
         box_v.setSpacing(4)
+
+        # 模板標籤（固定模板也顯示，讓使用者確認）
+        if template_used:
+            bg, fg = self._TPL_BADGE.get(template_used, ("#f0f0f0", "#555555"))
+            tpl_lbl = QLabel(f"框架：{template_used}")
+            tpl_lbl.setStyleSheet(
+                f"color:{fg}; background:{bg}; border-radius:3px;"
+                f" padding:1px 10px; font-size:8pt; font-weight:bold;")
+            tpl_lbl.setAlignment(Qt.AlignmentFlag.AlignRight)
+            box_v.addWidget(tpl_lbl)
 
         checks: list[tuple[QCheckBox, QLineEdit]] = []
         if behaviors:

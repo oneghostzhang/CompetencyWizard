@@ -427,6 +427,35 @@ PROMPT_TEMPLATES: dict[str, dict[str, str]] = {
         ),
     },
 
+    # ── AUTO：由 LLM 自行判斷最適框架後生成指標 ──────────────────────────────
+    "AUTO": {
+        "system": (
+            "你是 ICAP 職能說明書專家，使用繁體中文。\n"
+            "請先判斷以下工作任務最適合哪種分析框架，再依該框架生成 2～3 條行為指標。\n\n"
+            "【框架判斷規則】\n"
+            "  5W2H：任務有固定 SOP、操作步驟、頻率要求（如：盤點、入庫、定期巡檢）\n"
+            "  ABCD：任務有明確 KPI 或驗收條件（如：財務核對、品質達成率、誤差控制）\n"
+            "  STAR：任務需情境判斷、問題解決、跨部門協調（如：緊急應變、專案規劃）\n\n"
+            "【各框架指標格式要求】\n"
+            "  5W2H：操作動詞＋工具/系統＋頻率/時機＋量化標準，35～65 字\n"
+            "  ABCD：條件(C)＋行動(B)＋達成標準(D)，30～60 字\n"
+            "  STAR：情境(S)＋行動(A)＋成果(R)，40～70 字\n\n"
+            "【通用規定】\n"
+            "・每條限 1 句，以行動動詞開頭\n"
+            "・禁止虛詞：能夠/負責/致力於/確保\n\n"
+            "嚴禁輸出解釋、標題、編號、多餘文字，只輸出 JSON。"
+        ),
+        "user": (
+            "職位：{position}｜職能等級：{level} — {level_hint}\n"
+            "工作任務：{task_name}\n\n"
+            "【員工實際描述（如何執行）】\n{user_desc}\n\n"
+            "【主要工作產出/成果】\n{user_output}\n\n"
+            "【ICAP 標準行為指標（風格參考，勿照抄）】\n{std_text}\n\n"
+            "請判斷此任務最適合的框架（5W2H / ABCD / STAR），再依框架生成行為指標。\n"
+            '只輸出 JSON，格式：{{"template":"ABCD","behavior_indicators":["指標1","指標2","指標3"]}}'
+        ),
+    },
+
     # ── STAR：適合管理/跨部門/問題解決/專案性、非標準化工作 ──────────────────
     "STAR": {
         "system": (
@@ -520,22 +549,47 @@ def _worker_main(tasks: list, q):
     if backend is None:
         backend = _LMStudioBackend()
 
+    _VALID_TPLS = {"5W2H", "ABCD", "STAR"}
+
     for idx, task_args in tasks:
+        tpl_param = task_args.get("template", "ABCD")
         try:
             messages = _build_prompt_messages(**task_args)
             reply = backend.chat(messages)
-            match = _re.search(r'\{.*?"behavior_indicators".*?\}', reply, _re.DOTALL)
-            if match:
-                data = _json.loads(match.group())
-                indicators = data.get("behavior_indicators", [])
-                if isinstance(indicators, list):
-                    q.put((idx, _split_indicators(indicators)))
-                    continue
-            lines = [l.strip().lstrip("-•・ ")
-                     for l in reply.split("\n") if len(l.strip()) > 8]
-            q.put((idx, _split_indicators(lines[:6])))
-        except Exception as e:
-            q.put((idx, []))
+
+            if tpl_param == "AUTO":
+                # AUTO 模式：LLM 輸出 {"template":"ABCD","behavior_indicators":[...]}
+                match = _re.search(r'\{.*?"template".*?"behavior_indicators".*?\}',
+                                   reply, _re.DOTALL)
+                if not match:
+                    match = _re.search(r'\{.*?"behavior_indicators".*?\}',
+                                       reply, _re.DOTALL)
+                if match:
+                    data = _json.loads(match.group())
+                    indicators = data.get("behavior_indicators", [])
+                    tpl_used = data.get("template", "ABCD")
+                    if tpl_used not in _VALID_TPLS:
+                        tpl_used = "ABCD"
+                    if isinstance(indicators, list):
+                        q.put((idx, _split_indicators(indicators), tpl_used))
+                        continue
+                lines = [l.strip().lstrip("-•・ ")
+                         for l in reply.split("\n") if len(l.strip()) > 8]
+                q.put((idx, _split_indicators(lines[:6]), "ABCD"))
+            else:
+                # 固定模板模式：沿用原有解析，template_used = tpl_param
+                match = _re.search(r'\{.*?"behavior_indicators".*?\}', reply, _re.DOTALL)
+                if match:
+                    data = _json.loads(match.group())
+                    indicators = data.get("behavior_indicators", [])
+                    if isinstance(indicators, list):
+                        q.put((idx, _split_indicators(indicators), tpl_param))
+                        continue
+                lines = [l.strip().lstrip("-•・ ")
+                         for l in reply.split("\n") if len(l.strip()) > 8]
+                q.put((idx, _split_indicators(lines[:6]), tpl_param))
+        except Exception:
+            q.put((idx, [], tpl_param))
     q.put(None)   # sentinel
 
 
@@ -561,7 +615,7 @@ def analyze_task(
         item = q.get(timeout=_WORKER_TIMEOUT)
         if item is None:
             return {"behavior_indicators": [], "error": "worker 無回應"}
-        _, indicators = item
+        _, indicators, _tpl = item
         logger.info("analyze_task 完成：%s", task_name)
         return {"behavior_indicators": indicators, "error": None}
     except Exception as e:
