@@ -932,6 +932,23 @@ class WizardMainWindow(QMainWindow):
 
         self._detail_output.textChanged.connect(_enforce_output_limit)
 
+        # AI 分析框架選擇
+        tpl_row = QHBoxLayout()
+        tpl_lbl = QLabel("AI 分析框架：")
+        tpl_lbl.setStyleSheet("font-weight:bold; color:#2c3e50;")
+        tpl_row.addWidget(tpl_lbl)
+        self._detail_tpl_combo = QComboBox()
+        for _key, _label in [
+            ("AUTO", "自動｜AI 依任務性質選擇（推薦）"),
+            ("ABCD", "ABCD｜條件＋行動＋標準"),
+            ("5W2H", "5W2H｜操作步驟＋頻率＋標準"),
+            ("STAR", "STAR｜情境＋行動＋成果"),
+        ]:
+            self._detail_tpl_combo.addItem(_label, _key)
+        self._detail_tpl_combo.setFixedHeight(30)
+        tpl_row.addWidget(self._detail_tpl_combo, 1)
+        v.addLayout(tpl_row)
+
         v.addStretch()
 
         # 導航列
@@ -1382,6 +1399,13 @@ class WizardMainWindow(QMainWindow):
         self._detail_desc.setText(row.get("user_description", ""))
         self._detail_output.setText(row.get("user_output", ""))
 
+        # 恢復此任務的模板選擇，預設跟隨全域設定
+        tpl_key = row.get("template", self._analysis_template)
+        for i in range(self._detail_tpl_combo.count()):
+            if self._detail_tpl_combo.itemData(i) == tpl_key:
+                self._detail_tpl_combo.setCurrentIndex(i)
+                break
+
         if idx == 0:
             self._btn_detail_prev.setText("← 返回編輯器")
             self._btn_detail_prev.setEnabled(True)
@@ -1405,6 +1429,7 @@ class WizardMainWindow(QMainWindow):
         row = self._competency_rows[self._current_task_idx]
         row["user_description"] = self._detail_desc.toPlainText().strip()
         row["user_output"]      = self._detail_output.toPlainText().strip()
+        row["template"]         = self._detail_tpl_combo.currentData()
 
     def _detail_prev(self):
         self._detail_save_current()
@@ -1448,14 +1473,21 @@ class WizardMainWindow(QMainWindow):
         self._btn_confirm_suggest.setEnabled(False)
 
         _TPL_DESC = {
-            "AUTO": "自動｜AI 依任務性質自動選擇（各任務框架見下方標籤）",
-            "ABCD": "ABCD｜條件＋行動＋標準",
-            "5W2H": "5W2H｜完整操作情境",
-            "STAR": "STAR｜情境＋行動＋成果",
+            "AUTO": "自動",
+            "ABCD": "ABCD",
+            "5W2H": "5W2H",
+            "STAR": "STAR",
         }
-        self._tpl_label.setText(
-            f"目前模板：{_TPL_DESC.get(self._analysis_template, self._analysis_template)}"
-        )
+        tpl_keys = [row.get("template", self._analysis_template)
+                    for row in self._competency_rows]
+        unique = sorted(set(tpl_keys), key=tpl_keys.index)
+        if len(unique) == 1:
+            self._tpl_label.setText(
+                f"框架：{_TPL_DESC.get(unique[0], unique[0])}（全部任務）"
+            )
+        else:
+            summary = "、".join(_TPL_DESC.get(k, k) for k in unique)
+            self._tpl_label.setText(f"框架：{summary}（各任務獨立設定，見下方標籤）")
 
         # 停止舊執行緒，避免新舊結果交錯（P3）
         if self._llm_thread is not None and self._llm_thread.isRunning():

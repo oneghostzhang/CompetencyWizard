@@ -638,7 +638,7 @@ def analyze_tasks_batch(
     每完成一個任務呼叫 result_cb(idx, indicators)；
     全部完成呼叫 done_cb()；子 process 意外崩潰時呼叫 error_cb(msg)。
 
-    template: 分析框架 "5W2H" / "ABCD" / "STAR"
+    template: 全域預設框架，各 row 可用 row["template"] 覆蓋。
     回傳 (Process, Queue)，呼叫端可監控。
     """
     import multiprocessing as _mp
@@ -648,7 +648,7 @@ def analyze_tasks_batch(
             task_name=row.get("task_name", ""),
             user_description=row.get("user_description", ""),
             standard_behaviors=row.get("_behaviors", []),
-            template=template,
+            template=row.get("template", template),  # 任務層級覆蓋全域設定
             level=row.get("level", 3),
             user_output=row.get("user_output", ""),
         ))
