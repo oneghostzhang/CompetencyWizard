@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
     QDialog, QTextBrowser, QTableWidget, QTableWidgetItem,
     QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem,
-    QSpinBox, QSplitter, QRadioButton, QButtonGroup,
+    QSpinBox, QSplitter,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
@@ -695,28 +695,6 @@ class WizardMainWindow(QMainWindow):
         subtitle.setStyleSheet("color:#7f8c8d;")
         outer.addWidget(subtitle)
 
-        # AI 分析模板選擇
-        tpl_box = QGroupBox("AI 分析模板")
-        tpl_h = QHBoxLayout(tpl_box)
-        tpl_h.setSpacing(16)
-        self._tpl_btn_group = QButtonGroup(self)
-        _TPL_OPTIONS = [
-            ("AUTO", "自動｜由 AI 依任務性質自動選擇（推薦）"),
-            ("ABCD", "ABCD｜財務／品管／技術職"),
-            ("5W2H", "5W2H｜行政／生產／後勤"),
-            ("STAR", "STAR｜主管／專案／問題解決"),
-        ]
-        for key, label in _TPL_OPTIONS:
-            rb = QRadioButton(label)
-            rb.setChecked(key == "AUTO")
-            rb.toggled.connect(
-                lambda checked, k=key: self._on_template_changed(k) if checked else None
-            )
-            self._tpl_btn_group.addButton(rb)
-            tpl_h.addWidget(rb)
-        tpl_h.addStretch()
-        outer.addWidget(tpl_box)
-
         # 輸入列
         input_row = QHBoxLayout()
         self._search_input = QLineEdit()
@@ -1190,9 +1168,6 @@ class WizardMainWindow(QMainWindow):
         self._search_result_label.setText(
             "搜尋逾時（超過 30 秒），請確認 Embedding 模型是否正常載入後重試。"
         )
-
-    def _on_template_changed(self, key: str):
-        self._analysis_template = key
 
     def _on_search_done(self, results: list):
         if self._search_timer is not None:
