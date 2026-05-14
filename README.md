@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.0.8-orange)
+![Version](https://img.shields.io/badge/Version-v2.1.0-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -61,8 +61,9 @@
 |------|------|
 | 🔍 **語意向量職能搜尋** | 輸入職業名稱，`BAAI/bge-base-zh-v1.5` + FAISS 從 900+ 份 ICAP 職能基準中找出 Top-3 最相似標準 |
 | 📋 **職能基準書編輯器** | 系統預填主責代碼 / 主責名稱 / 任務代碼 / 任務名稱 / 工作產出 / 職能等級；員工可新增、刪除、直接點格子修改任一欄位 |
-| ✍️ **逐任務工作描述填寫** | 每個任務分別填寫「實際如何執行此任務」與「主要工作產出」，引導員工具體描述實際工作內容 |
+| ✍️ **逐任務工作描述填寫** | 每個任務分別填寫「實際如何執行此任務」與「主要工作產出」，並可為每個任務個別選擇 AI 分析框架 |
 | 🤖 **LLM 行為指標自動生成** | 根據員工填寫的任務描述，呼叫本地 LlamaCpp（TAIDE GGUF）自動生成 2–3 條 ICAP 格式行為指標；子 process 隔離，生成中程式不凍結 |
+| 🧩 **四種 AI 分析框架** | AUTO（AI 自動判斷）/ ABCD（條件＋行動＋標準）/ 5W2H（完整操作情境）/ STAR（情境＋行動＋成果）；各任務可獨立設定，結果頁顯示彩色框架標籤 |
 | ✏️ **行為指標可直接編輯** | LLM 生成結果以可編輯文字框呈現，員工可勾選採用、手動修改內容，或按「重新 AI 分析」重新生成 |
 | 📤 **匯出 Excel（5 Sheet）** | 職能說明書 / 知識清單 / 技能清單 / 態度清單 / 補充說明，完整對齊 ICAP 職能基準書格式 |
 | ⚡ **索引快取** | FAISS 索引首次建立後自動快取，後續啟動 2–5 秒直接載入，JSON 更新後自動同步 |
@@ -168,10 +169,12 @@ Step 2：職能基準書編輯器
   ↓
 Step 3：逐任務填寫工作詳情
   ├── 每個任務填寫：「您實際如何執行此任務？」
-  └── 每個任務填寫：「主要工作成果或產出？」
+  ├── 每個任務填寫：「主要工作成果或產出？」
+  └── 每個任務選擇 AI 分析框架（預設：自動判斷）
   ↓
 Step 4：LLM 自動生成行為指標
-  ├── 每個任務 → LLM 根據描述生成 2-3 條 ICAP 格式行為指標
+  ├── 每個任務 → LLM 依設定框架生成 2-3 條 ICAP 格式行為指標
+  ├── AUTO 框架：LLM 自行判斷最適框架，結果頁顯示彩色標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）
   ├── 員工勾選採用或手動補充修改
   └── 可按「重新 AI 分析」重跑
   ↓
@@ -189,11 +192,19 @@ Step 5：填寫說明與補充事項（選填）
 
 ### AI 推論後端
 
-使用 **LlamaCpp** 直接載入 GGUF 模型，無 HTTP timeout，完全離線推論。
+使用 **LlamaCpp** 直接載入 GGUF 模型，無 HTTP timeout，完全離線推論。備用後端為 LM Studio REST API（OpenAI 相容格式），啟動時自動偵測。
 
-將 GGUF 模型放至預設路徑，系統啟動時自動載入：
-```
-C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-LX-7B-Chat.Q4_K_S.gguf
+模型路徑與推論參數（`n_ctx`、`temperature` 等）透過 `config.toml` 設定，找不到設定檔時退回預設值：
+
+```toml
+# config.toml
+[model]
+taide_path = "C:/path/to/TAIDE-LX-7B-Chat.Q4_K_S.gguf"
+
+[llm]
+n_ctx = 4096
+temperature = 0.3
+max_tokens = 512
 ```
 
 ### 支援模型
@@ -204,28 +215,18 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 | `Qwen3-8B` | ★★★★☆ | 阿里巴巴，推理能力強 |
 | `gemma-3n-E4B` | ★★★ | Google，速度較快 |
 
-### 5 階段對話流程
+### 四種分析框架
 
-```
-表單頁點選「開始對話 →」（綠色按鈕）
-  ↓（首次載入模型約 10–30 秒）
-【Phase 1】AI 詢問基本資訊
-  職位名稱 → 公司/部門 → 工作內容描述 → 職能等級(1–5)
-  ↓
-【Phase 2】ICAP 職能基準確認
-  系統自動 RAG 搜尋最相似標準 → AI 介紹基準並確認是否符合
-  ↓
-【Phase 3】主要職責清單確認
-  AI 列出標準職責（表格格式），員工增刪修改
-  ↓
-【Phase 4】逐職責深度訪談
-  每項職責：描述實際工作 → 確認子任務（表格）→ 產出/知識/技能摘要（表格）
-  ↓
-【Phase 5】輸出職能說明書
-  AI 輸出完整 JSON → 點選「確認並匯入任務 →」返回清單
-```
+每個工作任務可在 Step 3（填寫工作詳情）個別選擇 AI 分析框架：
 
-> AI 對話和手動填寫可以**混用**，匯入不會覆蓋已有的手動任務。
+| 框架 | 適合任務類型 | 指標結構 |
+|------|------------|---------|
+| **AUTO**（預設） | 任意 | LLM 自動判斷最適框架，在結果頁顯示彩色標籤 |
+| **ABCD** | 財務 / 品管 / 技術 | 條件（C）＋ 行動（B）＋ 達成標準（D） |
+| **5W2H** | 行政 / 生產 / 後勤 | 操作動詞 ＋ 工具/系統 ＋ 頻率/時機 ＋ 量化標準 |
+| **STAR** | 主管 / 專案 / 問題解決 | 情境（S）＋ 行動（A）＋ 成果（R） |
+
+> AUTO 模式不增加額外 API 呼叫，LLM 在同一次推論中先判斷框架再生成指標，輸出包含 `"template"` 欄位的 JSON。
 > 所有資料在本機處理，不會上傳至任何外部伺服器。
 
 ---
@@ -244,11 +245,12 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 <details>
 <summary><b>ai_chat.py</b> — LLM 行為指標生成</summary>
 
-- **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰
-- `analyze_task()`：根據員工填寫的任務描述，生成 2–3 條 ICAP 格式行為指標
-- TAIDE Llama2 chat template：`[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{user} [/INST]`
+- **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰；`_LMStudioBackend` 作為 fallback
+- `PROMPT_TEMPLATES`：集中管理 AUTO / ABCD / 5W2H / STAR 四種框架的 system / user prompt
+- `_build_prompt_messages(template, level, user_output)`：依框架組裝 prompt，`_LEVEL_HINT` 提供職能等級差異化描述
+- `_worker_main()`：子 process 入口，AUTO 模式解析 `{"template":"ABCD","behavior_indicators":[...]}` JSON；固定模板直接套用；queue 傳遞 3-tuple `(idx, indicators, template_used)`
+- `analyze_tasks_batch()`：每個任務優先使用 `row["template"]`，未設定時 fallback 到全域預設
 - 模型路徑與 LLM 參數（n_ctx、temperature 等）從 `config.toml` 讀取，可自訂
-- `llamacpp_available()`：後端可用性偵測，無模型時 LLM 功能優雅降級
 </details>
 
 <details>
@@ -258,8 +260,8 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 - `InitThread`：背景執行緒載入 Embedding 模型 + FAISS 索引，啟動時偵測 TAIDE 模型路徑
 - **搜尋頁**：向量搜尋 Top-3 職能基準，結果卡片顯示職類標籤（`standard_category`）
 - **編輯器頁**：`QTableWidget` 可直接點格子修改主責 / 任務 / 工作產出 / 等級，支援新增/刪除列
-- **逐任務填寫**：每個任務分頁填寫實際工作描述與工作成果
-- **LLM 建議頁**：`LLMWorker(QThread)` 背景呼叫 `analyze_task()` 生成行為指標，以可編輯 `QLineEdit` 呈現，可勾選採用、手動修改或重新生成
+- **逐任務填寫**：每個任務分頁填寫實際工作描述與工作成果，並以 `QComboBox` 選擇 AI 分析框架（AUTO / ABCD / 5W2H / STAR），存入 `row["template"]`
+- **LLM 建議頁**：`LLMAnalyzeThread(QThread)` 背景呼叫 `analyze_tasks_batch()` 生成行為指標；AUTO 模式每個任務卡片顯示彩色框架標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）；結果可勾選採用、手動修改或重新生成
 - `DataManagerDialog`：新增／刪除 PDF、PDF→JSON 解析、搜尋過濾、重建索引
 - `_rows_from_standard()`：將職能基準 JSON 展開為每任務一列的 row list，供編輯器與 Excel 匯出使用
 </details>
@@ -326,6 +328,7 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.1.0 | 2026-05-13 | **AI 分析框架選擇**：新增 AUTO / ABCD / 5W2H / STAR 四種框架；Step 3 逐任務填寫頁新增 `QComboBox`，每個任務可獨立選擇框架，預設 AUTO；AUTO 模式 LLM 自動判斷最適框架（單次推論，不增加 API 呼叫）；Step 4 結果頁每個任務卡片顯示彩色框架標籤；新增 `CHANGELOG.md` 記錄歷史架構決策 |
 | v2.0.8 | 2026-04-27 | 修正多模組 Pylance 型別註記（`ChatCompletionMessageParam`、`SuggestEntry` TypedDict、多處 None guard）；新增 `openai>=2.32.0` 與 `langchain-community>=0.4.1` 依賴 |
 | v2.0.7 | 2026-04-23 | 移除員工姓名輸入欄位，匯出 Excel 檔名改以職業名稱（第一頁輸入值）命名 |
 | v2.0.6 | 2026-04-22 | 修正 `pdf_parser_v2.py` 知識/技能代碼正規表達式（`\d{2}` → `\d+`），正確解析 ICAP 3 位數代碼（K004、S301）；修正前代碼截斷（code=K00, name=4工藝...）導致 Excel 知識/技能清單空白的問題 |
@@ -358,4 +361,4 @@ C:\Users\<你的帳號>\.lmstudio\models\ZoneTwelve\TAIDE-LX-7B-Chat-GGUF\TAIDE-
 
 ---
 
-**版本**：v2.0.8　　**最後更新**：2026-04-27
+**版本**：v2.1.0　　**最後更新**：2026-05-13
