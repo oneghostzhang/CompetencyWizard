@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.1.0-orange)
+![Version](https://img.shields.io/badge/Version-v2.2.0-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -62,7 +62,7 @@
 | 🔍 **語意向量職能搜尋** | 輸入職業名稱，`BAAI/bge-base-zh-v1.5` + FAISS 從 900+ 份 ICAP 職能基準中找出 Top-3 最相似標準 |
 | 📋 **職能基準書編輯器** | 系統預填主責代碼 / 主責名稱 / 任務代碼 / 任務名稱 / 工作產出 / 職能等級；員工可新增、刪除、直接點格子修改任一欄位 |
 | ✍️ **逐任務工作描述填寫** | 每個任務分別填寫「實際如何執行此任務」與「主要工作產出」，並可為每個任務個別選擇 AI 分析框架 |
-| 🤖 **LLM 行為指標自動生成** | 根據員工填寫的任務描述，呼叫本地 LlamaCpp（TAIDE GGUF）自動生成 2–3 條 ICAP 格式行為指標；子 process 隔離，生成中程式不凍結 |
+| 🤖 **LLM 行為指標即時分析** | 每次在 Step 3 儲存任務描述即立即提交長駐 LLM 子 process 分析；模型只載入一次，不需每批重新載入；Detail 頁顯示逐任務狀態 badge（未提交 / 分析中 / 已完成 / 需更新） |
 | 🧩 **四種 AI 分析框架** | AUTO（AI 自動判斷）/ ABCD（條件＋行動＋標準）/ 5W2H（完整操作情境）/ STAR（情境＋行動＋成果）；各任務可獨立設定，結果頁顯示彩色框架標籤 |
 | ✏️ **行為指標可直接編輯** | LLM 生成結果以可編輯文字框呈現，員工可勾選採用、手動修改內容，或按「重新 AI 分析」重新生成 |
 | 📤 **匯出 Excel（5 Sheet）** | 職能說明書 / 知識清單 / 技能清單 / 態度清單 / 補充說明，完整對齊 ICAP 職能基準書格式 |
@@ -172,11 +172,14 @@ Step 3：逐任務填寫工作詳情
   ├── 每個任務填寫：「主要工作成果或產出？」
   └── 每個任務選擇 AI 分析框架（預設：自動判斷）
   ↓
-Step 4：LLM 自動生成行為指標
-  ├── 每個任務 → LLM 依設定框架生成 2-3 條 ICAP 格式行為指標
-  ├── AUTO 框架：LLM 自行判斷最適框架，結果頁顯示彩色標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）
+Step 3 儲存任務時：LLM 後端已在背景同步分析
+  └── Detail 頁右上角顯示各任務狀態 badge（●未提交 / ●分析中 / ✓已完成 / ↻需更新）
+  ↓
+Step 4：確認 LLM 行為指標建議
+  ├── 已完成的任務直接顯示結果，仍在分析的任務顯示「分析中」佔位
+  ├── AUTO 框架：每個任務卡片顯示彩色框架標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）
   ├── 員工勾選採用或手動補充修改
-  └── 可按「重新 AI 分析」重跑
+  └── 可按「重新 AI 分析」重新提交全部任務
   ↓
 Step 5：填寫說明與補充事項（選填）
   └── 員工姓名 + 備注說明
@@ -248,7 +251,9 @@ max_tokens = 512
 - **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰；`_LMStudioBackend` 作為 fallback
 - `PROMPT_TEMPLATES`：集中管理 AUTO / ABCD / 5W2H / STAR 四種框架的 system / user prompt
 - `_build_prompt_messages(template, level, user_output)`：依框架組裝 prompt，`_LEVEL_HINT` 提供職能等級差異化描述
-- `_worker_main()`：子 process 入口，AUTO 模式解析 `{"template":"ABCD","behavior_indicators":[...]}` JSON；固定模板直接套用；queue 傳遞 3-tuple `(idx, indicators, template_used)`
+- `_persistent_worker(input_q, result_q)`：長駐子 process 入口，模型只載入一次；從 `input_q` 讀 `(idx, task_args, task_hash)` 執行推論，結果以 `{"type":"result", ...}` 寫入 `result_q`
+- `create_persistent_worker()`：工廠函式，建立 dual-Queue 長駐子 process，回傳 `(process, input_q, result_q)`
+- `_worker_main()`：單次批次分析入口（保留，供 `analyze_tasks_batch()` 使用）
 - `analyze_tasks_batch()`：每個任務優先使用 `row["template"]`，未設定時 fallback 到全域預設
 - 模型路徑與 LLM 參數（n_ctx、temperature 等）從 `config.toml` 讀取，可自訂
 </details>
@@ -260,8 +265,10 @@ max_tokens = 512
 - `InitThread`：背景執行緒載入 Embedding 模型 + FAISS 索引，啟動時偵測 TAIDE 模型路徑
 - **搜尋頁**：向量搜尋 Top-3 職能基準，結果卡片顯示職類標籤（`standard_category`）
 - **編輯器頁**：`QTableWidget` 可直接點格子修改主責 / 任務 / 工作產出 / 等級，支援新增/刪除列
-- **逐任務填寫**：每個任務分頁填寫實際工作描述與工作成果，並以 `QComboBox` 選擇 AI 分析框架（AUTO / ABCD / 5W2H / STAR），存入 `row["template"]`
-- **LLM 建議頁**：`LLMAnalyzeThread(QThread)` 背景呼叫 `analyze_tasks_batch()` 生成行為指標；AUTO 模式每個任務卡片顯示彩色框架標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）；結果可勾選採用、手動修改或重新生成
+- **逐任務填寫**：每個任務分頁填寫實際工作描述與工作成果，並以 `QComboBox` 選擇 AI 分析框架（AUTO / ABCD / 5W2H / STAR）；每次儲存自動提交 `PersistentLLMWorker`，右上角 badge 即時顯示狀態（●未提交 / ●分析中 / ✓已完成 / ↻需更新）
+- **LLM 建議頁**：「佔位渲染」模式，先建立所有任務空框，結果逐一動態填入；AUTO 模式每個任務卡片顯示彩色框架標籤（ABCD 藍 / 5W2H 綠 / STAR 橙）；結果可勾選採用、手動修改或重新生成
+- `TaskLLMState` enum / `_task_hash()`：追蹤每個任務的分析狀態，hash 不符時丟棄過期結果
+- `PersistentLLMWorker(QThread)`：包裝長駐子 process，`submit()` 送任務，`run()` 輪詢 result_q
 - `DataManagerDialog`：新增／刪除 PDF、PDF→JSON 解析、搜尋過濾、重建索引
 - `_rows_from_standard()`：將職能基準 JSON 展開為每任務一列的 row list，供編輯器與 Excel 匯出使用
 </details>
@@ -328,6 +335,7 @@ max_tokens = 512
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.2.0 | 2026-05-15 | **長駐 LLM Worker**：每次在 Step 3 儲存任務描述即立即提交後端分析；模型只載入一次（省 30–60 秒）；Detail 頁逐任務 badge（未提交/分析中/已完成/需更新）；Suggest 頁改為佔位渲染，結果動態填入；`_task_hash()` 偵測描述變更並丟棄過期結果 |
 | v2.1.0 | 2026-05-13 | **AI 分析框架選擇**：新增 AUTO / ABCD / 5W2H / STAR 四種框架；Step 3 逐任務填寫頁新增 `QComboBox`，每個任務可獨立選擇框架，預設 AUTO；AUTO 模式 LLM 自動判斷最適框架（單次推論，不增加 API 呼叫）；Step 4 結果頁每個任務卡片顯示彩色框架標籤；新增 `CHANGELOG.md` 記錄歷史架構決策 |
 | v2.0.8 | 2026-04-27 | 修正多模組 Pylance 型別註記（`ChatCompletionMessageParam`、`SuggestEntry` TypedDict、多處 None guard）；新增 `openai>=2.32.0` 與 `langchain-community>=0.4.1` 依賴 |
 | v2.0.7 | 2026-04-23 | 移除員工姓名輸入欄位，匯出 Excel 檔名改以職業名稱（第一頁輸入值）命名 |
@@ -361,4 +369,4 @@ max_tokens = 512
 
 ---
 
-**版本**：v2.1.0　　**最後更新**：2026-05-13
+**版本**：v2.2.0　　**最後更新**：2026-05-15

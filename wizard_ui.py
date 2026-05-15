@@ -4,8 +4,10 @@ competency_wizard/wizard_ui.py
 流程：初始化 → 搜索職業 → 編輯職能基準書 → 填寫工作詳情 → LLM建議確認 → 補充匯出
 """
 
+import hashlib
 import shutil
 import sys
+from enum import Enum, auto
 from pathlib import Path
 from typing import Optional, List, Dict, TypedDict
 
@@ -22,7 +24,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
 
 from wizard_rag import WizardRAG
-from ai_chat import analyze_task, analyze_tasks_batch
+from ai_chat import create_persistent_worker
 
 
 class SuggestEntry(TypedDict):
@@ -176,75 +178,89 @@ class SearchThread(QThread):
             self.error.emit(str(e))
 
 
-class LLMAnalyzeThread(QThread):
+
+# ─────────────────────────────────────────
+# 逐任務 LLM 狀態
+# ─────────────────────────────────────────
+
+class TaskLLMState(Enum):
+    IDLE    = auto()   # 未提交（描述為空或從未提交）
+    PENDING = auto()   # 已提交，等待結果
+    DONE    = auto()   # 結果已回來
+    STALE   = auto()   # 描述已修改，需重新提交
+
+
+def _task_hash(row: dict) -> str:
+    """計算影響 LLM 輸出的欄位 MD5，用於偵測描述是否變更。"""
+    key = (
+        row.get("task_name", "") +
+        row.get("user_description", "") +
+        row.get("user_output", "") +
+        row.get("template", "AUTO") +
+        str(row.get("level", 3))
+    )
+    return hashlib.md5(key.encode()).hexdigest()
+
+
+class PersistentLLMWorker(QThread):
     """
-    批次呼叫 analyze_tasks_batch()，透過子 process 隔離 llama.cpp abort。
-    每完成一個任務 emit task_done；子 process 崩潰時 emit error 並繼續顯示已完成部分。
+    包裝長駐 LLM 子 process（create_persistent_worker）。
+    透過 submit() 送任務，run() 持續輪詢 result_q 並 emit task_done。
     """
-    task_done = pyqtSignal(int, list, str)  # index, behavior_indicators, template_used
-    all_done  = pyqtSignal()
-    status    = pyqtSignal(str)
-    error     = pyqtSignal(str)
+    task_done    = pyqtSignal(int, list, str, str)   # idx, indicators, template_used, task_hash
+    worker_ready = pyqtSignal()
+    error        = pyqtSignal(str)
 
-    _TASK_TIMEOUT = 120   # 每個任務最長等待秒數
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._proc     = None
+        self._input_q  = None
+        self._result_q = None
+        self._stop     = False
 
-    def __init__(self, rows: list, position: str, template: str = "ABCD"):
-        super().__init__()
-        self.rows     = rows
-        self.position = position
-        self.template = template
-        self._stop    = False
+    def start_worker(self):
+        self._proc, self._input_q, self._result_q = create_persistent_worker()
+        self.start()
 
-    def stop(self):
+    def submit(self, idx: int, task_args: dict, task_hash: str):
+        if self._input_q is not None:
+            self._input_q.put((idx, task_args, task_hash))
+
+    def stop_worker(self):
         self._stop = True
+        if self._input_q is not None:
+            try:
+                self._input_q.put(None)
+            except Exception:
+                pass
+        if self._proc is not None:
+            try:
+                self._proc.kill()
+            except Exception:
+                pass
 
     def run(self):
-        total = len(self.rows)
-        self.status.emit(f"啟動 AI 分析（共 {total} 個任務，模板：{self.template}）...")
-
-        proc, q = analyze_tasks_batch(self.rows, self.position,
-                                      result_cb=None, done_cb=None, error_cb=None,
-                                      template=self.template)
-        received = 0
-        while received < total and not self._stop:
-            try:
-                item = q.get(timeout=self._TASK_TIMEOUT)
-            except Exception:
-                # timeout 或 Queue 空：子 process 可能已崩潰
-                if not proc.is_alive():
-                    self.error.emit(
-                        f"AI 子程序意外中止（已完成 {received}/{total} 個任務）\n"
-                        "未完成的任務行為指標為空，可手動補充或重新分析。"
-                    )
-                    # emit 空結果給未完成的任務
-                    for i in range(total):
-                        self.task_done.emit(i, [], "")
-                    break
-                continue   # process 還活著，繼續等
-
-            if item is None:   # sentinel：全部完成
+        while not self._stop:
+            if self._proc is None or not self._proc.is_alive():
+                if not self._stop:
+                    self.error.emit("AI 子程序意外中止")
                 break
-            idx, indicators, template_used = item
-            row = self.rows[idx] if idx < total else {}
-            tpl_hint = f" → {template_used}" if self.template == "AUTO" and template_used else ""
-            self.status.emit(
-                f"AI 分析完成：{row.get('task_code','')} {row.get('task_name','')}"
-                f"{tpl_hint}（{received + 1}/{total}）"
-            )
-            self.task_done.emit(idx, indicators, template_used)
-            received += 1
-
-        if not self._stop:
-            self.all_done.emit()
-        # T2：先釋放 Queue 背景執行緒，再終止 process，避免 join 卡住
-        try:
-            q.cancel_join_thread()
-        except Exception:
-            pass
-        try:
-            proc.kill()
-        except Exception:
-            pass
+            try:
+                item = self._result_q.get(timeout=1)
+            except Exception:
+                continue
+            if item is None:
+                break
+            msg_type = item.get("type", "")
+            if msg_type == "ready":
+                self.worker_ready.emit()
+            elif msg_type == "result":
+                self.task_done.emit(
+                    item.get("idx", -1),
+                    item.get("indicators", []),
+                    item.get("template_used", ""),
+                    item.get("task_hash", ""),
+                )
 
 
 class ParseThread(QThread):
@@ -571,10 +587,10 @@ class WizardMainWindow(QMainWindow):
         self._rag: WizardRAG = WizardRAG()
         self._init_thread: Optional[InitThread] = None
         self._search_thread: Optional[SearchThread] = None
-        self._llm_thread: Optional[LLMAnalyzeThread] = None
+        self._llm_worker: Optional[PersistentLLMWorker] = None
         self._init_timer: Optional[QTimer] = None    # T1：初始化逾時計時器
         self._search_timer: Optional[QTimer] = None  # T3：搜尋逾時計時器
-        self._analysis_template: str = "AUTO"         # 使用者選擇的分析模板
+        self._analysis_template: str = "AUTO"
 
         # 跨頁資料
         self._position: str = ""
@@ -586,6 +602,11 @@ class WizardMainWindow(QMainWindow):
         self._competency_rows: List[Dict] = []  # 主要資料
         self._current_task_idx: int = 0
         self._suggest_checks: list[SuggestEntry | None] = []
+
+        # 逐任務 LLM 狀態追蹤
+        self._task_states: List[TaskLLMState] = []
+        self._task_hashes: List[str] = []
+        self._suggest_boxes: List = []  # QGroupBox per task
 
         self._build_ui()
         self._start_init()
@@ -831,6 +852,9 @@ class WizardMainWindow(QMainWindow):
         title.setStyleSheet("color:#2c3e50;")
         progress_row.addWidget(title)
         progress_row.addStretch()
+        self._detail_llm_badge = QLabel()
+        self._detail_llm_badge.setStyleSheet("font-size:9pt; font-weight:bold;")
+        progress_row.addWidget(self._detail_llm_badge)
         self._detail_progress_label = QLabel("任務 1 / 1")
         self._detail_progress_label.setStyleSheet(
             "color:#ffffff; background:#3498db; border-radius:4px; padding:3px 12px; font-weight:bold;")
@@ -1348,8 +1372,62 @@ class WizardMainWindow(QMainWindow):
         self._competency_rows = rows
         self._level = self._level_spin.value()
         self._current_task_idx = 0
+
+        # 初始化或更新逐任務狀態
+        n = len(rows)
+        if len(self._task_states) != n:
+            self._task_states = [TaskLLMState.IDLE] * n
+            self._task_hashes = [""] * n
+        else:
+            # 任務數量相同：已完成但內容有變的標記為 STALE
+            for i, row in enumerate(rows):
+                if (self._task_states[i] == TaskLLMState.DONE
+                        and _task_hash(row) != self._task_hashes[i]):
+                    self._task_states[i] = TaskLLMState.STALE
+
+        self._ensure_llm_worker()
         self._detail_update_display()
         self.stack.setCurrentIndex(3)
+
+    # ─────────────────────────────────────
+    # Worker 管理
+    # ─────────────────────────────────────
+
+    def _ensure_llm_worker(self):
+        if self._llm_worker is not None and self._llm_worker.isRunning():
+            return
+        if self._llm_worker is not None:
+            try:
+                self._llm_worker.task_done.disconnect()
+                self._llm_worker.error.disconnect()
+                self._llm_worker.worker_ready.disconnect()
+            except Exception:
+                pass
+        self._llm_worker = PersistentLLMWorker()
+        self._llm_worker.task_done.connect(self._on_background_result)
+        self._llm_worker.worker_ready.connect(
+            lambda: self._status_label.setText(
+                self._status_label.text().replace("AI 模型載入中...", "") + "  AI 就緒"
+            )
+        )
+        self._llm_worker.error.connect(
+            lambda msg: self._status_label.setText(f"⚠ AI 子程序：{msg}")
+        )
+        self._status_label.setText(
+            self._status_label.text().split("  AI")[0] + "  AI 模型載入中..."
+        )
+        self._llm_worker.start_worker()
+
+    def _build_task_args_for_worker(self, row: dict) -> dict:
+        return {
+            "position":           self._position,
+            "task_name":          row.get("task_name", ""),
+            "user_description":   row.get("user_description", ""),
+            "standard_behaviors": row.get("_behaviors", []),
+            "template":           row.get("template", self._analysis_template),
+            "level":              row.get("level", 3),
+            "user_output":        row.get("user_output", ""),
+        }
 
     # ─────────────────────────────────────
     # 詳細填寫（Page 3）
@@ -1373,6 +1451,8 @@ class WizardMainWindow(QMainWindow):
 
         self._detail_desc.setText(row.get("user_description", ""))
         self._detail_output.setText(row.get("user_output", ""))
+
+        self._update_detail_llm_badge(idx)
 
         # 恢復此任務的模板選擇，預設跟隨全域設定
         tpl_key = row.get("template", self._analysis_template)
@@ -1399,12 +1479,44 @@ class WizardMainWindow(QMainWindow):
             style.unpolish(self._btn_detail_next)
             style.polish(self._btn_detail_next)
 
+    _STATE_DISPLAY = {
+        TaskLLMState.IDLE:    ("●  未提交", "#aab4be"),
+        TaskLLMState.PENDING: ("●  分析中", "#e67e22"),
+        TaskLLMState.DONE:    ("✓  已完成", "#27ae60"),
+        TaskLLMState.STALE:   ("↻  需更新", "#2980b9"),
+    }
+
+    def _update_detail_llm_badge(self, idx: int):
+        if not self._task_states or idx >= len(self._task_states):
+            self._detail_llm_badge.setText("")
+            return
+        txt, color = self._STATE_DISPLAY.get(self._task_states[idx], ("", "#888"))
+        self._detail_llm_badge.setText(txt)
+        self._detail_llm_badge.setStyleSheet(f"color:{color}; font-size:9pt; font-weight:bold;")
+
     def _detail_save_current(self):
-        """把目前的輸入存回 _competency_rows。"""
-        row = self._competency_rows[self._current_task_idx]
+        """把目前的輸入存回 _competency_rows，並在描述有變更時自動提交 LLM。"""
+        idx = self._current_task_idx
+        row = self._competency_rows[idx]
         row["user_description"] = self._detail_desc.toPlainText().strip()
         row["user_output"]      = self._detail_output.toPlainText().strip()
         row["template"]         = self._detail_tpl_combo.currentData()
+
+        if not row.get("user_description"):
+            return   # 描述為空，不提交
+
+        if not self._task_states or idx >= len(self._task_states):
+            return
+
+        new_hash = _task_hash(row)
+        if new_hash == self._task_hashes[idx]:
+            return   # 內容未變，不重複提交
+
+        self._task_hashes[idx]  = new_hash
+        self._task_states[idx]  = TaskLLMState.PENDING
+        self._update_detail_llm_badge(idx)
+        if self._llm_worker and self._llm_worker.isRunning():
+            self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
 
     def _detail_prev(self):
         self._detail_save_current()
@@ -1428,78 +1540,138 @@ class WizardMainWindow(QMainWindow):
 
     def _goto_suggest(self):
         self.stack.setCurrentIndex(4)
-        self._run_llm()
+        self._render_suggest_page()
 
-    def _run_llm(self):
-        # 清空舊內容
-        while self._suggest_layout.count():
-            item = self._suggest_layout.takeAt(0)
-            if item is None:
-                continue
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-        self._suggest_checks = [None for _ in self._competency_rows]
-        self._suggest_status_lbl.setText("AI 分析中...")
-        self._suggest_status_lbl.setStyleSheet(
-            "color:#ffffff; background:#e67e22; border-radius:4px; padding:3px 10px; font-size:9pt;")
-        self._suggest_progress.setMaximum(len(self._competency_rows))
-        self._suggest_progress.setValue(0)
-        self._btn_confirm_suggest.setEnabled(False)
-
-        _TPL_DESC = {
-            "AUTO": "自動",
-            "ABCD": "ABCD",
-            "5W2H": "5W2H",
-            "STAR": "STAR",
-        }
-        tpl_keys = [row.get("template", self._analysis_template)
-                    for row in self._competency_rows]
-        unique = sorted(set(tpl_keys), key=tpl_keys.index)
-        if len(unique) == 1:
-            self._tpl_label.setText(
-                f"框架：{_TPL_DESC.get(unique[0], unique[0])}（全部任務）"
-            )
-        else:
-            summary = "、".join(_TPL_DESC.get(k, k) for k in unique)
-            self._tpl_label.setText(f"框架：{summary}（各任務獨立設定，見下方標籤）")
-
-        # 停止舊執行緒，避免新舊結果交錯（P3）
-        if self._llm_thread is not None and self._llm_thread.isRunning():
-            self._llm_thread.stop()
-            self._llm_thread.task_done.disconnect()
-            self._llm_thread.all_done.disconnect()
-            self._llm_thread.status.disconnect()
-            self._llm_thread.error.disconnect()
-            self._llm_thread.wait(2000)
-
-        self._llm_thread = LLMAnalyzeThread(
-            self._competency_rows, self._position, self._analysis_template
-        )
-        self._llm_thread.task_done.connect(self._on_llm_task_done)
-        self._llm_thread.all_done.connect(self._on_llm_all_done)
-        self._llm_thread.status.connect(self._suggest_status_lbl.setText)
-        self._llm_thread.error.connect(self._on_llm_error)
-        self._llm_thread.start()
-
-    def _rerun_llm(self):
-        self._run_llm()
-
+    _TPL_DESC: dict[str, str] = {
+        "AUTO": "自動", "ABCD": "ABCD", "5W2H": "5W2H", "STAR": "STAR",
+    }
     _TPL_BADGE: dict[str, tuple[str, str]] = {
         "5W2H": ("#e8f5e9", "#2e7d32"),
         "ABCD": ("#e3f2fd", "#1565c0"),
         "STAR": ("#fff3e0", "#e65100"),
     }
 
-    def _on_llm_task_done(self, idx: int, behaviors: list, template_used: str):
-        row = self._competency_rows[idx]
-        self._suggest_progress.setValue(idx + 1)
+    def _render_suggest_page(self):
+        """清空並重新渲染建議頁，已完成任務直接填入，待完成任務顯示佔位。"""
+        while self._suggest_layout.count():
+            item = self._suggest_layout.takeAt(0)
+            if item is None:
+                continue
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
 
+        rows = self._competency_rows
+        n = len(rows)
+        self._suggest_checks = [None] * n
+        self._suggest_boxes  = [None] * n
+
+        done_count = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
+
+        if done_count < n and any(s in (TaskLLMState.PENDING, TaskLLMState.IDLE, TaskLLMState.STALE)
+                                  for s in self._task_states):
+            self._suggest_status_lbl.setText(f"AI 分析中...（已完成 {done_count}/{n}）")
+            self._suggest_status_lbl.setStyleSheet(
+                "color:#ffffff; background:#e67e22; border-radius:4px; padding:3px 10px; font-size:9pt;")
+        else:
+            self._suggest_status_lbl.setText("AI 分析完成")
+            self._suggest_status_lbl.setStyleSheet(
+                "color:#ffffff; background:#27ae60; border-radius:4px; padding:3px 10px; font-size:9pt;")
+
+        self._suggest_progress.setMaximum(n)
+        self._suggest_progress.setValue(done_count)
+        has_pending = any(s == TaskLLMState.PENDING for s in self._task_states)
+        self._btn_confirm_suggest.setEnabled(not has_pending)
+
+        # 模板摘要標籤
+        tpl_keys = [row.get("template", self._analysis_template) for row in rows]
+        unique = sorted(set(tpl_keys), key=tpl_keys.index)
+        if len(unique) == 1:
+            self._tpl_label.setText(
+                f"框架：{self._TPL_DESC.get(unique[0], unique[0])}（全部任務）")
+        else:
+            summary = "、".join(self._TPL_DESC.get(k, k) for k in unique)
+            self._tpl_label.setText(f"框架：{summary}（各任務獨立設定，見下方標籤）")
+
+        # 建立各任務佔位框並填入已完成的結果
+        for idx, row in enumerate(rows):
+            box = self._populate_task_box(idx, row)
+            self._suggest_layout.addWidget(box)
+            self._suggest_boxes[idx] = box
+            if self._task_states[idx] == TaskLLMState.DONE:
+                self._fill_task_result(
+                    idx,
+                    row.get("_llm_indicators", []),
+                    row.get("_llm_template_used", ""),
+                )
+
+        # 提交尚未提交（IDLE / STALE）的任務
+        for idx, row in enumerate(rows):
+            state = self._task_states[idx]
+            if state in (TaskLLMState.IDLE, TaskLLMState.STALE) and row.get("user_description"):
+                new_hash = _task_hash(row)
+                self._task_hashes[idx] = new_hash
+                self._task_states[idx] = TaskLLMState.PENDING
+                if self._llm_worker and self._llm_worker.isRunning():
+                    self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
+
+    def _rerun_llm(self):
+        """重設所有任務狀態並重新分析。"""
+        for i in range(len(self._task_states)):
+            self._task_states[i] = TaskLLMState.IDLE
+            self._task_hashes[i] = ""
+            row = self._competency_rows[i]
+            row.pop("_llm_indicators", None)
+            row.pop("_llm_template_used", None)
+        self._render_suggest_page()
+
+    def _populate_task_box(self, idx: int, row: dict) -> "QGroupBox":
+        """建立任務 GroupBox，預設顯示「分析中」佔位。"""
         box = QGroupBox(f"{row.get('task_code','')}  {row.get('task_name','')}")
         box_v = QVBoxLayout(box)
         box_v.setSpacing(4)
 
-        # 模板標籤（固定模板也顯示，讓使用者確認）
+        state = self._task_states[idx] if idx < len(self._task_states) else TaskLLMState.IDLE
+        if state == TaskLLMState.DONE:
+            placeholder = None
+        else:
+            if not row.get("user_description"):
+                placeholder = QLabel("（此任務未填寫描述，跳過 AI 分析）")
+                placeholder.setStyleSheet("color:#aab4be; font-style:italic; font-size:9pt;")
+            else:
+                placeholder = QLabel("● AI 分析中，請稍候...")
+                placeholder.setStyleSheet("color:#e67e22; font-style:italic; font-size:9pt;")
+            box_v.addWidget(placeholder)
+
+        extra_lbl = QLabel("手動補充行為指標（每行一條）：")
+        extra_lbl.setStyleSheet("color:#4a5568; font-size:9pt;")
+        box_v.addWidget(extra_lbl)
+        extra = QTextEdit()
+        extra.setFixedHeight(60)
+        extra.setPlaceholderText("選填，直接輸入...")
+        box_v.addWidget(extra)
+
+        self._suggest_checks[idx] = {"checks": [], "extra": extra, "placeholder": placeholder}
+        return box
+
+    def _fill_task_result(self, idx: int, behaviors: list, template_used: str):
+        """用 LLM 結果填入對應 GroupBox，移除佔位、插入模板標籤與核取方塊。"""
+        entry = self._suggest_checks[idx] if idx < len(self._suggest_checks) else None
+        box   = self._suggest_boxes[idx]  if idx < len(self._suggest_boxes)  else None
+        if entry is None or box is None:
+            return
+
+        box_v = box.layout()
+
+        placeholder = entry.get("placeholder")
+        if placeholder is not None:
+            box_v.removeWidget(placeholder)
+            placeholder.deleteLater()
+            entry["placeholder"] = None
+
+        insert_pos = 0
+        checks: list[tuple[QCheckBox, QLineEdit]] = []
+
         if template_used:
             bg, fg = self._TPL_BADGE.get(template_used, ("#f0f0f0", "#555555"))
             tpl_lbl = QLabel(f"框架：{template_used}")
@@ -1507,9 +1679,9 @@ class WizardMainWindow(QMainWindow):
                 f"color:{fg}; background:{bg}; border-radius:3px;"
                 f" padding:1px 10px; font-size:8pt; font-weight:bold;")
             tpl_lbl.setAlignment(Qt.AlignmentFlag.AlignRight)
-            box_v.addWidget(tpl_lbl)
+            box_v.insertWidget(insert_pos, tpl_lbl)
+            insert_pos += 1
 
-        checks: list[tuple[QCheckBox, QLineEdit]] = []
         if behaviors:
             for b in behaviors:
                 row_w = QWidget()
@@ -1523,39 +1695,52 @@ class WizardMainWindow(QMainWindow):
                 le.setStyleSheet(
                     "border:1px solid #cbd5e0; border-radius:3px;"
                     "padding:3px 6px; background:#fff; font-size:9pt;")
-                # 點擊 checkbox 啟用/停用文字欄
                 cb.toggled.connect(le.setEnabled)
                 row_h.addWidget(cb, 0)
                 row_h.addWidget(le, 1)
-                box_v.addWidget(row_w)
-                checks.append((cb, le))   # 存 (checkbox, lineedit)
+                box_v.insertWidget(insert_pos, row_w)
+                insert_pos += 1
+                checks.append((cb, le))
         else:
-            lbl = QLabel("（AI 未能生成行為指標，可手動填寫）")
-            lbl.setStyleSheet("color:#e74c3c; font-style:italic;")
-            box_v.addWidget(lbl)
+            no_result = QLabel("（AI 未能生成行為指標，可手動填寫）")
+            no_result.setStyleSheet("color:#e74c3c; font-style:italic;")
+            box_v.insertWidget(insert_pos, no_result)
 
-        # 手動補充欄
-        extra_lbl = QLabel("手動補充行為指標（每行一條）：")
-        extra_lbl.setStyleSheet("color:#4a5568; font-size:9pt;")
-        box_v.addWidget(extra_lbl)
-        extra = QTextEdit()
-        extra.setFixedHeight(60)
-        extra.setPlaceholderText("選填，直接輸入...")
-        box_v.addWidget(extra)
+        entry["checks"] = checks
 
-        self._suggest_layout.addWidget(box)
-        self._suggest_checks[idx] = {"checks": checks, "extra": extra}
+    def _on_background_result(self, idx: int, indicators: list,
+                               template_used: str, task_hash: str):
+        """接收長駐 worker 回傳結果，更新狀態與 UI。"""
+        if idx >= len(self._task_states):
+            return
+        if task_hash != self._task_hashes[idx]:
+            return   # 描述已更新，丟棄過期結果
 
-    def _on_llm_all_done(self):
+        row = self._competency_rows[idx]
+        row["_llm_indicators"]    = indicators
+        row["_llm_template_used"] = template_used
+        self._task_states[idx]    = TaskLLMState.DONE
+
+        # Detail 頁：更新 badge
+        if self.stack.currentIndex() == 3 and self._current_task_idx == idx:
+            self._update_detail_llm_badge(idx)
+
+        # Suggest 頁：填入結果並更新進度
+        if self.stack.currentIndex() == 4:
+            self._fill_task_result(idx, indicators, template_used)
+            done = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
+            n    = len(self._task_states)
+            self._suggest_progress.setValue(done)
+            has_pending = any(s == TaskLLMState.PENDING for s in self._task_states)
+            if not has_pending:
+                self._on_all_tasks_done()
+            else:
+                self._suggest_status_lbl.setText(f"AI 分析中...（已完成 {done}/{n}）")
+
+    def _on_all_tasks_done(self):
         self._suggest_status_lbl.setText("AI 分析完成")
         self._suggest_status_lbl.setStyleSheet(
             "color:#ffffff; background:#27ae60; border-radius:4px; padding:3px 10px; font-size:9pt;")
-        self._btn_confirm_suggest.setEnabled(True)
-
-    def _on_llm_error(self, msg: str):
-        self._suggest_status_lbl.setText(f"AI 分析失敗：{msg}")
-        self._suggest_status_lbl.setStyleSheet(
-            "color:#ffffff; background:#e74c3c; border-radius:4px; padding:3px 10px; font-size:9pt;")
         self._btn_confirm_suggest.setEnabled(True)
 
     # ─────────────────────────────────────
@@ -1619,3 +1804,12 @@ class WizardMainWindow(QMainWindow):
         dlg = DataManagerDialog(self._rag, self)
         dlg.rebuild_requested.connect(self._start_init)
         dlg.exec()
+
+    # ─────────────────────────────────────
+    # 視窗關閉清理
+    # ─────────────────────────────────────
+
+    def closeEvent(self, event):
+        if self._llm_worker is not None:
+            self._llm_worker.stop_worker()
+        super().closeEvent(event)

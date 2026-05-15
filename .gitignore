@@ -30,6 +30,7 @@ _index_cache/
 
 # 論文草稿（本地保留）
 paper_draft.md
+問題與解決方案.md
 
 # uv / venv
 .venv/

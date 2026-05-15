@@ -5,6 +5,22 @@
 
 ---
 
+## v2.2.x — 長駐 LLM Worker（2026-05）
+
+**從「全部填完後批次分析」改為「逐任務即時分析」**
+
+- 每次在 Detail 頁（Step 3）儲存任務描述，後端立即提交給長駐 LLM 子 process 分析
+- 長駐 worker 模型只載入一次，不需要每批重新載入（省去 30–60 秒等待）
+- Detail 頁每個任務右上角顯示 LLM 狀態 badge：`●未提交` / `●分析中` / `✓已完成` / `↻需更新`
+- Suggest 頁（Step 4）改為「佔位渲染」：先建立所有任務的空框，結果逐一動態填入
+- `_task_hash()`：MD5 計算 `task_name + user_description + user_output + template + level`，偵測內容是否變更；過期結果（hash 不符）自動丟棄
+- `TaskLLMState` enum：IDLE / PENDING / DONE / STALE
+- `PersistentLLMWorker(QThread)` 替代原 `LLMAnalyzeThread`，包裝長駐子 process
+- `create_persistent_worker()`：工廠函式，建立 dual-Queue（input_q + result_q）長駐子 process
+- 關閉視窗時 `closeEvent()` 送 sentinel 並 kill 子 process，避免殭屍 process
+
+---
+
 ## v2.1.x — AI 模板選擇（2026-05）
 
 **新增 5W2H / ABCD / STAR / AUTO 四種分析框架**

@@ -660,6 +660,96 @@ def analyze_tasks_batch(
     return p, q
 
 
+def _persistent_worker(input_q, result_q):
+    """
+    長駐子 process：模型只載入一次，持續從 input_q 讀取任務並寫入 result_q。
+    input_q 格式：(idx, task_args, task_hash) 或 None（結束 sentinel）
+    result_q 格式：{"type":"ready"} | {"type":"result", "idx":..., ...}
+    """
+    import re as _re, json as _json
+    from pathlib import Path as _Path
+
+    backend = None
+    if _Path(TAIDE_MODEL_PATH).exists():
+        try:
+            backend = _LlamaCppBackend(TAIDE_MODEL_PATH)
+        except Exception:
+            pass
+    if backend is None:
+        backend = _LMStudioBackend()
+
+    result_q.put({"type": "ready"})
+
+    _VALID_TPLS = {"5W2H", "ABCD", "STAR"}
+
+    while True:
+        try:
+            item = input_q.get(timeout=300)
+        except Exception:
+            continue
+        if item is None:
+            break
+        idx, task_args, task_hash = item
+        tpl_param = task_args.get("template", "ABCD")
+        try:
+            messages = _build_prompt_messages(**task_args)
+            reply = backend.chat(messages)
+
+            if tpl_param == "AUTO":
+                match = _re.search(r'\{.*?"template".*?"behavior_indicators".*?\}',
+                                   reply, _re.DOTALL)
+                if not match:
+                    match = _re.search(r'\{.*?"behavior_indicators".*?\}',
+                                       reply, _re.DOTALL)
+                if match:
+                    data = _json.loads(match.group())
+                    indicators = data.get("behavior_indicators", [])
+                    tpl_used = data.get("template", "ABCD")
+                    if tpl_used not in _VALID_TPLS:
+                        tpl_used = "ABCD"
+                    if isinstance(indicators, list):
+                        result_q.put({"type": "result", "idx": idx,
+                                      "indicators": _split_indicators(indicators),
+                                      "template_used": tpl_used, "task_hash": task_hash})
+                        continue
+                lines = [l.strip().lstrip("-•・ ")
+                         for l in reply.split("\n") if len(l.strip()) > 8]
+                result_q.put({"type": "result", "idx": idx,
+                              "indicators": _split_indicators(lines[:6]),
+                              "template_used": "ABCD", "task_hash": task_hash})
+            else:
+                match = _re.search(r'\{.*?"behavior_indicators".*?\}', reply, _re.DOTALL)
+                if match:
+                    data = _json.loads(match.group())
+                    indicators = data.get("behavior_indicators", [])
+                    if isinstance(indicators, list):
+                        result_q.put({"type": "result", "idx": idx,
+                                      "indicators": _split_indicators(indicators),
+                                      "template_used": tpl_param, "task_hash": task_hash})
+                        continue
+                lines = [l.strip().lstrip("-•・ ")
+                         for l in reply.split("\n") if len(l.strip()) > 8]
+                result_q.put({"type": "result", "idx": idx,
+                              "indicators": _split_indicators(lines[:6]),
+                              "template_used": tpl_param, "task_hash": task_hash})
+        except Exception:
+            result_q.put({"type": "result", "idx": idx, "indicators": [],
+                          "template_used": tpl_param, "task_hash": task_hash})
+
+
+def create_persistent_worker():
+    """
+    建立並啟動長駐 LLM 子 process。
+    回傳 (process, input_q, result_q)，呼叫端透過 input_q 送任務、result_q 取結果。
+    """
+    import multiprocessing as _mp
+    input_q  = _mp.Queue()
+    result_q = _mp.Queue()
+    p = _mp.Process(target=_persistent_worker, args=(input_q, result_q), daemon=True)
+    p.start()
+    return p, input_q, result_q
+
+
 def _split_indicators(raw: list) -> list:
     """將 LLM 可能合併成單一字串的多條指標拆開，去除「指標N:」等前綴，限回傳 3 條。"""
     result = []
