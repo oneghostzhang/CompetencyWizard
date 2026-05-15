@@ -865,6 +865,12 @@ class WizardMainWindow(QMainWindow):
         self._detail_progress_bar.setFixedHeight(8)
         v.addWidget(self._detail_progress_bar)
 
+        # 後台分析進度提示
+        self._detail_bg_status = QLabel()
+        self._detail_bg_status.setStyleSheet(
+            "color:#7f8c8d; font-size:8.5pt; padding:1px 0;")
+        v.addWidget(self._detail_bg_status)
+
         # 任務資訊卡
         self._detail_task_card = QGroupBox("當前任務")
         card_v = QVBoxLayout(self._detail_task_card)
@@ -1453,6 +1459,7 @@ class WizardMainWindow(QMainWindow):
         self._detail_output.setText(row.get("user_output", ""))
 
         self._update_detail_llm_badge(idx)
+        self._update_detail_bg_status()
 
         # 恢復此任務的模板選擇，預設跟隨全域設定
         tpl_key = row.get("template", self._analysis_template)
@@ -1469,7 +1476,7 @@ class WizardMainWindow(QMainWindow):
             self._btn_detail_prev.setEnabled(True)
         is_last = (idx == total - 1)
         if is_last:
-            self._btn_detail_next.setText("完成，進行 AI 分析  →")
+            self._btn_detail_next.setText("完成，查看 AI 建議  →")
             self._btn_detail_next.setObjectName("success")
         else:
             self._btn_detail_next.setText("下一個任務  →")
@@ -1485,6 +1492,26 @@ class WizardMainWindow(QMainWindow):
         TaskLLMState.DONE:    ("✓  已完成", "#27ae60"),
         TaskLLMState.STALE:   ("↻  需更新", "#2980b9"),
     }
+
+    def _update_detail_bg_status(self):
+        """更新 Detail 頁底部的後台分析全局進度提示。"""
+        if not self._task_states:
+            self._detail_bg_status.setText("")
+            return
+        n       = len(self._task_states)
+        done    = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
+        pending = sum(1 for s in self._task_states if s == TaskLLMState.PENDING)
+        if done == n:
+            self._detail_bg_status.setText("後台分析：全部完成 ✓")
+            self._detail_bg_status.setStyleSheet("color:#27ae60; font-size:8.5pt;")
+        elif pending > 0 or done > 0:
+            self._detail_bg_status.setText(
+                f"後台分析中：已完成 {done} / {n} 個任務，{pending} 個等待中...")
+            self._detail_bg_status.setStyleSheet("color:#e67e22; font-size:8.5pt;")
+        else:
+            self._detail_bg_status.setText(
+                "（填寫並儲存每個任務描述後，AI 將在背景自動分析）")
+            self._detail_bg_status.setStyleSheet("color:#aab4be; font-size:8.5pt;")
 
     def _update_detail_llm_badge(self, idx: int):
         if not self._task_states or idx >= len(self._task_states):
@@ -1512,11 +1539,16 @@ class WizardMainWindow(QMainWindow):
         if new_hash == self._task_hashes[idx]:
             return   # 內容未變，不重複提交
 
-        self._task_hashes[idx]  = new_hash
-        self._task_states[idx]  = TaskLLMState.PENDING
-        self._update_detail_llm_badge(idx)
+        self._task_hashes[idx] = new_hash
         if self._llm_worker and self._llm_worker.isRunning():
+            # Worker 已就緒：立即提交，設為 PENDING
+            self._task_states[idx] = TaskLLMState.PENDING
             self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
+        else:
+            # Worker 尚未就緒（模型載入中）：設為 IDLE，等 _render_suggest_page 統一提交
+            self._task_states[idx] = TaskLLMState.IDLE
+        self._update_detail_llm_badge(idx)
+        self._update_detail_bg_status()
 
     def _detail_prev(self):
         self._detail_save_current()
@@ -1605,14 +1637,15 @@ class WizardMainWindow(QMainWindow):
                     row.get("_llm_template_used", ""),
                 )
 
-        # 提交尚未提交（IDLE / STALE）的任務
-        for idx, row in enumerate(rows):
-            state = self._task_states[idx]
-            if state in (TaskLLMState.IDLE, TaskLLMState.STALE) and row.get("user_description"):
-                new_hash = _task_hash(row)
-                self._task_hashes[idx] = new_hash
-                self._task_states[idx] = TaskLLMState.PENDING
-                if self._llm_worker and self._llm_worker.isRunning():
+        # 提交所有尚未完成的任務（IDLE / STALE / PENDING 都重提，保證 Worker 就緒後有接到）
+        # PENDING 可能是模型載入中時未實際進入 queue 的任務，重提不影響正確性（hash 驗證）
+        if self._llm_worker and self._llm_worker.isRunning():
+            for idx, row in enumerate(rows):
+                state = self._task_states[idx]
+                if state != TaskLLMState.DONE and row.get("user_description"):
+                    new_hash = _task_hash(row)
+                    self._task_hashes[idx] = new_hash
+                    self._task_states[idx] = TaskLLMState.PENDING
                     self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
 
     def _rerun_llm(self):
@@ -1721,9 +1754,11 @@ class WizardMainWindow(QMainWindow):
         row["_llm_template_used"] = template_used
         self._task_states[idx]    = TaskLLMState.DONE
 
-        # Detail 頁：更新 badge
-        if self.stack.currentIndex() == 3 and self._current_task_idx == idx:
-            self._update_detail_llm_badge(idx)
+        # Detail 頁：更新 badge 與全局進度
+        if self.stack.currentIndex() == 3:
+            if self._current_task_idx == idx:
+                self._update_detail_llm_badge(idx)
+            self._update_detail_bg_status()
 
         # Suggest 頁：填入結果並更新進度
         if self.stack.currentIndex() == 4:
