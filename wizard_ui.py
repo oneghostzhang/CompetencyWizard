@@ -18,18 +18,13 @@ from PyQt6.QtWidgets import (
     QScrollArea, QFrame, QComboBox, QCheckBox, QTabWidget,
     QDialog, QTextBrowser, QTableWidget, QTableWidgetItem,
     QHeaderView, QAbstractItemView, QListWidget, QListWidgetItem,
-    QSpinBox, QSplitter,
+    QSpinBox, QSplitter, QGridLayout,
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtGui import QFont, QColor
 
 from wizard_rag import WizardRAG
 from ai_chat import create_persistent_worker
-
-
-class SuggestEntry(TypedDict):
-    checks: list[tuple[QCheckBox, QLineEdit]]
-    extra: QTextEdit
 
 
 # ─────────────────────────────────────────
@@ -116,9 +111,16 @@ QHeaderView::section { background: #2F5496; color: white; font-weight: bold;
 #pageLoading { background: #f8f9fa; }
 #pageSearch  { background: #f8f9fa; }
 #pageEditor  { background: #f8f9fa; }
-#pageDetail  { background: #f8f9fa; }
-#pageSuggest { background: #f8f9fa; }
+#pageHub        { background: #f8f9fa; }
+#pageTaskEdit   { background: #f8f9fa; }
 #pageSupplement { background: #f8f9fa; }
+QFrame#taskCard {
+    background: #ffffff;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    min-width: 150px;
+    min-height: 110px;
+}
 """
 
 
@@ -600,13 +602,14 @@ class WizardMainWindow(QMainWindow):
         self._last_std_code:  str = ""          # 上次載入編輯器使用的基準代碼（P2）
         self._std_radio_group: List[QCheckBox] = []  # 搜尋結果選擇器（P1）
         self._competency_rows: List[Dict] = []  # 主要資料
-        self._current_task_idx: int = 0
-        self._suggest_checks: list[SuggestEntry | None] = []
-
         # 逐任務 LLM 狀態追蹤
         self._task_states: List[TaskLLMState] = []
         self._task_hashes: List[str] = []
-        self._suggest_boxes: List = []  # QGroupBox per task
+
+        # Hub / Task Edit 狀態
+        self._edit_task_idx: int = -1
+        self._edit_checks: list = []   # (QCheckBox, QLineEdit) for current task
+        self._hub_cards: list = []     # QFrame cards in hub grid
 
         self._build_ui()
         self._start_init()
@@ -628,8 +631,8 @@ class WizardMainWindow(QMainWindow):
         self.stack.addWidget(self._make_loading_page())   # 0
         self.stack.addWidget(self._make_search_page())    # 1
         self.stack.addWidget(self._make_editor_page())    # 2
-        self.stack.addWidget(self._make_detail_page())    # 3
-        self.stack.addWidget(self._make_suggest_page())   # 4
+        self.stack.addWidget(self._make_hub_page())        # 3
+        self.stack.addWidget(self._make_task_edit_page()) # 4
         self.stack.addWidget(self._make_supplement_page())# 5
 
     def _make_top_bar(self) -> QWidget:
@@ -831,213 +834,252 @@ class WizardMainWindow(QMainWindow):
         self._btn_goto_detail = QPushButton("下一步：填寫工作詳情  →")
         self._btn_goto_detail.setObjectName("primary")
         self._btn_goto_detail.setMinimumWidth(200)
-        self._btn_goto_detail.clicked.connect(self._goto_detail)
+        self._btn_goto_detail.clicked.connect(self._goto_hub)
         nav_row.addWidget(self._btn_goto_detail)
         v.addLayout(nav_row)
         return w
 
-    # ── Page 3: 詳細填寫頁 ──────────────────────────────────────────────────
+    # ── Page 3: 任務總覽 Hub ────────────────────────────────────────────────
 
-    def _make_detail_page(self) -> QWidget:
+    def _make_hub_page(self) -> QWidget:
         w = QWidget()
-        w.setObjectName("pageDetail")
+        w.setObjectName("pageHub")
         v = QVBoxLayout(w)
-        v.setContentsMargins(40, 20, 40, 20)
-        v.setSpacing(14)
+        v.setContentsMargins(24, 16, 24, 16)
+        v.setSpacing(10)
 
-        # 進度標題
-        progress_row = QHBoxLayout()
-        title = QLabel("填寫工作詳情")
+        # 標題列
+        hdr = QHBoxLayout()
+        title = QLabel("工作任務總覽")
         title.setFont(QFont("Microsoft JhengHei", 13, QFont.Weight.Bold))
         title.setStyleSheet("color:#2c3e50;")
-        progress_row.addWidget(title)
-        progress_row.addStretch()
-        self._detail_llm_badge = QLabel()
-        self._detail_llm_badge.setStyleSheet("font-size:9pt; font-weight:bold;")
-        progress_row.addWidget(self._detail_llm_badge)
-        self._detail_progress_label = QLabel("任務 1 / 1")
-        self._detail_progress_label.setStyleSheet(
-            "color:#ffffff; background:#3498db; border-radius:4px; padding:3px 12px; font-weight:bold;")
-        progress_row.addWidget(self._detail_progress_label)
-        v.addLayout(progress_row)
+        hdr.addWidget(title)
+        hdr.addStretch()
+        self._hub_ai_status = QLabel("準備中...")
+        self._hub_ai_status.setStyleSheet(
+            "color:#ffffff; background:#95a5a6; border-radius:4px; "
+            "padding:3px 12px; font-size:9pt;")
+        hdr.addWidget(self._hub_ai_status)
+        self._hub_progress_lbl = QLabel("")
+        self._hub_progress_lbl.setStyleSheet(
+            "color:#ffffff; background:#3498db; border-radius:4px; "
+            "padding:3px 12px; font-weight:bold;")
+        hdr.addWidget(self._hub_progress_lbl)
+        v.addLayout(hdr)
 
-        self._detail_progress_bar = QProgressBar()
-        self._detail_progress_bar.setFixedHeight(8)
-        v.addWidget(self._detail_progress_bar)
+        subtitle = QLabel("點選任務卡片填寫工作描述，儲存後 AI 將立即在背景分析。")
+        subtitle.setStyleSheet("color:#7f8c8d; font-size:9pt;")
+        v.addWidget(subtitle)
 
-        # 後台分析進度提示
-        self._detail_bg_status = QLabel()
-        self._detail_bg_status.setStyleSheet(
-            "color:#7f8c8d; font-size:8.5pt; padding:1px 0;")
-        v.addWidget(self._detail_bg_status)
+        self._hub_progress_bar = QProgressBar()
+        self._hub_progress_bar.setFixedHeight(6)
+        v.addWidget(self._hub_progress_bar)
+
+        # 卡片網格（捲動區）
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._hub_card_container = QWidget()
+        self._hub_grid = QGridLayout(self._hub_card_container)
+        self._hub_grid.setSpacing(14)
+        self._hub_grid.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        scroll.setWidget(self._hub_card_container)
+        v.addWidget(scroll, 1)
+
+        # 底部導航
+        nav = QHBoxLayout()
+        btn_back = QPushButton("← 返回編輯器")
+        btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(2))
+        nav.addWidget(btn_back)
+        nav.addStretch()
+        self._hub_export_btn = QPushButton("匯出職能說明書  →")
+        self._hub_export_btn.setObjectName("success")
+        self._hub_export_btn.setMinimumWidth(200)
+        self._hub_export_btn.clicked.connect(self._goto_export)
+        nav.addWidget(self._hub_export_btn)
+        v.addLayout(nav)
+        return w
+
+    # ── Page 4: 任務詳細填寫頁 ─────────────────────────────────────────────
+
+    def _make_task_edit_page(self) -> QWidget:
+        w = QWidget()
+        w.setObjectName("pageTaskEdit")
+        v = QVBoxLayout(w)
+        v.setContentsMargins(0, 0, 0, 0)
+        v.setSpacing(0)
+
+        # 頂部導航條
+        top_bar = QFrame()
+        top_bar.setStyleSheet(
+            "QFrame { background:#f0f4f8; border-bottom:1px solid #dee2e6; }")
+        top_h = QHBoxLayout(top_bar)
+        top_h.setContentsMargins(16, 8, 16, 8)
+        top_h.setSpacing(12)
+        btn_back_hub = QPushButton("← 返回任務總覽")
+        btn_back_hub.clicked.connect(self._task_edit_back)
+        top_h.addWidget(btn_back_hub)
+        top_h.addStretch()
+        self._task_edit_title_lbl = QLabel("")
+        self._task_edit_title_lbl.setFont(
+            QFont("Microsoft JhengHei", 11, QFont.Weight.Bold))
+        self._task_edit_title_lbl.setStyleSheet("color:#2c3e50;")
+        top_h.addWidget(self._task_edit_title_lbl)
+        self._task_edit_top_badge = QLabel("")
+        self._task_edit_top_badge.setStyleSheet(
+            "font-size:9pt; font-weight:bold; padding:2px 10px; "
+            "border-radius:4px;")
+        top_h.addWidget(self._task_edit_top_badge)
+        v.addWidget(top_bar)
+
+        # 捲動內容區
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        content = QWidget()
+        cv = QVBoxLayout(content)
+        cv.setContentsMargins(32, 20, 32, 24)
+        cv.setSpacing(10)
 
         # 任務資訊卡
-        self._detail_task_card = QGroupBox("當前任務")
-        card_v = QVBoxLayout(self._detail_task_card)
-        self._detail_task_code_lbl = QLabel("")
-        self._detail_task_code_lbl.setStyleSheet("color:#2980b9; font-size:9pt;")
-        self._detail_task_name_lbl = QLabel("")
-        self._detail_task_name_lbl.setFont(QFont("Microsoft JhengHei", 11, QFont.Weight.Bold))
-        card_v.addWidget(self._detail_task_code_lbl)
-        card_v.addWidget(self._detail_task_name_lbl)
-        v.addWidget(self._detail_task_card)
+        self._task_edit_info_box = QGroupBox("當前任務")
+        info_v = QVBoxLayout(self._task_edit_info_box)
+        info_v.setSpacing(4)
+        self._task_edit_code_lbl = QLabel("")
+        self._task_edit_code_lbl.setStyleSheet("color:#2980b9; font-size:9pt;")
+        self._task_edit_name_lbl = QLabel("")
+        self._task_edit_name_lbl.setFont(
+            QFont("Microsoft JhengHei", 11, QFont.Weight.Bold))
+        self._task_edit_name_lbl.setWordWrap(True)
+        info_v.addWidget(self._task_edit_code_lbl)
+        info_v.addWidget(self._task_edit_name_lbl)
+        cv.addWidget(self._task_edit_info_box)
 
-        # 描述欄位
+        # 工作描述
         lbl1 = QLabel("請描述您實際如何執行此工作任務：")
         lbl1.setStyleSheet("font-weight:bold; color:#2c3e50;")
-        v.addWidget(lbl1)
-        self._detail_desc = QTextEdit()
-        self._detail_desc.setPlaceholderText(
-            "例：我負責每週一次清點倉庫庫存，使用 ERP 系統登記盤點結果，並在出入量異常時通知主管...")
-        self._detail_desc.setFixedHeight(110)
-        v.addWidget(self._detail_desc)
-
+        cv.addWidget(lbl1)
+        self._task_edit_desc = QTextEdit()
+        self._task_edit_desc.setPlaceholderText(
+            "例：我負責每週一次清點倉庫庫存，使用 ERP 系統登記盤點結果，"
+            "並在出入量異常時通知主管...")
+        self._task_edit_desc.setFixedHeight(110)
+        cv.addWidget(self._task_edit_desc)
         _DESC_LIMIT = 800
-        _OUTPUT_LIMIT = 400
-        self._detail_desc_count = QLabel(f"0 / {_DESC_LIMIT}")
-        self._detail_desc_count.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self._detail_desc_count.setStyleSheet("color:#888; font-size:8pt;")
-        v.addWidget(self._detail_desc_count)
+        self._task_edit_desc_count = QLabel(f"0 / {_DESC_LIMIT}")
+        self._task_edit_desc_count.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self._task_edit_desc_count.setStyleSheet("color:#888; font-size:8pt;")
+        cv.addWidget(self._task_edit_desc_count)
 
-        def _enforce_desc_limit():
-            txt = self._detail_desc.toPlainText()
+        def _enforce_desc():
+            txt = self._task_edit_desc.toPlainText()
             if len(txt) > _DESC_LIMIT:
-                cur = self._detail_desc.textCursor()
+                cur = self._task_edit_desc.textCursor()
                 pos = min(cur.position(), _DESC_LIMIT)
-                self._detail_desc.blockSignals(True)
-                self._detail_desc.setPlainText(txt[:_DESC_LIMIT])
-                self._detail_desc.blockSignals(False)
+                self._task_edit_desc.blockSignals(True)
+                self._task_edit_desc.setPlainText(txt[:_DESC_LIMIT])
+                self._task_edit_desc.blockSignals(False)
                 cur.setPosition(pos)
-                self._detail_desc.setTextCursor(cur)
-            self._detail_desc_count.setText(f"{len(self._detail_desc.toPlainText())} / {_DESC_LIMIT}")
+                self._task_edit_desc.setTextCursor(cur)
+            self._task_edit_desc_count.setText(
+                f"{len(self._task_edit_desc.toPlainText())} / {_DESC_LIMIT}")
 
-        self._detail_desc.textChanged.connect(_enforce_desc_limit)
+        self._task_edit_desc.textChanged.connect(_enforce_desc)
 
+        # 工作產出
         lbl2 = QLabel("此任務的主要工作成果或產出：")
         lbl2.setStyleSheet("font-weight:bold; color:#2c3e50;")
-        v.addWidget(lbl2)
-        self._detail_output = QTextEdit()
-        self._detail_output.setPlaceholderText("例：每週庫存盤點報告、異常差異通報紀錄...")
-        self._detail_output.setFixedHeight(80)
-        v.addWidget(self._detail_output)
+        cv.addWidget(lbl2)
+        self._task_edit_output = QTextEdit()
+        self._task_edit_output.setPlaceholderText(
+            "例：每週庫存盤點報告、異常差異通報紀錄...")
+        self._task_edit_output.setFixedHeight(80)
+        cv.addWidget(self._task_edit_output)
+        _OUT_LIMIT = 400
+        self._task_edit_output_count = QLabel(f"0 / {_OUT_LIMIT}")
+        self._task_edit_output_count.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self._task_edit_output_count.setStyleSheet("color:#888; font-size:8pt;")
+        cv.addWidget(self._task_edit_output_count)
 
-        self._detail_output_count = QLabel(f"0 / {_OUTPUT_LIMIT}")
-        self._detail_output_count.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self._detail_output_count.setStyleSheet("color:#888; font-size:8pt;")
-        v.addWidget(self._detail_output_count)
-
-        def _enforce_output_limit():
-            txt = self._detail_output.toPlainText()
-            if len(txt) > _OUTPUT_LIMIT:
-                cur = self._detail_output.textCursor()
-                pos = min(cur.position(), _OUTPUT_LIMIT)
-                self._detail_output.blockSignals(True)
-                self._detail_output.setPlainText(txt[:_OUTPUT_LIMIT])
-                self._detail_output.blockSignals(False)
+        def _enforce_out():
+            txt = self._task_edit_output.toPlainText()
+            if len(txt) > _OUT_LIMIT:
+                cur = self._task_edit_output.textCursor()
+                pos = min(cur.position(), _OUT_LIMIT)
+                self._task_edit_output.blockSignals(True)
+                self._task_edit_output.setPlainText(txt[:_OUT_LIMIT])
+                self._task_edit_output.blockSignals(False)
                 cur.setPosition(pos)
-                self._detail_output.setTextCursor(cur)
-            self._detail_output_count.setText(f"{len(self._detail_output.toPlainText())} / {_OUTPUT_LIMIT}")
+                self._task_edit_output.setTextCursor(cur)
+            self._task_edit_output_count.setText(
+                f"{len(self._task_edit_output.toPlainText())} / {_OUT_LIMIT}")
 
-        self._detail_output.textChanged.connect(_enforce_output_limit)
+        self._task_edit_output.textChanged.connect(_enforce_out)
 
-        # AI 分析框架選擇
-        tpl_row = QHBoxLayout()
+        # 框架選擇 + 儲存按鈕
+        save_row = QHBoxLayout()
         tpl_lbl = QLabel("AI 分析框架：")
         tpl_lbl.setStyleSheet("font-weight:bold; color:#2c3e50;")
-        tpl_row.addWidget(tpl_lbl)
-        self._detail_tpl_combo = QComboBox()
+        save_row.addWidget(tpl_lbl)
+        self._task_edit_tpl_combo = QComboBox()
         for _key, _label in [
             ("AUTO", "自動｜AI 依任務性質選擇（推薦）"),
             ("ABCD", "ABCD｜條件＋行動＋標準"),
             ("5W2H", "5W2H｜操作步驟＋頻率＋標準"),
             ("STAR", "STAR｜情境＋行動＋成果"),
         ]:
-            self._detail_tpl_combo.addItem(_label, _key)
-        self._detail_tpl_combo.setFixedHeight(30)
-        tpl_row.addWidget(self._detail_tpl_combo, 1)
-        v.addLayout(tpl_row)
+            self._task_edit_tpl_combo.addItem(_label, _key)
+        self._task_edit_tpl_combo.setFixedHeight(30)
+        save_row.addWidget(self._task_edit_tpl_combo, 1)
+        self._task_edit_save_btn = QPushButton("儲存並提交 AI 分析  ▶")
+        self._task_edit_save_btn.setObjectName("primary")
+        self._task_edit_save_btn.setMinimumWidth(180)
+        self._task_edit_save_btn.clicked.connect(self._task_save_and_submit)
+        save_row.addWidget(self._task_edit_save_btn)
+        cv.addLayout(save_row)
 
-        v.addStretch()
+        # ── AI 結果區（分析完成後才顯示）─────────────────────────
+        self._task_ai_section = QWidget()
+        self._task_ai_section.setVisible(False)
+        ai_sec_v = QVBoxLayout(self._task_ai_section)
+        ai_sec_v.setContentsMargins(0, 0, 0, 0)
+        ai_sec_v.setSpacing(8)
 
-        # 導航列
-        nav_row = QHBoxLayout()
-        self._btn_detail_prev = QPushButton("← 上一個任務")
-        self._btn_detail_prev.clicked.connect(self._detail_prev)
-        nav_row.addWidget(self._btn_detail_prev)
-        nav_row.addStretch()
-        self._btn_detail_next = QPushButton("下一個任務  →")
-        self._btn_detail_next.setObjectName("primary")
-        self._btn_detail_next.setMinimumWidth(180)
-        self._btn_detail_next.clicked.connect(self._detail_next)
-        nav_row.addWidget(self._btn_detail_next)
-        v.addLayout(nav_row)
-        return w
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setStyleSheet("color:#dee2e6;")
+        ai_sec_v.addWidget(sep)
 
-    # ── Page 4: LLM 建議確認頁 ──────────────────────────────────────────────
+        ai_hdr = QHBoxLayout()
+        ai_title = QLabel("AI 行為指標建議")
+        ai_title.setFont(QFont("Microsoft JhengHei", 11, QFont.Weight.Bold))
+        ai_title.setStyleSheet("color:#2c3e50;")
+        ai_hdr.addWidget(ai_title)
+        ai_hdr.addStretch()
+        self._task_edit_ai_badge = QLabel()
+        self._task_edit_ai_badge.setStyleSheet("font-size:9pt; font-weight:bold;")
+        ai_hdr.addWidget(self._task_edit_ai_badge)
+        ai_sec_v.addLayout(ai_hdr)
 
-    def _make_suggest_page(self) -> QWidget:
-        w = QWidget()
-        w.setObjectName("pageSuggest")
-        v = QVBoxLayout(w)
-        v.setContentsMargins(24, 16, 24, 16)
-        v.setSpacing(10)
+        self._task_ai_result_widget = QWidget()
+        self._task_ai_result_layout = QVBoxLayout(self._task_ai_result_widget)
+        self._task_ai_result_layout.setContentsMargins(0, 2, 0, 2)
+        self._task_ai_result_layout.setSpacing(4)
+        ai_sec_v.addWidget(self._task_ai_result_widget)
 
-        title_row = QHBoxLayout()
-        title = QLabel("AI 行為指標建議")
-        title.setFont(QFont("Microsoft JhengHei", 13, QFont.Weight.Bold))
-        title.setStyleSheet("color:#2c3e50;")
-        title_row.addWidget(title)
-        title_row.addStretch()
-        self._suggest_status_lbl = QLabel("準備中...")
-        self._suggest_status_lbl.setStyleSheet(
-            "color:#ffffff; background:#27ae60; border-radius:4px; padding:3px 10px; font-size:9pt;")
-        title_row.addWidget(self._suggest_status_lbl)
-        v.addLayout(title_row)
+        extra_lbl = QLabel("手動補充行為指標（每行一條）：")
+        extra_lbl.setStyleSheet("color:#4a5568; font-size:9pt;")
+        ai_sec_v.addWidget(extra_lbl)
+        self._task_edit_extra = QTextEdit()
+        self._task_edit_extra.setFixedHeight(70)
+        self._task_edit_extra.setPlaceholderText("選填，直接輸入...")
+        ai_sec_v.addWidget(self._task_edit_extra)
 
-        subtitle = QLabel("請勾選要採用的行為指標，也可以直接在文字方塊中修改。")
-        subtitle.setStyleSheet("color:#7f8c8d; font-size:9pt;")
-        v.addWidget(subtitle)
-
-        self._tpl_label = QLabel()
-        self._tpl_label.setStyleSheet(
-            "color:#1a3a5c; background:#d9e1f2; border-radius:4px;"
-            " padding:2px 10px; font-size:9pt;")
-        v.addWidget(self._tpl_label)
-
-        self._suggest_progress = QProgressBar()
-        self._suggest_progress.setFixedHeight(8)
-        v.addWidget(self._suggest_progress)
-
-        # 建議內容捲動區
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        self._suggest_content = QWidget()
-        self._suggest_layout  = QVBoxLayout(self._suggest_content)
-        self._suggest_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self._suggest_layout.setSpacing(8)
-        scroll.setWidget(self._suggest_content)
+        cv.addWidget(self._task_ai_section)
+        cv.addStretch()
+        scroll.setWidget(content)
         v.addWidget(scroll, 1)
-
-        # 導航列
-        nav_row = QHBoxLayout()
-        btn_back = QPushButton("← 修改工作詳情")
-        btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(3))
-        nav_row.addWidget(btn_back)
-        btn_rerun = QPushButton("重新 AI 分析")
-        btn_rerun.clicked.connect(self._rerun_llm)
-        btn_rerun.setToolTip("使用「填寫工作詳情」頁儲存的描述重新呼叫 LLM\n若需修改描述請先按「← 修改工作詳情」")
-        nav_row.addWidget(btn_rerun)
-        self._rerun_hint = QLabel("（依工作詳情頁的描述重新生成）")
-        self._rerun_hint.setStyleSheet("color:#718096; font-size:8pt;")
-        nav_row.addWidget(self._rerun_hint)
-        nav_row.addStretch()
-        self._btn_confirm_suggest = QPushButton("確認採用  →")
-        self._btn_confirm_suggest.setObjectName("success")
-        self._btn_confirm_suggest.setMinimumWidth(160)
-        self._btn_confirm_suggest.setEnabled(False)
-        self._btn_confirm_suggest.clicked.connect(self._goto_supplement)
-        nav_row.addWidget(self._btn_confirm_suggest)
-        v.addLayout(nav_row)
         return w
 
     # ── Page 5: 補充說明 & 匯出頁 ───────────────────────────────────────────
@@ -1047,34 +1089,48 @@ class WizardMainWindow(QMainWindow):
         w.setObjectName("pageSupplement")
         v = QVBoxLayout(w)
         v.setContentsMargins(40, 30, 40, 30)
-        v.setSpacing(16)
+        v.setSpacing(12)
 
-        title = QLabel("填寫說明與補充事項")
+        title = QLabel("預覽與匯出")
         title.setFont(QFont("Microsoft JhengHei", 13, QFont.Weight.Bold))
         title.setStyleSheet("color:#2c3e50;")
         v.addWidget(title)
 
         # 補充說明
-        v.addWidget(QLabel("說明與補充事項（選填）："))
+        sup_row = QHBoxLayout()
+        sup_row.addWidget(QLabel("說明與補充事項（選填）："))
+        v.addLayout(sup_row)
         self._supplement_text = QTextEdit()
         self._supplement_text.setPlaceholderText(
             "可填寫特殊工作情境、資格說明、部門背景或其他備注...")
-        self._supplement_text.setFixedHeight(160)
+        self._supplement_text.setFixedHeight(70)
         v.addWidget(self._supplement_text)
 
-        # 摘要預覽
-        summary_box = QGroupBox("職能說明書摘要")
-        summary_v = QVBoxLayout(summary_box)
-        self._summary_label = QLabel("（完成前頁步驟後將顯示摘要）")
-        self._summary_label.setWordWrap(True)
-        self._summary_label.setStyleSheet("color:#4a5568; font-size:9pt; line-height:1.6;")
-        summary_v.addWidget(self._summary_label)
-        v.addWidget(summary_box, 1)
+        # 預覽 Tab
+        self._preview_tabs = QTabWidget()
+        self._preview_tabs.setStyleSheet(
+            "QTabBar::tab { min-width: 90px; padding: 5px 14px; }"
+            "QTabBar::tab:selected { font-weight: bold; color: #2F5496; }")
+
+        self._preview_table_comp  = self._make_preview_table(
+            ["主責代碼", "主責名稱", "任務代碼", "任務名稱", "工作產出", "行為指標", "職能等級"])
+        self._preview_table_know  = self._make_preview_table(
+            ["知識代碼", "知識名稱", "對應任務"])
+        self._preview_table_skill = self._make_preview_table(
+            ["技能代碼", "技能名稱", "對應任務"])
+        self._preview_table_att   = self._make_preview_table(
+            ["態度代碼", "態度名稱", "說明"])
+
+        self._preview_tabs.addTab(self._preview_table_comp,  "職能說明書")
+        self._preview_tabs.addTab(self._preview_table_know,  "知識清單")
+        self._preview_tabs.addTab(self._preview_table_skill, "技能清單")
+        self._preview_tabs.addTab(self._preview_table_att,   "態度清單")
+        v.addWidget(self._preview_tabs, 1)
 
         # 導航列
         nav_row = QHBoxLayout()
-        btn_back = QPushButton("← 返回")
-        btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(4))
+        btn_back = QPushButton("← 返回任務總覽")
+        btn_back.clicked.connect(lambda: self.stack.setCurrentIndex(3))
         nav_row.addWidget(btn_back)
         nav_row.addStretch()
         self._btn_export = QPushButton("匯出 Excel 職能說明書")
@@ -1084,6 +1140,18 @@ class WizardMainWindow(QMainWindow):
         nav_row.addWidget(self._btn_export)
         v.addLayout(nav_row)
         return w
+
+    def _make_preview_table(self, headers: list) -> QTableWidget:
+        t = QTableWidget(0, len(headers))
+        t.setHorizontalHeaderLabels(headers)
+        t.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        t.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        t.setAlternatingRowColors(False)
+        t.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        t.verticalHeader().setVisible(False)
+        t.setWordWrap(True)
+        t.setTextElideMode(Qt.TextElideMode.ElideNone)
+        return t
 
     # ─────────────────────────────────────
     # 初始化（Page 0）
@@ -1350,12 +1418,11 @@ class WizardMainWindow(QMainWindow):
             })
         return rows
 
-    def _goto_detail(self):
+    def _goto_hub(self):
         rows = self._extract_rows_from_table()
         if not rows:
             QMessageBox.information(self, "提示", "請至少填寫一列工作任務（任務代碼欄不可為空）")
             return
-        # 檢查 task_code 重複（P7）
         seen: set = set()
         dups: list = []
         for r in rows:
@@ -1377,22 +1444,19 @@ class WizardMainWindow(QMainWindow):
                 return
         self._competency_rows = rows
         self._level = self._level_spin.value()
-        self._current_task_idx = 0
 
-        # 初始化或更新逐任務狀態
         n = len(rows)
         if len(self._task_states) != n:
             self._task_states = [TaskLLMState.IDLE] * n
             self._task_hashes = [""] * n
         else:
-            # 任務數量相同：已完成但內容有變的標記為 STALE
             for i, row in enumerate(rows):
                 if (self._task_states[i] == TaskLLMState.DONE
                         and _task_hash(row) != self._task_hashes[i]):
                     self._task_states[i] = TaskLLMState.STALE
 
         self._ensure_llm_worker()
-        self._detail_update_display()
+        self._hub_rebuild_cards()
         self.stack.setCurrentIndex(3)
 
     # ─────────────────────────────────────
@@ -1436,55 +1500,64 @@ class WizardMainWindow(QMainWindow):
         }
 
     # ─────────────────────────────────────
-    # 詳細填寫（Page 3）
+    # Hub（Page 3）
     # ─────────────────────────────────────
 
-    def _detail_update_display(self):
-        """更新詳細填寫頁的顯示內容。"""
-        rows = self._competency_rows
-        idx  = self._current_task_idx
-        total = len(rows)
+    def _hub_rebuild_cards(self):
+        """清空並重建 Hub 卡片網格。"""
+        while self._hub_grid.count():
+            item = self._hub_grid.takeAt(0)
+            if item is None:
+                continue
+            w = item.widget()
+            if w is not None:
+                w.deleteLater()
+        self._hub_cards = []
 
-        self._detail_progress_label.setText(f"任務 {idx+1} / {total}")
-        self._detail_progress_bar.setMaximum(total)
-        self._detail_progress_bar.setValue(idx + 1)
+        cols = 3
+        for idx, row in enumerate(self._competency_rows):
+            card = self._make_task_card(idx, row)
+            self._hub_grid.addWidget(card, idx // cols, idx % cols)
+            self._hub_cards.append(card)
 
-        row = rows[idx]
-        self._detail_task_card.setTitle(f"任務 {row.get('task_code','')}")
-        self._detail_task_code_lbl.setText(
-            f"主責：{row.get('resp_code','')} {row.get('resp_name','')}")
-        self._detail_task_name_lbl.setText(row.get("task_name", ""))
+        self._hub_refresh_status()
 
-        self._detail_desc.setText(row.get("user_description", ""))
-        self._detail_output.setText(row.get("user_output", ""))
+    def _make_task_card(self, idx: int, row: dict) -> QFrame:
+        """建立單一任務卡片（可點擊的 QFrame）。"""
+        card = QFrame()
+        card.setObjectName("taskCard")
+        card.setCursor(Qt.CursorShape.PointingHandCursor)
+        card_v = QVBoxLayout(card)
+        card_v.setContentsMargins(14, 12, 14, 12)
+        card_v.setSpacing(6)
 
-        self._update_detail_llm_badge(idx)
-        self._update_detail_bg_status()
+        code_lbl = QLabel(row.get("task_code", ""))
+        code_lbl.setFont(QFont("Microsoft JhengHei", 12, QFont.Weight.Bold))
+        code_lbl.setStyleSheet("color:#2980b9;")
+        card_v.addWidget(code_lbl)
 
-        # 恢復此任務的模板選擇，預設跟隨全域設定
-        tpl_key = row.get("template", self._analysis_template)
-        for i in range(self._detail_tpl_combo.count()):
-            if self._detail_tpl_combo.itemData(i) == tpl_key:
-                self._detail_tpl_combo.setCurrentIndex(i)
-                break
+        name = row.get("task_name", "")
+        name_lbl = QLabel(name if len(name) <= 18 else name[:17] + "...")
+        name_lbl.setStyleSheet("color:#4a5568; font-size:9pt;")
+        name_lbl.setWordWrap(True)
+        card_v.addWidget(name_lbl, 1)
 
-        if idx == 0:
-            self._btn_detail_prev.setText("← 返回編輯器")
-            self._btn_detail_prev.setEnabled(True)
-        else:
-            self._btn_detail_prev.setText("← 上一個任務")
-            self._btn_detail_prev.setEnabled(True)
-        is_last = (idx == total - 1)
-        if is_last:
-            self._btn_detail_next.setText("完成，查看 AI 建議  →")
-            self._btn_detail_next.setObjectName("success")
-        else:
-            self._btn_detail_next.setText("下一個任務  →")
-            self._btn_detail_next.setObjectName("primary")
-        style = self._btn_detail_next.style()
-        if style is not None:
-            style.unpolish(self._btn_detail_next)
-            style.polish(self._btn_detail_next)
+        badge = QLabel()
+        badge.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        card_v.addWidget(badge)
+
+        card._badge_lbl = badge
+        card._task_idx  = idx
+
+        self._update_card_badge(card, idx)
+        self._set_card_border(card, idx)
+
+        card.mousePressEvent = lambda e, i=idx: self._open_task(i)
+        card.enterEvent = lambda e, c=card: c.setStyleSheet(
+            "QFrame#taskCard { background:#eaf4fb; border:2px solid #3498db; "
+            "border-radius:10px; }")
+        card.leaveEvent = lambda e, c=card, i=idx: self._set_card_border(c, i)
+        return card
 
     _STATE_DISPLAY = {
         TaskLLMState.IDLE:    ("●  未提交", "#aab4be"),
@@ -1492,218 +1565,172 @@ class WizardMainWindow(QMainWindow):
         TaskLLMState.DONE:    ("✓  已完成", "#27ae60"),
         TaskLLMState.STALE:   ("↻  需更新", "#2980b9"),
     }
-
-    def _update_detail_bg_status(self):
-        """更新 Detail 頁底部的後台分析全局進度提示。"""
-        if not self._task_states:
-            self._detail_bg_status.setText("")
-            return
-        n       = len(self._task_states)
-        done    = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
-        pending = sum(1 for s in self._task_states if s == TaskLLMState.PENDING)
-        if done == n:
-            self._detail_bg_status.setText("後台分析：全部完成 ✓")
-            self._detail_bg_status.setStyleSheet("color:#27ae60; font-size:8.5pt;")
-        elif pending > 0 or done > 0:
-            self._detail_bg_status.setText(
-                f"後台分析中：已完成 {done} / {n} 個任務，{pending} 個等待中...")
-            self._detail_bg_status.setStyleSheet("color:#e67e22; font-size:8.5pt;")
-        else:
-            self._detail_bg_status.setText(
-                "（填寫並儲存每個任務描述後，AI 將在背景自動分析）")
-            self._detail_bg_status.setStyleSheet("color:#aab4be; font-size:8.5pt;")
-
-    def _update_detail_llm_badge(self, idx: int):
-        if not self._task_states or idx >= len(self._task_states):
-            self._detail_llm_badge.setText("")
-            return
-        txt, color = self._STATE_DISPLAY.get(self._task_states[idx], ("", "#888"))
-        self._detail_llm_badge.setText(txt)
-        self._detail_llm_badge.setStyleSheet(f"color:{color}; font-size:9pt; font-weight:bold;")
-
-    def _detail_save_current(self):
-        """把目前的輸入存回 _competency_rows，並在描述有變更時自動提交 LLM。"""
-        idx = self._current_task_idx
-        row = self._competency_rows[idx]
-        row["user_description"] = self._detail_desc.toPlainText().strip()
-        row["user_output"]      = self._detail_output.toPlainText().strip()
-        row["template"]         = self._detail_tpl_combo.currentData()
-
-        if not row.get("user_description"):
-            return   # 描述為空，不提交
-
-        if not self._task_states or idx >= len(self._task_states):
-            return
-
-        new_hash = _task_hash(row)
-        if new_hash == self._task_hashes[idx]:
-            return   # 內容未變，不重複提交
-
-        self._task_hashes[idx] = new_hash
-        if self._llm_worker and self._llm_worker.isRunning():
-            # Worker 已就緒：立即提交，設為 PENDING
-            self._task_states[idx] = TaskLLMState.PENDING
-            self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
-        else:
-            # Worker 尚未就緒（模型載入中）：設為 IDLE，等 _render_suggest_page 統一提交
-            self._task_states[idx] = TaskLLMState.IDLE
-        self._update_detail_llm_badge(idx)
-        self._update_detail_bg_status()
-
-    def _detail_prev(self):
-        self._detail_save_current()
-        if self._current_task_idx == 0:
-            self.stack.setCurrentIndex(2)
-        else:
-            self._current_task_idx -= 1
-            self._detail_update_display()
-
-    def _detail_next(self):
-        self._detail_save_current()
-        if self._current_task_idx < len(self._competency_rows) - 1:
-            self._current_task_idx += 1
-            self._detail_update_display()
-        else:
-            self._goto_suggest()
-
-    # ─────────────────────────────────────
-    # LLM 建議（Page 4）
-    # ─────────────────────────────────────
-
-    def _goto_suggest(self):
-        self.stack.setCurrentIndex(4)
-        self._render_suggest_page()
-
-    _TPL_DESC: dict[str, str] = {
-        "AUTO": "自動", "ABCD": "ABCD", "5W2H": "5W2H", "STAR": "STAR",
-    }
     _TPL_BADGE: dict[str, tuple[str, str]] = {
         "5W2H": ("#e8f5e9", "#2e7d32"),
         "ABCD": ("#e3f2fd", "#1565c0"),
         "STAR": ("#fff3e0", "#e65100"),
     }
 
-    def _render_suggest_page(self):
-        """清空並重新渲染建議頁，已完成任務直接填入，待完成任務顯示佔位。"""
-        while self._suggest_layout.count():
-            item = self._suggest_layout.takeAt(0)
+    def _set_card_border(self, card: QFrame, idx: int):
+        state = self._task_states[idx] if idx < len(self._task_states) else TaskLLMState.IDLE
+        colors = {
+            TaskLLMState.IDLE:    "#dee2e6",
+            TaskLLMState.PENDING: "#f39c12",
+            TaskLLMState.DONE:    "#27ae60",
+            TaskLLMState.STALE:   "#3498db",
+        }
+        c = colors.get(state, "#dee2e6")
+        card.setStyleSheet(
+            f"QFrame#taskCard {{ background:#ffffff; border:2px solid {c}; "
+            f"border-radius:10px; }}")
+
+    def _update_card_badge(self, card: QFrame, idx: int):
+        state = self._task_states[idx] if idx < len(self._task_states) else TaskLLMState.IDLE
+        row   = self._competency_rows[idx] if idx < len(self._competency_rows) else {}
+        badge = card._badge_lbl
+        if state == TaskLLMState.IDLE:
+            if row.get("user_description"):
+                badge.setText("↻  待提交")
+                badge.setStyleSheet("color:#7f8c8d; font-size:8.5pt;")
+            else:
+                badge.setText("—  未填寫")
+                badge.setStyleSheet("color:#aab4be; font-size:8.5pt;")
+        elif state == TaskLLMState.PENDING:
+            badge.setText("●  分析中...")
+            badge.setStyleSheet("color:#e67e22; font-size:8.5pt; font-weight:bold;")
+        elif state == TaskLLMState.DONE:
+            n = len(row.get("_llm_indicators", []))
+            badge.setText(f"✓  完成（{n} 個指標）")
+            badge.setStyleSheet("color:#27ae60; font-size:8.5pt; font-weight:bold;")
+        elif state == TaskLLMState.STALE:
+            badge.setText("↻  內容已更新")
+            badge.setStyleSheet("color:#2980b9; font-size:8.5pt; font-weight:bold;")
+
+    def _hub_update_card(self, idx: int):
+        if idx < len(self._hub_cards) and self._hub_cards[idx] is not None:
+            card = self._hub_cards[idx]
+            self._update_card_badge(card, idx)
+            self._set_card_border(card, idx)
+        self._hub_refresh_status()
+
+    def _hub_refresh_status(self):
+        if not self._task_states:
+            return
+        n       = len(self._task_states)
+        done    = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
+        pending = sum(1 for s in self._task_states if s == TaskLLMState.PENDING)
+        self._hub_progress_bar.setMaximum(n)
+        self._hub_progress_bar.setValue(done)
+        self._hub_progress_lbl.setText(f"{done} / {n}")
+        if done == n:
+            self._hub_ai_status.setText("AI 分析完成")
+            self._hub_ai_status.setStyleSheet(
+                "color:#ffffff; background:#27ae60; border-radius:4px; "
+                "padding:3px 12px; font-size:9pt;")
+        elif pending > 0:
+            self._hub_ai_status.setText(f"分析中（{pending} 個等待）")
+            self._hub_ai_status.setStyleSheet(
+                "color:#ffffff; background:#e67e22; border-radius:4px; "
+                "padding:3px 12px; font-size:9pt;")
+        else:
+            self._hub_ai_status.setText("AI 就緒")
+            self._hub_ai_status.setStyleSheet(
+                "color:#ffffff; background:#95a5a6; border-radius:4px; "
+                "padding:3px 12px; font-size:9pt;")
+
+    # ─────────────────────────────────────
+    # Task Edit（Page 4）
+    # ─────────────────────────────────────
+
+    def _open_task(self, idx: int):
+        self._edit_task_idx = idx
+        row = self._competency_rows[idx]
+
+        self._task_edit_title_lbl.setText(
+            f"{row.get('task_code', '')}  {row.get('task_name', '')}")
+        self._task_edit_info_box.setTitle(f"任務 {row.get('task_code', '')}")
+        self._task_edit_code_lbl.setText(
+            f"主責：{row.get('resp_code', '')} {row.get('resp_name', '')}")
+        self._task_edit_name_lbl.setText(row.get("task_name", ""))
+
+        self._task_edit_desc.setText(row.get("user_description", ""))
+        self._task_edit_output.setText(row.get("user_output", ""))
+        self._task_edit_extra.setText(row.get("_manual_extra", ""))
+
+        tpl_key = row.get("template", self._analysis_template)
+        for i in range(self._task_edit_tpl_combo.count()):
+            if self._task_edit_tpl_combo.itemData(i) == tpl_key:
+                self._task_edit_tpl_combo.setCurrentIndex(i)
+                break
+
+        self._edit_checks = []
+        self._task_edit_update_ai_section()
+        self.stack.setCurrentIndex(4)
+
+    def _task_edit_update_ai_section(self):
+        """根據當前任務狀態刷新 AI 結果顯示區與 badge。"""
+        idx = self._edit_task_idx
+        if idx < 0 or idx >= len(self._task_states):
+            return
+
+        state = self._task_states[idx]
+        row   = self._competency_rows[idx]
+
+        txt, color = self._STATE_DISPLAY.get(state, ("", "#888"))
+        self._task_edit_top_badge.setText(txt)
+        self._task_edit_top_badge.setStyleSheet(
+            f"color:{color}; font-size:9pt; font-weight:bold;")
+
+        # 清空 AI 容器
+        while self._task_ai_result_layout.count():
+            item = self._task_ai_result_layout.takeAt(0)
             if item is None:
                 continue
             w = item.widget()
             if w is not None:
                 w.deleteLater()
+        self._edit_checks = []
 
-        rows = self._competency_rows
-        n = len(rows)
-        self._suggest_checks = [None] * n
-        self._suggest_boxes  = [None] * n
-
-        done_count = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
-
-        if done_count < n and any(s in (TaskLLMState.PENDING, TaskLLMState.IDLE, TaskLLMState.STALE)
-                                  for s in self._task_states):
-            self._suggest_status_lbl.setText(f"AI 分析中...（已完成 {done_count}/{n}）")
-            self._suggest_status_lbl.setStyleSheet(
-                "color:#ffffff; background:#e67e22; border-radius:4px; padding:3px 10px; font-size:9pt;")
-        else:
-            self._suggest_status_lbl.setText("AI 分析完成")
-            self._suggest_status_lbl.setStyleSheet(
-                "color:#ffffff; background:#27ae60; border-radius:4px; padding:3px 10px; font-size:9pt;")
-
-        self._suggest_progress.setMaximum(n)
-        self._suggest_progress.setValue(done_count)
-        has_pending = any(s == TaskLLMState.PENDING for s in self._task_states)
-        self._btn_confirm_suggest.setEnabled(not has_pending)
-
-        # 模板摘要標籤
-        tpl_keys = [row.get("template", self._analysis_template) for row in rows]
-        unique = sorted(set(tpl_keys), key=tpl_keys.index)
-        if len(unique) == 1:
-            self._tpl_label.setText(
-                f"框架：{self._TPL_DESC.get(unique[0], unique[0])}（全部任務）")
-        else:
-            summary = "、".join(self._TPL_DESC.get(k, k) for k in unique)
-            self._tpl_label.setText(f"框架：{summary}（各任務獨立設定，見下方標籤）")
-
-        # 建立各任務佔位框並填入已完成的結果
-        for idx, row in enumerate(rows):
-            box = self._populate_task_box(idx, row)
-            self._suggest_layout.addWidget(box)
-            self._suggest_boxes[idx] = box
-            if self._task_states[idx] == TaskLLMState.DONE:
-                self._fill_task_result(
-                    idx,
-                    row.get("_llm_indicators", []),
-                    row.get("_llm_template_used", ""),
-                )
-
-        # 提交所有尚未完成的任務（IDLE / STALE / PENDING 都重提，保證 Worker 就緒後有接到）
-        # PENDING 可能是模型載入中時未實際進入 queue 的任務，重提不影響正確性（hash 驗證）
-        if self._llm_worker and self._llm_worker.isRunning():
-            for idx, row in enumerate(rows):
-                state = self._task_states[idx]
-                if state != TaskLLMState.DONE and row.get("user_description"):
-                    new_hash = _task_hash(row)
-                    self._task_hashes[idx] = new_hash
-                    self._task_states[idx] = TaskLLMState.PENDING
-                    self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
-
-    def _rerun_llm(self):
-        """重設所有任務狀態並重新分析。"""
-        for i in range(len(self._task_states)):
-            self._task_states[i] = TaskLLMState.IDLE
-            self._task_hashes[i] = ""
-            row = self._competency_rows[i]
-            row.pop("_llm_indicators", None)
-            row.pop("_llm_template_used", None)
-        self._render_suggest_page()
-
-    def _populate_task_box(self, idx: int, row: dict) -> "QGroupBox":
-        """建立任務 GroupBox，預設顯示「分析中」佔位。"""
-        box = QGroupBox(f"{row.get('task_code','')}  {row.get('task_name','')}")
-        box_v = QVBoxLayout(box)
-        box_v.setSpacing(4)
-
-        state = self._task_states[idx] if idx < len(self._task_states) else TaskLLMState.IDLE
         if state == TaskLLMState.DONE:
-            placeholder = None
+            self._task_ai_section.setVisible(True)
+            self._task_edit_ai_badge.setText(txt)
+            self._task_edit_ai_badge.setStyleSheet(
+                f"color:{color}; font-size:9pt; font-weight:bold;")
+            self._task_edit_fill_ai(
+                row.get("_llm_indicators", []),
+                row.get("_llm_template_used", ""),
+                row.get("behavior_accepted", []),
+            )
+        elif state == TaskLLMState.PENDING:
+            self._task_ai_section.setVisible(True)
+            self._task_edit_ai_badge.setText(txt)
+            self._task_edit_ai_badge.setStyleSheet(
+                f"color:{color}; font-size:9pt; font-weight:bold;")
+            lbl = QLabel("●  AI 分析中，請稍候...")
+            lbl.setStyleSheet("color:#e67e22; font-style:italic; font-size:9pt;")
+            self._task_ai_result_layout.addWidget(lbl)
+        elif state == TaskLLMState.STALE:
+            self._task_ai_section.setVisible(True)
+            self._task_edit_ai_badge.setText(txt)
+            self._task_edit_ai_badge.setStyleSheet(
+                f"color:{color}; font-size:9pt; font-weight:bold;")
+            self._task_edit_fill_ai(
+                row.get("_llm_indicators", []),
+                row.get("_llm_template_used", ""),
+                row.get("behavior_accepted", []),
+            )
+            stale_lbl = QLabel("↻  描述已更新，重新提交後將更新指標。")
+            stale_lbl.setStyleSheet(
+                "color:#2980b9; font-size:8.5pt; font-style:italic; margin-top:4px;")
+            self._task_ai_result_layout.addWidget(stale_lbl)
         else:
-            if not row.get("user_description"):
-                placeholder = QLabel("（此任務未填寫描述，跳過 AI 分析）")
-                placeholder.setStyleSheet("color:#aab4be; font-style:italic; font-size:9pt;")
-            else:
-                placeholder = QLabel("● AI 分析中，請稍候...")
-                placeholder.setStyleSheet("color:#e67e22; font-style:italic; font-size:9pt;")
-            box_v.addWidget(placeholder)
+            # IDLE：整個 AI 區塊隱藏
+            self._task_ai_section.setVisible(False)
 
-        extra_lbl = QLabel("手動補充行為指標（每行一條）：")
-        extra_lbl.setStyleSheet("color:#4a5568; font-size:9pt;")
-        box_v.addWidget(extra_lbl)
-        extra = QTextEdit()
-        extra.setFixedHeight(60)
-        extra.setPlaceholderText("選填，直接輸入...")
-        box_v.addWidget(extra)
-
-        self._suggest_checks[idx] = {"checks": [], "extra": extra, "placeholder": placeholder}
-        return box
-
-    def _fill_task_result(self, idx: int, behaviors: list, template_used: str):
-        """用 LLM 結果填入對應 GroupBox，移除佔位、插入模板標籤與核取方塊。"""
-        entry = self._suggest_checks[idx] if idx < len(self._suggest_checks) else None
-        box   = self._suggest_boxes[idx]  if idx < len(self._suggest_boxes)  else None
-        if entry is None or box is None:
-            return
-
-        box_v = box.layout()
-
-        placeholder = entry.get("placeholder")
-        if placeholder is not None:
-            box_v.removeWidget(placeholder)
-            placeholder.deleteLater()
-            entry["placeholder"] = None
-
-        insert_pos = 0
-        checks: list[tuple[QCheckBox, QLineEdit]] = []
+    def _task_edit_fill_ai(self, indicators: list, template_used: str,
+                           prev_accepted: list):
+        """填入 AI 行為指標結果到 Task Edit 的 AI 區域。"""
+        prev_set = set(prev_accepted)
 
         if template_used:
             bg, fg = self._TPL_BADGE.get(template_used, ("#f0f0f0", "#555555"))
@@ -1712,17 +1739,16 @@ class WizardMainWindow(QMainWindow):
                 f"color:{fg}; background:{bg}; border-radius:3px;"
                 f" padding:1px 10px; font-size:8pt; font-weight:bold;")
             tpl_lbl.setAlignment(Qt.AlignmentFlag.AlignRight)
-            box_v.insertWidget(insert_pos, tpl_lbl)
-            insert_pos += 1
+            self._task_ai_result_layout.addWidget(tpl_lbl)
 
-        if behaviors:
-            for b in behaviors:
+        if indicators:
+            for b in indicators:
                 row_w = QWidget()
                 row_h = QHBoxLayout(row_w)
                 row_h.setContentsMargins(0, 0, 0, 0)
                 row_h.setSpacing(6)
                 cb = QCheckBox()
-                cb.setChecked(True)
+                cb.setChecked(b in prev_set or not prev_set)
                 cb.setFixedWidth(20)
                 le = QLineEdit(b)
                 le.setStyleSheet(
@@ -1731,15 +1757,71 @@ class WizardMainWindow(QMainWindow):
                 cb.toggled.connect(le.setEnabled)
                 row_h.addWidget(cb, 0)
                 row_h.addWidget(le, 1)
-                box_v.insertWidget(insert_pos, row_w)
-                insert_pos += 1
-                checks.append((cb, le))
+                self._task_ai_result_layout.addWidget(row_w)
+                self._edit_checks.append((cb, le))
         else:
-            no_result = QLabel("（AI 未能生成行為指標，可手動填寫）")
-            no_result.setStyleSheet("color:#e74c3c; font-style:italic;")
-            box_v.insertWidget(insert_pos, no_result)
+            no_result = QLabel("（AI 未能生成行為指標，可在下方手動填寫）")
+            no_result.setStyleSheet("color:#e74c3c; font-style:italic; font-size:9pt;")
+            self._task_ai_result_layout.addWidget(no_result)
 
-        entry["checks"] = checks
+    def _task_save_and_submit(self):
+        """儲存當前填寫內容並提交 AI 分析（點按「儲存並提交 AI 分析  ▶」觸發）。"""
+        idx = self._edit_task_idx
+        if idx < 0 or idx >= len(self._competency_rows):
+            return
+        row = self._competency_rows[idx]
+
+        row["user_description"] = self._task_edit_desc.toPlainText().strip()
+        row["user_output"]      = self._task_edit_output.toPlainText().strip()
+        row["template"]         = self._task_edit_tpl_combo.currentData()
+        row["_manual_extra"]    = self._task_edit_extra.toPlainText().strip()
+
+        if self._edit_checks:
+            accepted = [le.text().strip() for cb, le in self._edit_checks
+                        if cb.isChecked() and le.text().strip()]
+            extra = row.get("_manual_extra", "")
+            if extra:
+                accepted.extend([l.strip() for l in extra.split("\n") if l.strip()])
+            row["behavior_accepted"] = accepted
+
+        if not row.get("user_description"):
+            QMessageBox.information(self, "提示", "請填寫工作描述後再提交分析。")
+            return
+
+        new_hash = _task_hash(row)
+        if new_hash == self._task_hashes[idx] and self._task_states[idx] == TaskLLMState.DONE:
+            QMessageBox.information(self, "提示", "內容未變更，AI 結果已是最新。")
+            return
+
+        self._task_hashes[idx] = new_hash
+        if self._llm_worker and self._llm_worker.isRunning():
+            self._task_states[idx] = TaskLLMState.PENDING
+            self._llm_worker.submit(idx, self._build_task_args_for_worker(row), new_hash)
+        else:
+            self._task_states[idx] = TaskLLMState.IDLE
+
+        self._task_edit_update_ai_section()
+        self._hub_update_card(idx)
+
+    def _task_edit_back(self):
+        """從 Task Edit 頁返回 Hub，自動儲存填寫狀態。"""
+        idx = self._edit_task_idx
+        if 0 <= idx < len(self._competency_rows):
+            row = self._competency_rows[idx]
+            row["user_description"] = self._task_edit_desc.toPlainText().strip()
+            row["user_output"]      = self._task_edit_output.toPlainText().strip()
+            row["template"]         = self._task_edit_tpl_combo.currentData()
+            row["_manual_extra"]    = self._task_edit_extra.toPlainText().strip()
+            if self._edit_checks:
+                accepted = [le.text().strip() for cb, le in self._edit_checks
+                            if cb.isChecked() and le.text().strip()]
+                extra = row.get("_manual_extra", "")
+                if extra:
+                    accepted.extend([l.strip() for l in extra.split("\n") if l.strip()])
+                row["behavior_accepted"] = accepted
+            self._hub_update_card(idx)
+
+        self.stack.setCurrentIndex(3)
 
     def _on_background_result(self, idx: int, indicators: list,
                                template_used: str, task_hash: str):
@@ -1747,64 +1829,221 @@ class WizardMainWindow(QMainWindow):
         if idx >= len(self._task_states):
             return
         if task_hash != self._task_hashes[idx]:
-            return   # 描述已更新，丟棄過期結果
+            return   # 過期結果，丟棄
 
         row = self._competency_rows[idx]
+        was_done = (self._task_states[idx] == TaskLLMState.DONE)
         row["_llm_indicators"]    = indicators
         row["_llm_template_used"] = template_used
         self._task_states[idx]    = TaskLLMState.DONE
 
-        # Detail 頁：更新 badge 與全局進度
+        # Hub 頁：更新卡片
         if self.stack.currentIndex() == 3:
-            if self._current_task_idx == idx:
-                self._update_detail_llm_badge(idx)
-            self._update_detail_bg_status()
+            self._hub_update_card(idx)
 
-        # Suggest 頁：填入結果並更新進度
-        if self.stack.currentIndex() == 4:
-            self._fill_task_result(idx, indicators, template_used)
-            done = sum(1 for s in self._task_states if s == TaskLLMState.DONE)
-            n    = len(self._task_states)
-            self._suggest_progress.setValue(done)
-            has_pending = any(s == TaskLLMState.PENDING for s in self._task_states)
-            if not has_pending:
-                self._on_all_tasks_done()
-            else:
-                self._suggest_status_lbl.setText(f"AI 分析中...（已完成 {done}/{n}）")
-
-    def _on_all_tasks_done(self):
-        self._suggest_status_lbl.setText("AI 分析完成")
-        self._suggest_status_lbl.setStyleSheet(
-            "color:#ffffff; background:#27ae60; border-radius:4px; padding:3px 10px; font-size:9pt;")
-        self._btn_confirm_suggest.setEnabled(True)
+        # Task Edit 頁：更新 AI 結果（僅當前開啟的任務，且是首次完成）
+        if self.stack.currentIndex() == 4 and self._edit_task_idx == idx and not was_done:
+            self._task_edit_update_ai_section()
+            self._hub_update_card(idx)
 
     # ─────────────────────────────────────
-    # 補充 & 匯出（Page 5）
+    # 匯出（Page 5）
     # ─────────────────────────────────────
 
-    def _goto_supplement(self):
-        """從 LLM 建議頁收集採用的行為指標，進入補充頁。"""
-        for idx, entry in enumerate(self._suggest_checks):
-            if entry is None:
-                continue
-            accepted = [le.text().strip() for cb, le in entry["checks"]
-                        if cb.isChecked() and le.text().strip()]
-            extra_text = entry["extra"].toPlainText().strip()
-            if extra_text:
-                accepted.extend([l.strip() for l in extra_text.split("\n") if l.strip()])
-            self._competency_rows[idx]["behavior_accepted"] = accepted
+    def _goto_export(self):
+        """從 Hub 進入匯出頁，驗證後收集行為指標。"""
+        rows = self._competency_rows
+        unfilled = [r.get("task_code", f"任務{i+1}")
+                    for i, r in enumerate(rows) if not r.get("user_description")]
+        pending = sum(1 for s in self._task_states if s == TaskLLMState.PENDING)
 
-        # 更新摘要
-        lines = [
-            f"職業名稱：{self._position}",
-            f"職能等級：{self._level}",
-            f"職能基準：{(self._matched_std or {}).get('metadata', {}).get('name', '（未使用基準）')}",
-            f"工作任務數：{len(self._competency_rows)} 個",
-        ]
-        covered = sum(1 for r in self._competency_rows if r.get("behavior_accepted"))
-        lines.append(f"已生成行為指標：{covered} 個任務")
-        self._summary_label.setText("\n".join(lines))
+        if unfilled:
+            codes = "、".join(unfilled[:5])
+            extra = f"...等 {len(unfilled)} 個" if len(unfilled) > 5 else ""
+            reply = QMessageBox.question(
+                self, "部分任務未填寫",
+                f"以下任務尚未填寫工作描述：\n{codes}{extra}\n\n"
+                "是否仍要繼續匯出？（未填寫任務將無 AI 行為指標）",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
+        if pending > 0:
+            reply = QMessageBox.question(
+                self, "AI 分析進行中",
+                f"還有 {pending} 個任務正在 AI 分析中，\n"
+                "是否等待分析完成後再匯出？（選「否」立即進入匯出頁）",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                return
+
+        self._collect_all_accepted()
+        self._refresh_preview()
         self.stack.setCurrentIndex(5)
+
+    def _collect_all_accepted(self):
+        """收集所有任務已勾選的行為指標（含手動補充）。"""
+        for idx, row in enumerate(self._competency_rows):
+            if self._edit_task_idx == idx and self._edit_checks:
+                accepted = [le.text().strip() for cb, le in self._edit_checks
+                            if cb.isChecked() and le.text().strip()]
+                extra = row.get("_manual_extra", "")
+                if extra:
+                    accepted.extend([l.strip() for l in extra.split("\n") if l.strip()])
+                row["behavior_accepted"] = accepted
+            elif not row.get("behavior_accepted") and row.get("_llm_indicators"):
+                row["behavior_accepted"] = list(row.get("_llm_indicators", []))
+                extra = row.get("_manual_extra", "")
+                if extra:
+                    row["behavior_accepted"].extend(
+                        [l.strip() for l in extra.split("\n") if l.strip()])
+
+    # ── 預覽色彩常數（對齊 excel_exporter.py）
+    _PC_HEADER   = "#2F5496"
+    _PC_RESP     = "#E8F4FD"
+    _PC_TASK     = "#FFFFFF"
+    _PC_BEHAVIOR = "#E2EFDA"
+    _PC_KNOW     = "#FFF2CC"
+    _PC_SKILL    = "#F4E6FF"
+    _PC_ATT      = "#FFE4E1"
+    _PC_META     = "#F8F9FA"
+
+    def _refresh_preview(self):
+        """用目前資料重新填充預覽四個分頁的 QTableWidget。"""
+        rows = self._competency_rows
+        std  = self._matched_std or {}
+        meta = std.get("metadata", {})
+
+        # ── Tab 1: 職能說明書 ─────────────────────────────────────────────
+        t = self._preview_table_comp
+        t.setRowCount(0)
+        t.setSpan(0, 0, 1, 1)   # 重設先前的 span
+
+        info_pairs = [
+            ("職業名稱", self._position),
+            ("職能等級", str(self._level)),
+            ("職能基準", meta.get("name", "（未使用基準）")),
+            ("基準代碼", meta.get("code", "")),
+        ]
+        for label, val in info_pairs:
+            r = t.rowCount()
+            t.insertRow(r)
+            lbl_item = QTableWidgetItem(label)
+            lbl_item.setBackground(QColor(self._PC_META))
+            f = lbl_item.font(); f.setBold(True); lbl_item.setFont(f)
+            t.setItem(r, 0, lbl_item)
+            val_item = QTableWidgetItem(val)
+            val_item.setBackground(QColor(self._PC_META))
+            t.setItem(r, 1, val_item)
+            for col in range(2, 7):
+                empty = QTableWidgetItem("")
+                empty.setBackground(QColor(self._PC_META))
+                t.setItem(r, col, empty)
+            t.setSpan(r, 1, 1, 6)
+            t.setRowHeight(r, 22)
+
+        for row in rows:
+            behaviors = row.get("behavior_accepted") or []
+            behavior_str = "\n".join(f"・{b}" for b in behaviors) if behaviors else ""
+            values = [
+                row.get("resp_code", ""),
+                row.get("resp_name", ""),
+                row.get("task_code", ""),
+                row.get("task_name", ""),
+                row.get("output", ""),
+                behavior_str,
+                str(row.get("level", "")),
+            ]
+            bgs = [self._PC_RESP, self._PC_RESP,
+                   self._PC_TASK, self._PC_TASK, self._PC_TASK,
+                   self._PC_BEHAVIOR, self._PC_TASK]
+            r = t.rowCount()
+            t.insertRow(r)
+            for col, (val, bg) in enumerate(zip(values, bgs)):
+                item = QTableWidgetItem(str(val) if val is not None else "")
+                item.setBackground(QColor(bg))
+                t.setItem(r, col, item)
+            line_count = max(1, behavior_str.count("\n") + 1) if behavior_str else 1
+            t.setRowHeight(r, max(28, line_count * 20))
+
+        # ── Tab 2: 知識清單 ────────────────────────────────────────────────
+        self._fill_ks_table(self._preview_table_know,
+                            rows, "_knowledge", self._PC_KNOW, "（未填寫知識項目）")
+
+        # ── Tab 3: 技能清單 ────────────────────────────────────────────────
+        self._fill_ks_table(self._preview_table_skill,
+                            rows, "_skills", self._PC_SKILL, "（未填寫技能項目）")
+
+        # ── Tab 4: 態度清單 ────────────────────────────────────────────────
+        t4 = self._preview_table_att
+        t4.setRowCount(0)
+        for a in std.get("competency_attitudes", []):
+            if not isinstance(a, dict):
+                continue
+            code = a.get("code", "")
+            name = a.get("name", "")
+            desc = a.get("description", "")
+            if not (code or name):
+                continue
+            r = t4.rowCount()
+            t4.insertRow(r)
+            for col, val in enumerate([code, name, desc]):
+                cell = QTableWidgetItem(str(val))
+                cell.setBackground(QColor(self._PC_ATT))
+                t4.setItem(r, col, cell)
+            lines = max(1, len(desc) // 30)
+            t4.setRowHeight(r, max(28, lines * 20))
+        if t4.rowCount() == 0:
+            t4.insertRow(0)
+            cell = QTableWidgetItem("（無態度職能內涵資料）")
+            cell.setBackground(QColor(self._PC_META))
+            t4.setItem(0, 0, cell)
+            t4.setSpan(0, 0, 1, 3)
+
+    def _fill_ks_table(self, table: QTableWidget, rows: list,
+                       field: str, bg: str, empty_msg: str):
+        table.setRowCount(0)
+        items = self._collect_ks_preview(rows, field)
+        for item in items:
+            r = table.rowCount()
+            table.insertRow(r)
+            for col, val in enumerate([item["code"], item["name"],
+                                        "、".join(item["tasks"])]):
+                cell = QTableWidgetItem(str(val))
+                cell.setBackground(QColor(bg))
+                table.setItem(r, col, cell)
+        if table.rowCount() == 0:
+            table.insertRow(0)
+            cell = QTableWidgetItem(empty_msg)
+            cell.setBackground(QColor(self._PC_META))
+            table.setItem(0, 0, cell)
+            table.setSpan(0, 0, 1, 3)
+
+    def _collect_ks_preview(self, rows: list, field: str) -> list:
+        from collections import OrderedDict
+        items: dict = OrderedDict()
+        for r in rows:
+            task_code = r.get("task_code", "")
+            for entry in r.get(field, []):
+                if isinstance(entry, dict):
+                    code = entry.get("code", "")
+                    name = entry.get("name", "")
+                elif isinstance(entry, str):
+                    code = entry; name = entry
+                else:
+                    continue
+                key = code or name
+                if not key:
+                    continue
+                if key not in items:
+                    items[key] = {"code": code, "name": name, "tasks": []}
+                if task_code and task_code not in items[key]["tasks"]:
+                    items[key]["tasks"].append(task_code)
+        return list(items.values())
 
     def _on_export(self):
         path, _ = QFileDialog.getSaveFileName(

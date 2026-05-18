@@ -695,46 +695,64 @@ def _persistent_worker(input_q, result_q):
             messages = _build_prompt_messages(**task_args)
             reply = backend.chat(messages)
 
+            # 從第一個 { 到最後一個 } 提取 JSON（避免非貪婪 regex 被內嵌花括號截斷）
+            json_str = None
+            s = reply.find('{')
+            e = reply.rfind('}')
+            if s != -1 and e > s:
+                json_str = reply[s:e + 1]
+
             if tpl_param == "AUTO":
-                match = _re.search(r'\{.*?"template".*?"behavior_indicators".*?\}',
-                                   reply, _re.DOTALL)
-                if not match:
-                    match = _re.search(r'\{.*?"behavior_indicators".*?\}',
-                                       reply, _re.DOTALL)
-                if match:
-                    data = _json.loads(match.group())
-                    indicators = data.get("behavior_indicators", [])
-                    tpl_used = data.get("template", "ABCD")
-                    if tpl_used not in _VALID_TPLS:
-                        tpl_used = "ABCD"
-                    if isinstance(indicators, list):
-                        result_q.put({"type": "result", "idx": idx,
-                                      "indicators": _split_indicators(indicators),
-                                      "template_used": tpl_used, "task_hash": task_hash})
-                        continue
-                lines = [l.strip().lstrip("-•・ ")
-                         for l in reply.split("\n") if len(l.strip()) > 8]
+                tpl_used = "ABCD"   # 預設 fallback
+                indicators = None
+                if json_str:
+                    try:
+                        data = _json.loads(json_str)
+                        raw = data.get("behavior_indicators", [])
+                        if isinstance(raw, str) and raw.strip():
+                            raw = [raw]
+                        if isinstance(raw, list) and raw:
+                            detected = data.get("template", "ABCD")
+                            tpl_used = detected if detected in _VALID_TPLS else "ABCD"
+                            indicators = _split_indicators(raw) or None
+                    except Exception:
+                        pass   # JSON 解析失敗 → fallback 到逐行解析
+                if not indicators:
+                    lines = [l.strip().lstrip("-•・ ")
+                             for l in reply.split("\n")
+                             if len(l.strip()) > 8 and not l.strip().startswith('"')
+                             and not l.strip().startswith('{') and not l.strip().startswith('[')]
+                    indicators = _split_indicators(lines[:6])
                 result_q.put({"type": "result", "idx": idx,
-                              "indicators": _split_indicators(lines[:6]),
-                              "template_used": "ABCD", "task_hash": task_hash})
+                              "indicators": indicators or [],
+                              "template_used": tpl_used, "task_hash": task_hash})
             else:
-                match = _re.search(r'\{.*?"behavior_indicators".*?\}', reply, _re.DOTALL)
-                if match:
-                    data = _json.loads(match.group())
-                    indicators = data.get("behavior_indicators", [])
-                    if isinstance(indicators, list):
-                        result_q.put({"type": "result", "idx": idx,
-                                      "indicators": _split_indicators(indicators),
-                                      "template_used": tpl_param, "task_hash": task_hash})
-                        continue
-                lines = [l.strip().lstrip("-•・ ")
-                         for l in reply.split("\n") if len(l.strip()) > 8]
+                indicators = None
+                if json_str:
+                    try:
+                        data = _json.loads(json_str)
+                        raw = data.get("behavior_indicators", [])
+                        if isinstance(raw, str) and raw.strip():
+                            # LLM 誤將 list 輸出為字串
+                            raw = [raw]
+                        if isinstance(raw, list) and raw:
+                            indicators = _split_indicators(raw) or None
+                    except Exception:
+                        pass   # JSON 解析失敗 → fallback 到逐行解析
+                if not indicators:
+                    lines = [l.strip().lstrip("-•・ ")
+                             for l in reply.split("\n")
+                             if len(l.strip()) > 8 and not l.strip().startswith('"')
+                             and not l.strip().startswith('{') and not l.strip().startswith('[')]
+                    indicators = _split_indicators(lines[:6])
                 result_q.put({"type": "result", "idx": idx,
-                              "indicators": _split_indicators(lines[:6]),
+                              "indicators": indicators or [],
                               "template_used": tpl_param, "task_hash": task_hash})
         except Exception:
+            # tpl_param 為 "AUTO" 時用 "ABCD" 作為 template_used，避免 UI 顯示 "AUTO"
+            safe_tpl = tpl_param if tpl_param in _VALID_TPLS else "ABCD"
             result_q.put({"type": "result", "idx": idx, "indicators": [],
-                          "template_used": tpl_param, "task_hash": task_hash})
+                          "template_used": safe_tpl, "task_hash": task_hash})
 
 
 def create_persistent_worker():
@@ -754,8 +772,17 @@ def _split_indicators(raw: list) -> list:
     """將 LLM 可能合併成單一字串的多條指標拆開，去除「指標N:」等前綴，限回傳 3 條。"""
     result = []
     for item in raw:
+        # LLM 有時把指標包成 {"指標1": "text"} dict，取 value
+        if isinstance(item, dict):
+            item = next(iter(item.values()), "")
         item = str(item).strip()
         if not item:
+            continue
+        # 去除 LLM 在字串外多加的引號（如 '"每日..."'）
+        if item.startswith('"') and item.endswith('"') and len(item) > 2:
+            item = item[1:-1].strip()
+        # 跳過看起來是 JSON 結構的行（不是真正的指標）
+        if item.startswith('{') or item.startswith('['):
             continue
         # 若含換行或「指標N:」模式，視為多條合併，拆開
         parts = re.split(r'\n|(?:指標\s*\d+\s*[:：])', item)

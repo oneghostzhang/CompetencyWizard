@@ -5,6 +5,24 @@
 
 ---
 
+## v2.3.x — Hub-and-Spoke UI 與預覽頁（2026-05）
+
+**從線性多頁流程改為任務卡片 Hub + 單任務編輯頁**
+
+- Step 3/4 合併重設計：任務總覽 Hub（QGridLayout 卡片網格） + 單任務編輯頁，取代原本的逐任務 Detail 頁與批次 Suggest 頁
+- 任務卡片以邊框顏色顯示 LLM 狀態（灰=未提交、橘=分析中、綠=完成、紅=需更新）
+- Task Edit 頁：AI 結果區塊在分析完成前隱藏（`setVisible(False)`），完成後才顯示，避免空白佔位干擾使用者
+- 匯出前新增唯讀預覽頁（Page 5）：`QTabWidget` 含四個 `QTableWidget` 分頁（職能說明書、知識清單、技能清單、態度清單），色彩配置與 `excel_exporter.py` 完全一致（深藍表頭、淺藍主責欄、淺綠行為指標欄、淺黃知識、淺紫技能、淺粉紅態度）
+
+**AI 指標解析三層修復（`ai_chat.py`）**
+
+- **Bug 1 — `indicators is None` 判斷失效**：`_split_indicators()` 回傳空列表 `[]` 時，`indicators is None` 為 False，導致 fallback 逐行解析被跳過，最終送出空結果。修正：改用 `if not indicators:` + `_split_indicators(...) or None`，空列表同樣觸發 fallback。
+- **Bug 2 — `behavior_indicators` 為字串而非列表**：部分 LLM 輸出 `{"behavior_indicators":"文字"}` 而非陣列，`isinstance(raw, list)` 為 False 直接跳過。修正：偵測到字串時包成 `[raw]` 再送進 `_split_indicators()`。
+- **Bug 3 — 指標外層多餘引號被整行丟棄**：部分 LLM 輸出 `["\"每日...\""，...]`，外層引號觸發 `startswith('"')` 過濾。修正：先去除前後引號再判斷，不再整行丟棄。
+- 以上三個修復同時套用至 AUTO 模式與固定模板模式。
+
+---
+
 ## v2.2.x — 長駐 LLM Worker（2026-05）
 
 **從「全部填完後批次分析」改為「逐任務即時分析」**
