@@ -18,6 +18,13 @@ import json
 import logging
 import re
 import tomllib
+
+# LLM 說明前言黑名單（fallback 逐行解析時排除這類 meta 文字）
+_PREAMBLE_RE = re.compile(
+    r'以下是|以下為|以下提供|行為指標如下|此.*格式|符合要求|不含其他|多餘字詞'
+    r'|僅包含行為|指標如下|以下.*指標|根據.*描述.*以下|如下所示|以下幾點'
+    r'|以下三|以下兩|以下為您'
+)
 from pathlib import Path
 from typing import Optional
 
@@ -720,8 +727,13 @@ def _persistent_worker(input_q, result_q):
                 if not indicators:
                     lines = [l.strip().lstrip("-•・ ")
                              for l in reply.split("\n")
-                             if len(l.strip()) > 8 and not l.strip().startswith('"')
-                             and not l.strip().startswith('{') and not l.strip().startswith('[')]
+                             if len(l.strip()) > 10
+                             and not l.strip().startswith('"')
+                             and not l.strip().startswith('{')
+                             and not l.strip().startswith('[')
+                             and not l.strip().endswith('：')
+                             and not l.strip().endswith(':')
+                             and not _PREAMBLE_RE.search(l.strip())]
                     indicators = _split_indicators(lines[:6])
                 result_q.put({"type": "result", "idx": idx,
                               "indicators": indicators or [],
@@ -742,8 +754,13 @@ def _persistent_worker(input_q, result_q):
                 if not indicators:
                     lines = [l.strip().lstrip("-•・ ")
                              for l in reply.split("\n")
-                             if len(l.strip()) > 8 and not l.strip().startswith('"')
-                             and not l.strip().startswith('{') and not l.strip().startswith('[')]
+                             if len(l.strip()) > 10
+                             and not l.strip().startswith('"')
+                             and not l.strip().startswith('{')
+                             and not l.strip().startswith('[')
+                             and not l.strip().endswith('：')
+                             and not l.strip().endswith(':')
+                             and not _PREAMBLE_RE.search(l.strip())]
                     indicators = _split_indicators(lines[:6])
                 result_q.put({"type": "result", "idx": idx,
                               "indicators": indicators or [],
@@ -785,11 +802,28 @@ def _split_indicators(raw: list) -> list:
         if item.startswith('{') or item.startswith('['):
             continue
         # 若含換行或「指標N:」模式，視為多條合併，拆開
-        parts = re.split(r'\n|(?:指標\s*\d+\s*[:：])', item)
+        raw_parts = re.split(r'\n|(?:指標\s*\d+\s*[:：])', item)
+        # 合併因 JSON 字串內嵌換行產生的短斷片（如 "採購、銷\n售及費用..." 被拆成 ["採購、銷","售及費用..."]）
+        parts: list[str] = []
+        buf = ""
+        for p in raw_parts:
+            p = p.strip()
+            if not p:
+                continue
+            if buf and len(buf) < 12:
+                buf += p        # 短斷片與下一段合併，視為同一指標
+            elif buf:
+                parts.append(buf)
+                buf = p
+            else:
+                buf = p
+        if buf:
+            parts.append(buf)
+
         for p in parts:
             p = p.strip().lstrip("-•・ ")
             # 去除行首的「N.」「N、」「N)」等編號
             p = re.sub(r'^\d+[\.、\)）]\s*', '', p)
-            if len(p) > 5:
+            if len(p) > 10:
                 result.append(p)
     return result[:3]
