@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
 ![UI](https://img.shields.io/badge/UI-PyQt6-41CD52?logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v2.2.0-orange)
+![Version](https://img.shields.io/badge/Version-v2.3.0-orange)
 ![AI](https://img.shields.io/badge/AI-LlamaCpp%20TAIDE-blueviolet)
 
 > 以 RAG + LLM 為核心的職能說明書製作工具。員工只需輸入職業名稱，系統自動搜尋最相近的 ICAP 職能基準並預填結構化欄位，員工逐任務填寫工作詳情後，LLM 自動生成符合 ICAP 格式的行為指標，最終輸出標準格式 Excel 職能說明書。
@@ -224,12 +224,12 @@ max_tokens = 512
 
 | 框架 | 適合任務類型 | 指標結構 |
 |------|------------|---------|
-| **AUTO**（預設） | 任意 | LLM 自動判斷最適框架，在結果頁顯示彩色標籤 |
-| **ABCD** | 財務 / 品管 / 技術 | 條件（C）＋ 行動（B）＋ 達成標準（D） |
-| **5W2H** | 行政 / 生產 / 後勤 | 操作動詞 ＋ 工具/系統 ＋ 頻率/時機 ＋ 量化標準 |
-| **STAR** | 主管 / 專案 / 問題解決 | 情境（S）＋ 行動（A）＋ 成果（R） |
+| **AUTO**（預設） | 任意 | 兩步式推論：先分類框架，再以選定框架生成指標；分類失敗時 fallback 5W2H |
+| **ABCD** | 有明確產出或驗收條件 | 條件（C）＋ 行動（B）＋ 達成標準（D） |
+| **5W2H** | 固定 SOP 或重複性操作 | 操作動詞 ＋ 工具/系統 ＋ 頻率/時機 ＋ 可驗證標準 |
+| **STAR** | 非例行應變、跨部門協調 | 情境（S）＋ 行動（A）＋ 成果（R） |
 
-> AUTO 模式不增加額外 API 呼叫，LLM 在同一次推論中先判斷框架再生成指標，輸出包含 `"template"` 欄位的 JSON。
+> AUTO 模式採兩次 LLM 推論：第一次只判斷框架（輸出 `{"template":"ABCD"}`），第二次依框架生成行為指標。框架選擇使用決策樹，STAR 僅在任務明確屬非例行應變時才選用。
 > 所有資料在本機處理，不會上傳至任何外部伺服器。
 
 ---
@@ -251,7 +251,9 @@ max_tokens = 512
 - **推論後端**：`_LlamaCppBackend` 直接載入 GGUF，無 HTTP timeout，子 process 隔離防止 C-level abort 崩潰；`_LMStudioBackend` 作為 fallback
 - `PROMPT_TEMPLATES`：集中管理 AUTO / ABCD / 5W2H / STAR 四種框架的 system / user prompt
 - `_build_prompt_messages(template, level, user_output)`：依框架組裝 prompt，`_LEVEL_HINT` 提供職能等級差異化描述
-- `_persistent_worker(input_q, result_q)`：長駐子 process 入口，模型只載入一次；從 `input_q` 讀 `(idx, task_args, task_hash)` 執行推論，結果以 `{"type":"result", ...}` 寫入 `result_q`
+- `_persistent_worker(input_q, result_q)`：長駐子 process 入口，模型只載入一次；AUTO 模式先呼叫 `_build_classify_messages()` 判斷框架，再以 `_build_prompt_messages()` 生成指標（兩步式）；結果以 `{"type":"result", ...}` 寫入 `result_q`
+- `_build_classify_messages()`：AUTO 第一步，輸出 `{"template":"ABCD"}` 的極簡 prompt，以決策樹判斷框架（STAR 設最高門檻），分類失敗 fallback 5W2H
+- `_split_indicators()`：解析 LLM 輸出的多條指標；支援 `\n`、`；`、「指標N:」三種切割符；自動合併短斷片（< 12 chars），限回傳 3 條
 - `create_persistent_worker()`：工廠函式，建立 dual-Queue 長駐子 process，回傳 `(process, input_q, result_q)`
 - `_worker_main()`：單次批次分析入口（保留，供 `analyze_tasks_batch()` 使用）
 - `analyze_tasks_batch()`：每個任務優先使用 `row["template"]`，未設定時 fallback 到全域預設
@@ -335,6 +337,7 @@ max_tokens = 512
 
 | 版本 | 日期 | 更新內容 |
 |------|------|---------|
+| v2.3.0 | 2026-05-19 | **Hub-and-Spoke UI**：Step 3/4 合併為任務卡片總覽 + 單任務編輯頁；卡片邊框顏色即時顯示 LLM 狀態。**唯讀預覽頁**：匯出前 QTabWidget 預覽（職能說明書 / 知識 / 技能 / 態度），色彩與 Excel 一致。**兩步式 AUTO 模式**：第一次推論只判斷框架（決策樹，STAR 最高門檻），第二次以選定框架生成指標，分類失敗 fallback 5W2H。**AI 指標解析修復**：`_split_indicators()` 支援 `；` 切割；修正空列表被當作 None 的 fallback 漏判；修正 LLM 把 list 輸出為字串、指標外層引號誤過濾兩個 bug。**Prompt 修復**：移除四個模板的領域特定範例與強制量化要求，改為抽象佔位語與「盡量涵蓋」指引，避免幻覺或拒絕輸出 JSON |
 | v2.2.0 | 2026-05-15 | **長駐 LLM Worker**：每次在 Step 3 儲存任務描述即立即提交後端分析；模型只載入一次（省 30–60 秒）；Detail 頁逐任務 badge（未提交/分析中/已完成/需更新）；Suggest 頁改為佔位渲染，結果動態填入；`_task_hash()` 偵測描述變更並丟棄過期結果 |
 | v2.1.0 | 2026-05-13 | **AI 分析框架選擇**：新增 AUTO / ABCD / 5W2H / STAR 四種框架；Step 3 逐任務填寫頁新增 `QComboBox`，每個任務可獨立選擇框架，預設 AUTO；AUTO 模式 LLM 自動判斷最適框架（單次推論，不增加 API 呼叫）；Step 4 結果頁每個任務卡片顯示彩色框架標籤；新增 `CHANGELOG.md` 記錄歷史架構決策 |
 | v2.0.8 | 2026-04-27 | 修正多模組 Pylance 型別註記（`ChatCompletionMessageParam`、`SuggestEntry` TypedDict、多處 None guard）；新增 `openai>=2.32.0` 與 `langchain-community>=0.4.1` 依賴 |
@@ -369,4 +372,4 @@ max_tokens = 512
 
 ---
 
-**版本**：v2.2.0　　**最後更新**：2026-05-15
+**版本**：v2.3.0　　**最後更新**：2026-05-19

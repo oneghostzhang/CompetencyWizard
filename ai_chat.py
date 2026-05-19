@@ -380,13 +380,13 @@ PROMPT_TEMPLATES: dict[str, dict[str, str]] = {
         "system": (
             "你是 ICAP 職能說明書專家，使用繁體中文。\n"
             "請根據員工描述，以 5W2H 框架生成 2～3 條行為指標。\n\n"
-            "【格式規定】每條限 1 句，以行動動詞開頭，須同時包含：\n"
+            "【格式規定】每條限 1 句，以行動動詞開頭，盡量涵蓋：\n"
             "  ・操作動詞（做什麼）\n"
-            "  ・執行工具或系統（在哪裡做）\n"
-            "  ・頻率或時機（何時做）\n"
-            "  ・量化結果或標準（做到什麼程度）\n\n"
+            "  ・執行工具或系統（在哪裡做，若有）\n"
+            "  ・頻率或時機（何時做，若有）\n"
+            "  ・可觀察的結果或標準（做到什麼程度，有數字優先，無數字用可驗證描述）\n\n"
             "【格式示意（勿照抄，需依員工描述生成）】\n"
-            "  ✓「每[頻率]依[流程]於[系統/工具]執行[操作]，差異超過[標準]立即通報。」\n"
+            "  ✓「每[頻率]依[流程]於[系統/工具]執行[操作]，確保[可驗證結果]。」\n"
             "  ✓「[時機]使用[工具]完成[任務]，並於[時限]內提交[產出]。」\n\n"
             "禁止輸出解釋或多餘文字。"
         ),
@@ -407,13 +407,14 @@ PROMPT_TEMPLATES: dict[str, dict[str, str]] = {
             "你是 ICAP 職能說明書專家，使用繁體中文。\n"
             "請根據員工描述，以 ABCD 框架生成 2～3 條行為指標。\n\n"
             "【格式規定】每條限 1 句，須同時包含以下三個要素：\n"
-            "  ・C（Condition）：執行條件或依據，如「依財務法規」「在系統中」\n"
+            "  ・C（Condition）：執行條件或依據，如「依規定」「在系統中」\n"
             "  ・B（Behavior）：具體行動動詞，描述做什麼\n"
-            "  ・D（Degree）：可衡量的達成標準，須含數字、頻率或期限\n"
+            "  ・D（Degree）：可衡量或可驗證的達成標準，有具體數字時優先使用；"
+            "若描述中無數字，改用可觀察的完成條件（如「無誤差」「按時完成」）\n"
             "建議句型：C，執行 B，達成 D。\n\n"
             "【格式示意（勿照抄，需依員工描述生成）】\n"
-            "  ✓「依[條件/法規]（C），[動詞+操作]（B），[頻率/誤差率/期限]（D）。」\n"
-            "  ✓「在[系統/現場]（C），每[週期][動詞+操作]（B），達成[量化標準]（D）。」\n\n"
+            "  ✓「依[條件/規定]（C），[動詞+操作]（B），達成[量化或可驗證標準]（D）。」\n"
+            "  ✓「在[執行環境]（C），[動詞+操作]（B），確保[成果條件]（D）。」\n\n"
             "禁止輸出解釋或多餘文字。"
         ),
         "user": (
@@ -520,6 +521,27 @@ def _build_prompt_messages(
     return [
         {"role": "system", "content": system_prompt},
         {"role": "user",   "content": user_prompt},
+    ]
+
+
+def _build_classify_messages(position: str, task_name: str, user_desc: str) -> list:
+    """第一步：僅判斷框架，輸出 {"template":"ABCD"}，不生成指標。"""
+    return [
+        {"role": "system", "content": (
+            "你是 ICAP 職能說明書專家。\n"
+            "請依下列順序判斷最適合的行為指標分析框架，只輸出 JSON，禁止輸出其他文字。\n\n"
+            "【判斷順序（依序排除）】\n"
+            "1. STAR：員工描述的核心是「回應突發事件或非預期狀況」，且需自主判斷或跨部門協調。"
+            "僅在任務明確屬於非例行應變時才選用。\n"
+            "2. 5W2H：描述的核心是「按既定步驟反覆執行的操作流程」，強調執行方式與頻率。\n"
+            "3. ABCD：其餘情況，包含任何有明確可衡量產出的任務，以此作為預設選項。\n"
+        )},
+        {"role": "user", "content": (
+            f"職位：{position}\n"
+            f"工作任務：{task_name}\n"
+            f"員工描述：{user_desc or '（未填寫）'}\n\n"
+            '只輸出 JSON，例如：{"template":"ABCD"}'
+        )},
     ]
 
 
@@ -684,8 +706,34 @@ def _persistent_worker(input_q, result_q):
         idx, task_args, task_hash = item
         tpl_param = task_args.get("template", "ABCD")
         try:
-            messages = _build_prompt_messages(**task_args)
-            reply = backend.chat(messages)
+            if tpl_param == "AUTO":
+                # ── 兩步式 AUTO ──────────────────────────────────────────────
+                # Step 1：僅判斷框架，不生成指標
+                tpl_used = "5W2H"   # 預設 fallback（分類失敗或無法匹配時）
+                try:
+                    cls_messages = _build_classify_messages(
+                        position=task_args.get("position", ""),
+                        task_name=task_args.get("task_name", ""),
+                        user_desc=task_args.get("user_description", ""),
+                    )
+                    cls_reply = backend.chat(cls_messages)
+                    cs = cls_reply.find('{')
+                    ce = cls_reply.rfind('}')
+                    if cs != -1 and ce > cs:
+                        cls_data = _json.loads(cls_reply[cs:ce + 1])
+                        detected = cls_data.get("template", "5W2H")
+                        tpl_used = detected if detected in _VALID_TPLS else "5W2H"
+                except Exception:
+                    pass   # 分類失敗 → 以 5W2H 繼續
+
+                # Step 2：用選定框架生成指標
+                gen_args = {**task_args, "template": tpl_used}
+                messages = _build_prompt_messages(**gen_args)
+                reply = backend.chat(messages)
+            else:
+                tpl_used = tpl_param
+                messages = _build_prompt_messages(**task_args)
+                reply = backend.chat(messages)
 
             # 從第一個 { 到最後一個 } 提取 JSON（避免非貪婪 regex 被內嵌花括號截斷）
             json_str = None
@@ -694,65 +742,33 @@ def _persistent_worker(input_q, result_q):
             if s != -1 and e > s:
                 json_str = reply[s:e + 1]
 
-            if tpl_param == "AUTO":
-                tpl_used = "ABCD"   # 預設 fallback
-                indicators = None
-                if json_str:
-                    try:
-                        data = _json.loads(json_str)
-                        raw = data.get("behavior_indicators", [])
-                        if isinstance(raw, str) and raw.strip():
-                            raw = [raw]
-                        if isinstance(raw, list) and raw:
-                            detected = data.get("template", "ABCD")
-                            tpl_used = detected if detected in _VALID_TPLS else "ABCD"
-                            indicators = _split_indicators(raw) or None
-                    except Exception:
-                        pass   # JSON 解析失敗 → fallback 到逐行解析
-                if not indicators:
-                    lines = [l.strip().lstrip("-•・ ")
-                             for l in reply.split("\n")
-                             if len(l.strip()) > 10
-                             and not l.strip().startswith('"')
-                             and not l.strip().startswith('{')
-                             and not l.strip().startswith('[')
-                             and not l.strip().endswith('：')
-                             and not l.strip().endswith(':')
-                             and not _PREAMBLE_RE.search(l.strip())]
-                    indicators = _split_indicators(lines[:6])
-                result_q.put({"type": "result", "idx": idx,
-                              "indicators": indicators or [],
-                              "template_used": tpl_used, "task_hash": task_hash})
-            else:
-                indicators = None
-                if json_str:
-                    try:
-                        data = _json.loads(json_str)
-                        raw = data.get("behavior_indicators", [])
-                        if isinstance(raw, str) and raw.strip():
-                            # LLM 誤將 list 輸出為字串
-                            raw = [raw]
-                        if isinstance(raw, list) and raw:
-                            indicators = _split_indicators(raw) or None
-                    except Exception:
-                        pass   # JSON 解析失敗 → fallback 到逐行解析
-                if not indicators:
-                    lines = [l.strip().lstrip("-•・ ")
-                             for l in reply.split("\n")
-                             if len(l.strip()) > 10
-                             and not l.strip().startswith('"')
-                             and not l.strip().startswith('{')
-                             and not l.strip().startswith('[')
-                             and not l.strip().endswith('：')
-                             and not l.strip().endswith(':')
-                             and not _PREAMBLE_RE.search(l.strip())]
-                    indicators = _split_indicators(lines[:6])
-                result_q.put({"type": "result", "idx": idx,
-                              "indicators": indicators or [],
-                              "template_used": tpl_param, "task_hash": task_hash})
+            indicators = None
+            if json_str:
+                try:
+                    data = _json.loads(json_str)
+                    raw = data.get("behavior_indicators", [])
+                    if isinstance(raw, str) and raw.strip():
+                        raw = [raw]
+                    if isinstance(raw, list) and raw:
+                        indicators = _split_indicators(raw) or None
+                except Exception:
+                    pass   # JSON 解析失敗 → fallback 到逐行解析
+            if not indicators:
+                lines = [l.strip().lstrip("-•・ ")
+                         for l in reply.split("\n")
+                         if len(l.strip()) > 10
+                         and not l.strip().startswith('"')
+                         and not l.strip().startswith('{')
+                         and not l.strip().startswith('[')
+                         and not l.strip().endswith('：')
+                         and not l.strip().endswith(':')
+                         and not _PREAMBLE_RE.search(l.strip())]
+                indicators = _split_indicators(lines[:6])
+            result_q.put({"type": "result", "idx": idx,
+                          "indicators": indicators or [],
+                          "template_used": tpl_used, "task_hash": task_hash})
         except Exception:
-            # tpl_param 為 "AUTO" 時用 "ABCD" 作為 template_used，避免 UI 顯示 "AUTO"
-            safe_tpl = tpl_param if tpl_param in _VALID_TPLS else "ABCD"
+            safe_tpl = tpl_param if tpl_param in _VALID_TPLS else "5W2H"
             result_q.put({"type": "result", "idx": idx, "indicators": [],
                           "template_used": safe_tpl, "task_hash": task_hash})
 
@@ -786,8 +802,8 @@ def _split_indicators(raw: list) -> list:
         # 跳過看起來是 JSON 結構的行（不是真正的指標）
         if item.startswith('{') or item.startswith('['):
             continue
-        # 若含換行或「指標N:」模式，視為多條合併，拆開
-        raw_parts = re.split(r'\n|(?:指標\s*\d+\s*[:：])', item)
+        # 若含換行、中文分號或「指標N:」模式，視為多條合併，拆開
+        raw_parts = re.split(r'\n|；|(?:指標\s*\d+\s*[:：])', item)
         # 合併因 JSON 字串內嵌換行產生的短斷片（如 "採購、銷\n售及費用..." 被拆成 ["採購、銷","售及費用..."]）
         parts: list[str] = []
         buf = ""
