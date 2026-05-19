@@ -5,6 +5,24 @@
 
 ---
 
+## v2.3.x — Hub-and-Spoke UI、預覽頁、AI 重構（2026-05）
+
+**`ai_chat.py` 死碼清除（2026-05-19）**
+
+移除自 v2.0.0 起已不使用的對話式 UI 遺留程式碼，以及被長駐 Worker 取代的舊批次分析路徑：
+
+- 刪除 `LMStudioChat` class（舊五階段對話管理，v2.0.0 重設計後已無引用）
+- 刪除 `GREETING`、`SYSTEM_PROMPT`（舊 HR 助理對話開場白與系統提示）
+- 刪除 `extract_competency_json`、`strip_output_json`、`competency_to_task_list`（舊對話解析工具）
+- 刪除 `_worker_main`、`analyze_task`、`analyze_tasks_batch`（舊批次分析路徑，v2.2.0 長駐 Worker 後已取代）
+- 刪除 `PROMPT_TEMPLATES["AUTO"]`（兩步式 AUTO 架構後，此 template 永遠不會被 `_persistent_worker` 呼叫）
+- 移除 `_WORKER_TIMEOUT`、`_MAX_HISTORY_TURNS` 常數及 `Optional`、`json` 廢棄 imports
+- 修正 STAR prompt 中誤入的 `Z` 字元（排版錯誤）
+
+清除後 `ai_chat.py` 唯一進入點為 `create_persistent_worker()`，模組職責與實際程式碼一致。
+
+---
+
 ## v2.3.x — Hub-and-Spoke UI 與預覽頁（2026-05）
 
 **從線性多頁流程改為任務卡片 Hub + 單任務編輯頁**
