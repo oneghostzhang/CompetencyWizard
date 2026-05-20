@@ -73,10 +73,19 @@ class _LlamaCppBackend:
         )
         logger.info("LlamaCpp 載入完成")
 
-    def chat(self, messages: list[ChatCompletionMessageParam]) -> str:
+    def chat(self, messages: list[ChatCompletionMessageParam],
+             temperature: float | None = None) -> str:
         """將對話歷史轉為 TAIDE chat template 格式後推論。"""
         prompt = _build_taide_prompt(messages)
-        result = self._llm.invoke(prompt)
+        if temperature is not None:
+            orig = self._llm.temperature
+            self._llm.temperature = temperature
+            try:
+                result = self._llm.invoke(prompt)
+            finally:
+                self._llm.temperature = orig
+        else:
+            result = self._llm.invoke(prompt)
         if isinstance(result, str):
             return result.strip()
         if hasattr(result, "content"):
@@ -121,11 +130,12 @@ class _LMStudioBackend:
         self._client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
         self._model = model
 
-    def chat(self, messages: list[ChatCompletionMessageParam]) -> str:
+    def chat(self, messages: list[ChatCompletionMessageParam],
+             temperature: float | None = None) -> str:
         resp = self._client.chat.completions.create(
             model=self._model,
             messages=messages,
-            temperature=TEMPERATURE,
+            temperature=temperature if temperature is not None else TEMPERATURE,
             max_tokens=MAX_TOKENS,
             timeout=300,
         )
@@ -328,7 +338,7 @@ def _persistent_worker(input_q, result_q):
                         task_name=task_args.get("task_name", ""),
                         user_desc=task_args.get("user_description", ""),
                     )
-                    cls_reply = backend.chat(cls_messages)
+                    cls_reply = backend.chat(cls_messages, temperature=0)
                     cs = cls_reply.find('{')
                     ce = cls_reply.rfind('}')
                     if cs != -1 and ce > cs:
@@ -416,6 +426,9 @@ def _split_indicators(raw: list) -> list:
             continue
         # 若含換行、中文分號或「指標N:」模式，視為多條合併，拆開
         raw_parts = re.split(r'\n|；|(?:指標\s*\d+\s*[:：])', item)
+        # 拆後仍只有一個長片段且含多個句點 → LLM 把多條合成一段，補用句點切開
+        if len(raw_parts) == 1 and raw_parts[0].count('。') >= 2:
+            raw_parts = re.split(r'(?<=。)', raw_parts[0])
         # 合併因 JSON 字串內嵌換行產生的短斷片（如 "採購、銷\n售及費用..." 被拆成 ["採購、銷","售及費用..."]）
         parts: list[str] = []
         buf = ""
